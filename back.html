@@ -4,12 +4,12 @@
 {{FrontSide}}
 
 {{#答案}}
-  <div class="section slide">
+  <div id="answer" class="section slide">
     <div class="bar yleft">
       <span class="icon yimg" aria-hidden="true"></span>
       <span class="bar-title">答案</span>
     </div>
-    <div class="h2 answer" style="margin-top:0.4rem">{{答案}}</div>
+    <div class="h2 answer">{{答案}}</div>
   </div>
 {{/答案}}
 
@@ -19,7 +19,7 @@
       <span class="icon yimg" aria-hidden="true"></span>
       <span class="bar-title">笔记</span>
     </div>
-    <div class="h2 note" style="margin-top:0.4rem">{{笔记}}</div>
+    <div class="h2 note">{{笔记}}</div>
   </div>
 {{/笔记}}
 
@@ -29,51 +29,54 @@
       <span class="icon zimg" aria-hidden="true"></span>
       <span class="bar-title">相关知识</span>
     </div>
-    <div class="h2 related" style="margin-top:0.4rem">{{hint:相关知识}}</div>
+    <div class="h2 related">{{hint:相关知识}}</div>
   </div>
 {{/相关知识}}
 
 <script>
 (function () {
-  // 正面脚本存在时，重新扫描整个背面。
-  // init() 是幂等设计：会增强新增 DOM，但不会重复绑定全局事件。
+  // 正面脚本存在时，重新扫描背面新增内容。
   if (window.__appleEnhance && typeof window.__appleEnhance.init === 'function') {
     window.__appleEnhance.init();
     return;
   }
 
-  // 极少数环境若 {{FrontSide}} 内脚本没有执行，则使用轻量兜底。
+  // 极少数环境若 {{FrontSide}} 内脚本没有执行，则使用兜底增强。
   window.__appleEnhance = window.__appleEnhance || {};
   var NS = window.__appleEnhance;
 
+  function isZoomableImage(img) {
+    if (!img || img.closest('.icon')) return false;
+    if (img.dataset.nozoom === '1') return false;
+    if (img.classList.contains('no-zoom')) return false;
+    return true;
+  }
+
   function clearAllZoom() {
     var zoomed = document.querySelectorAll('img.zoomed');
-    for (var j = 0; j < zoomed.length; j++) {
-      zoomed[j].classList.remove('zoomed');
-      zoomed[j].style.cursor = 'zoom-in';
+
+    for (var i = 0; i < zoomed.length; i++) {
+      zoomed[i].classList.remove('zoomed');
+      zoomed[i].style.cursor = 'zoom-in';
     }
+
     document.body.classList.remove('zooming');
   }
 
-  function enableImageZoom(){
+  function enableImageZoom() {
     var imgs = document.querySelectorAll('img');
 
     for (var i = 0; i < imgs.length; i++) {
       (function (img) {
-        if (img.closest('.icon')) return;
-        if (img.dataset.nozoom === '1' || img.classList.contains('no-zoom')) return;
+        if (!isZoomableImage(img)) return;
         if (img.dataset.zoomBound === '1') return;
 
         img.dataset.zoomBound = '1';
         img.style.cursor = 'zoom-in';
 
-        img.addEventListener('click', function(ev){
+        img.addEventListener('click', function (ev) {
           if (img.classList.contains('zoomed')) {
-            img.classList.remove('zoomed');
-            img.style.cursor = 'zoom-in';
-            if (!document.querySelector('img.zoomed')) {
-              document.body.classList.remove('zooming');
-            }
+            clearAllZoom();
             ev.stopPropagation();
             return;
           }
@@ -88,47 +91,57 @@
     }
 
     if (!NS.escBound) {
-      document.addEventListener('keydown', function(e){
+      document.addEventListener('keydown', function (e) {
         e = e || window.event;
         var key = e.key || e.keyCode;
-        if (key === 'Escape' || key === 27) clearAllZoom();
+
+        if (key === 'Escape' || key === 27) {
+          clearAllZoom();
+        }
       }, false);
+
       NS.escBound = true;
     }
 
     if (!NS.clickBlankBound) {
-      document.addEventListener('click', function(e){
+      document.addEventListener('click', function (e) {
         if (!document.body.classList.contains('zooming')) return;
         if (e.target && e.target.tagName === 'IMG') return;
         clearAllZoom();
       }, false);
+
       NS.clickBlankBound = true;
     }
   }
 
-  function enhanceTablesAndCode(){
-    var tbs = document.querySelectorAll('table');
-    for (var i = 0; i < tbs.length; i++) {
-      var tb = tbs[i];
-      tb.classList.add('table');
+  function enhanceTablesAndCode() {
+    var tables = document.querySelectorAll('table');
 
-      var w = tb.parentElement;
-      if (w && w !== document.body && w !== document.documentElement) {
-        w.classList.add('scroll-x');
+    for (var i = 0; i < tables.length; i++) {
+      var table = tables[i];
+      table.classList.add('table');
+
+      var parent = table.parentElement;
+      if (parent && !parent.classList.contains('scroll-x')) {
+        var wrapper = document.createElement('div');
+        wrapper.className = 'scroll-x';
+        parent.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
       }
     }
 
-    var codes = document.querySelectorAll('pre, code');
-    for (var j = 0; j < codes.length; j++) {
-      codes[j].classList.add('code');
+    var blocks = document.querySelectorAll('pre, code');
+
+    for (var j = 0; j < blocks.length; j++) {
+      blocks[j].classList.add('code');
     }
   }
 
   var VIEWPORT_MARGIN = 24;
-  var MIN_VIEWPORT_HEIGHT = 180;
 
   function getAvailableWidth(img) {
     var current = img.parentElement;
+
     while (current) {
       if (current.clientWidth) return current.clientWidth;
       current = current.parentElement;
@@ -140,37 +153,35 @@
 
   function getMaxWidth(availableWidth) {
     if (!window.innerWidth) return availableWidth;
-    var max = window.innerWidth - VIEWPORT_MARGIN;
-    if (max <= 0) return availableWidth;
-    return Math.min(availableWidth, max);
+
+    var viewportWidth = window.innerWidth - VIEWPORT_MARGIN;
+    if (viewportWidth <= 0) return availableWidth;
+
+    return Math.min(availableWidth, viewportWidth);
   }
 
   function getMaxHeight() {
     if (!window.innerHeight) return 0;
-    var h = window.innerHeight - VIEWPORT_MARGIN;
-    if (h <= 0) return 0;
-    return Math.max(h, MIN_VIEWPORT_HEIGHT);
+
+    var viewportHeight = window.innerHeight - VIEWPORT_MARGIN;
+    return viewportHeight > 0 ? viewportHeight : window.innerHeight;
   }
 
   function applyFitToImage(img) {
     if (!img || img.closest('.icon')) return;
     if (!img.naturalWidth || !img.naturalHeight) return;
+    if (img.classList.contains('zoomed')) return;
 
     var availableWidth = getAvailableWidth(img);
     if (!availableWidth) return;
 
     var maxWidth = getMaxWidth(availableWidth) || availableWidth;
     var maxHeight = getMaxHeight();
-
-    if (!maxHeight) {
-      maxHeight = availableWidth * (img.naturalHeight / img.naturalWidth);
-    }
-
     var aspect = img.naturalHeight / img.naturalWidth;
-    var width = maxWidth;
+    var width = Math.min(img.naturalWidth, maxWidth);
     var height = width * aspect;
 
-    if (height > maxHeight) {
+    if (maxHeight && height > maxHeight) {
       height = maxHeight;
       width = height / aspect;
     }
@@ -178,10 +189,9 @@
     img.style.width = width.toFixed(2) + 'px';
     img.style.height = height.toFixed(2) + 'px';
     img.style.maxWidth = '100%';
-    img.style.maxHeight = maxHeight.toFixed(2) + 'px';
+    img.style.maxHeight = maxHeight ? maxHeight.toFixed(2) + 'px' : 'none';
     img.style.marginLeft = 'auto';
     img.style.marginRight = 'auto';
-    img.dataset.fitMode = height >= maxHeight ? 'height' : 'width';
   }
 
   function fitImages() {
@@ -193,8 +203,10 @@
 
       if (img.dataset.fitBound !== '1') {
         img.dataset.fitBound = '1';
-        img.addEventListener('load', (function(currentImg){
-          return function(){ applyFitToImage(currentImg); };
+        img.addEventListener('load', (function (currentImg) {
+          return function () {
+            applyFitToImage(currentImg);
+          };
         })(img));
       }
 
@@ -208,9 +220,14 @@
     if (NS.resizeBound) return;
 
     var timer = null;
-    window.addEventListener('resize', function(){
+
+    window.addEventListener('resize', function () {
       if (timer) clearTimeout(timer);
-      timer = setTimeout(fitImages, 120);
+
+      timer = setTimeout(function () {
+        clearAllZoom();
+        fitImages();
+      }, 120);
     });
 
     NS.resizeBound = true;

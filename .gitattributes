@@ -1,0 +1,8 @@
+* text=auto eol=lf
+
+*.svg text
+*.html text
+*.css text
+*.md text
+*.yml text
+*.yaml text

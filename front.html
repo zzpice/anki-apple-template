@@ -3,14 +3,12 @@
      ========================= -->
 <div class="bar xleft">
   <span class="icon ximg breath" aria-hidden="true"></span>
-  <span class="bar-title">
-    {{#Tags}}{{Tags}}{{/Tags}}{{^Tags}}问题{{/Tags}}
-  </span>
+  <span class="bar-title">问题</span>
   <span id="time" aria-label="当前复习时间"></span>
 </div>
 
 {{#Tags}}
-  <div class="section" style="padding-top:0.4rem">
+  <div class="section tag-section">
     <span class="badge">{{Tags}}</span>
   </div>
 {{/Tags}}
@@ -19,21 +17,20 @@
   {{问题}}
 </div>
 
-<!-- 轻量功能脚本：时间、图片放大、表格/代码增强、图片自适应 -->
+<!-- 轻量功能脚本：时间、图片 Lightbox、表格/代码增强、图片自适应 -->
 <script>
 (function () {
-  // 全局命名空间，正反面共用。
-  // init() 必须允许重复执行：翻到背面后，答案/笔记等是新增 DOM，
-  // 需要重新扫描；事件绑定本身通过 data-* / NS 标记避免重复。
   window.__appleEnhance = window.__appleEnhance || {};
   var NS = window.__appleEnhance;
 
-  function pad(n){ return String(n).padStart(2,'0'); }
+  function pad(n) {
+    return String(n).padStart(2, '0');
+  }
 
-  // 只写一次时间，防止背面初始化覆盖正面显示的复习时间。
   function writeTimeOnce() {
     var t = document.getElementById('time');
     if (!t) return;
+
     if (!t.textContent || !t.textContent.trim()) {
       var d = new Date();
       t.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
@@ -41,37 +38,39 @@
     }
   }
 
+  function isZoomableImage(img) {
+    if (!img || img.closest('.icon')) return false;
+    if (img.dataset.nozoom === '1') return false;
+    if (img.classList.contains('no-zoom')) return false;
+    return true;
+  }
+
   function clearAllZoom() {
     var zoomed = document.querySelectorAll('img.zoomed');
-    for (var j = 0; j < zoomed.length; j++) {
-      zoomed[j].classList.remove('zoomed');
-      zoomed[j].style.cursor = 'zoom-in';
+
+    for (var i = 0; i < zoomed.length; i++) {
+      zoomed[i].classList.remove('zoomed');
+      zoomed[i].style.cursor = 'zoom-in';
     }
+
     document.body.classList.remove('zooming');
   }
 
-  function enableImageZoom(scope){
+  function enableImageZoom(scope) {
     var root = scope || document;
     var imgs = root.querySelectorAll('img');
 
     for (var i = 0; i < imgs.length; i++) {
       (function (img) {
-        // 图标和明确禁用的图片不参与放大，也不显示 zoom-in 光标。
-        if (img.closest('.icon')) return;
-        if (img.dataset.nozoom === '1' || img.classList.contains('no-zoom')) return;
-
-        // 防止重复绑定。
+        if (!isZoomableImage(img)) return;
         if (img.dataset.zoomBound === '1') return;
+
         img.dataset.zoomBound = '1';
         img.style.cursor = 'zoom-in';
 
-        img.addEventListener('click', function(ev){
+        img.addEventListener('click', function (ev) {
           if (img.classList.contains('zoomed')) {
-            img.classList.remove('zoomed');
-            img.style.cursor = 'zoom-in';
-            if (!document.querySelector('img.zoomed')) {
-              document.body.classList.remove('zooming');
-            }
+            clearAllZoom();
             ev.stopPropagation();
             return;
           }
@@ -85,53 +84,62 @@
       })(imgs[i]);
     }
 
-    // 全局事件只绑定一次。
     if (!NS.escBound) {
-      document.addEventListener('keydown', function(e){
+      document.addEventListener('keydown', function (e) {
         e = e || window.event;
         var key = e.key || e.keyCode;
+
         if (key === 'Escape' || key === 27) {
           clearAllZoom();
         }
       }, false);
+
       NS.escBound = true;
     }
 
     if (!NS.clickBlankBound) {
-      document.addEventListener('click', function(e){
+      document.addEventListener('click', function (e) {
         if (!document.body.classList.contains('zooming')) return;
         if (e.target && e.target.tagName === 'IMG') return;
         clearAllZoom();
       }, false);
+
       NS.clickBlankBound = true;
     }
   }
 
-  function enhanceTablesAndCode(scope){
+  function enhanceTables(scope) {
     var root = scope || document;
+    var tables = root.querySelectorAll('table');
 
-    var tbs = root.querySelectorAll('table');
-    for (var i = 0; i < tbs.length; i++) {
-      var tb = tbs[i];
-      tb.classList.add('table');
+    for (var i = 0; i < tables.length; i++) {
+      var table = tables[i];
+      table.classList.add('table');
 
-      var w = tb.parentElement;
-      if (w && w !== document.body && w !== document.documentElement) {
-        w.classList.add('scroll-x');
-      }
+      var parent = table.parentElement;
+      if (!parent || parent.classList.contains('scroll-x')) continue;
+
+      var wrapper = document.createElement('div');
+      wrapper.className = 'scroll-x';
+      parent.insertBefore(wrapper, table);
+      wrapper.appendChild(table);
     }
+  }
 
-    var codes = root.querySelectorAll('pre, code');
-    for (var j = 0; j < codes.length; j++) {
-      codes[j].classList.add('code');
+  function enhanceCode(scope) {
+    var root = scope || document;
+    var blocks = root.querySelectorAll('pre, code');
+
+    for (var i = 0; i < blocks.length; i++) {
+      blocks[i].classList.add('code');
     }
   }
 
   var VIEWPORT_MARGIN = 24;
-  var MIN_VIEWPORT_HEIGHT = 180;
 
   function getAvailableWidth(img) {
     var current = img.parentElement;
+
     while (current) {
       if (current.clientWidth) {
         return current.clientWidth;
@@ -145,37 +153,37 @@
 
   function getMaxWidth(availableWidth) {
     if (!window.innerWidth) return availableWidth;
-    var max = window.innerWidth - VIEWPORT_MARGIN;
-    if (max <= 0) return availableWidth;
-    return Math.min(availableWidth, max);
+
+    var viewportWidth = window.innerWidth - VIEWPORT_MARGIN;
+    if (viewportWidth <= 0) return availableWidth;
+
+    return Math.min(availableWidth, viewportWidth);
   }
 
   function getMaxHeight() {
     if (!window.innerHeight) return 0;
-    var h = window.innerHeight - VIEWPORT_MARGIN;
-    if (h <= 0) return 0;
-    return Math.max(h, MIN_VIEWPORT_HEIGHT);
+
+    var viewportHeight = window.innerHeight - VIEWPORT_MARGIN;
+    return viewportHeight > 0 ? viewportHeight : window.innerHeight;
   }
 
   function applyFitToImage(img) {
-    if (!img || img.closest('.icon')) return;
-    if (!img.naturalWidth || !img.naturalHeight) return;
+    if (!isZoomableImage(img) && img && img.closest('.icon')) return;
+    if (!img || !img.naturalWidth || !img.naturalHeight) return;
+    if (img.classList.contains('zoomed')) return;
 
     var availableWidth = getAvailableWidth(img);
     if (!availableWidth) return;
 
     var maxWidth = getMaxWidth(availableWidth) || availableWidth;
     var maxHeight = getMaxHeight();
-
-    if (!maxHeight) {
-      maxHeight = availableWidth * (img.naturalHeight / img.naturalWidth);
-    }
-
     var aspect = img.naturalHeight / img.naturalWidth;
-    var width = maxWidth;
+
+    // 小图保持原始尺寸，不再被强制拉伸至整行宽度。
+    var width = Math.min(img.naturalWidth, maxWidth);
     var height = width * aspect;
 
-    if (height > maxHeight) {
+    if (maxHeight && height > maxHeight) {
       height = maxHeight;
       width = height / aspect;
     }
@@ -183,18 +191,18 @@
     img.style.width = width.toFixed(2) + 'px';
     img.style.height = height.toFixed(2) + 'px';
     img.style.maxWidth = '100%';
-    img.style.maxHeight = maxHeight.toFixed(2) + 'px';
+    img.style.maxHeight = maxHeight ? maxHeight.toFixed(2) + 'px' : 'none';
     img.style.marginLeft = 'auto';
     img.style.marginRight = 'auto';
-    img.dataset.fitMode = height >= maxHeight ? 'height' : 'width';
+    img.dataset.fitMode = maxHeight && height >= maxHeight ? 'height' : 'width';
   }
 
   function bindFitOnLoad(img) {
-    if (img.closest('.icon')) return;
+    if (!img || img.closest('.icon')) return;
     if (img.dataset.fitBound === '1') return;
 
     img.dataset.fitBound = '1';
-    img.addEventListener('load', function(){
+    img.addEventListener('load', function () {
       applyFitToImage(img);
     });
   }
@@ -208,6 +216,7 @@
       if (img.closest('.icon')) continue;
 
       bindFitOnLoad(img);
+
       if (img.complete && img.naturalWidth) {
         applyFitToImage(img);
       }
@@ -218,9 +227,12 @@
     if (NS.resizeBound) return;
 
     var timer = null;
-    window.addEventListener('resize', function(){
+
+    window.addEventListener('resize', function () {
       if (timer) clearTimeout(timer);
-      timer = setTimeout(function(){
+
+      timer = setTimeout(function () {
+        clearAllZoom();
         fitImages();
       }, 120);
     });
@@ -232,10 +244,11 @@
   NS.fitImages = fitImages;
 
   NS.init = function () {
-    // 不做“已初始化就 return”：
-    // 背面会新增 DOM，需要再次扫描，但各类事件仍只绑定一次。
+    // 翻到背面后会出现新 DOM，因此 init() 允许重复执行。
+    // 具体事件通过 data-* 与 NS 标记避免重复绑定。
     writeTimeOnce();
-    enhanceTablesAndCode();
+    enhanceTables();
+    enhanceCode();
     enableImageZoom();
     fitImages();
     bindResizeForImages();

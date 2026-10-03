@@ -1,0 +1,99 @@
+name: Template Check
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required files and fields
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          required_files=(
+            README.md
+            front.html
+            back.html
+            style.css
+            _x_ios.svg
+            _y_ios.svg
+            _z_ios.svg
+            preview.html
+            CHANGELOG.md
+            LICENSE
+          )
+
+          for file in "${required_files[@]}"; do
+            test -f "$file" || {
+              echo "Missing required file: $file"
+              exit 1
+            }
+          done
+
+          grep -Fq '{{问题}}' front.html
+          grep -Fq '{{#Tags}}' front.html
+          grep -Fq '<span class="bar-title">问题</span>' front.html
+
+          grep -Fq '{{FrontSide}}' back.html
+          grep -Fq '{{答案}}' back.html
+          grep -Fq '{{笔记}}' back.html
+          grep -Fq '{{hint:相关知识}}' back.html
+          grep -Fq 'id="answer"' back.html
+
+          if grep -Eq 'style="[^"]+"' front.html back.html; then
+            echo "Inline style attribute found in card templates."
+            exit 1
+          fi
+
+      - name: Validate local media references
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mapfile -t assets < <(
+            grep -oE "url\('_[^']+'\)" style.css               | sed -E "s/^url\('([^']+)'\)$/\1/"               | sort -u
+          )
+
+          for asset in "${assets[@]}"; do
+            test -f "$asset" || {
+              echo "Missing local media referenced by style.css: $asset"
+              exit 1
+            }
+          done
+
+      - name: Check embedded JavaScript syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          python3 - <<'PY'
+          import pathlib
+          import re
+
+          for filename in ("front.html", "back.html", "preview.html"):
+              text = pathlib.Path(filename).read_text(encoding="utf-8")
+              scripts = re.findall(r"<script>(.*?)</script>", text, flags=re.S)
+
+              if not scripts:
+                  raise SystemExit(f"No inline script found in {filename}")
+
+              for index, script in enumerate(scripts):
+                  path = pathlib.Path("/tmp") / f"{filename.replace('.', '_')}_{index}.js"
+                  path.write_text(script, encoding="utf-8")
+                  print(path)
+          PY
+
+          for file in /tmp/front_html_*.js /tmp/back_html_*.js /tmp/preview_html_*.js; do
+            node --check "$file"
+          done
