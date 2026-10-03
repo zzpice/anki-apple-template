@@ -35,27 +35,16 @@
 
 <script>
 (function () {
-  // 如果正面已经定义了，就直接用正面的初始化
-  if (window.__appleEnhance && typeof window.__appleEnhance.init === "function") {
+  // 正面脚本存在时，重新扫描整个背面。
+  // init() 是幂等设计：会增强新增 DOM，但不会重复绑定全局事件。
+  if (window.__appleEnhance && typeof window.__appleEnhance.init === 'function') {
     window.__appleEnhance.init();
     return;
   }
 
-  // —— 下面是兜底（极少数情况下正面脚本没跑到）
+  // 极少数环境若 {{FrontSide}} 内脚本没有执行，则使用轻量兜底。
   window.__appleEnhance = window.__appleEnhance || {};
   var NS = window.__appleEnhance;
-
-  function pad(n){ return String(n).padStart(2,'0'); }
-
-  function writeTimeOnce() {
-    var t = document.getElementById('time');
-    if (!t) return;
-    if (!t.textContent || !t.textContent.trim()) {
-      var d = new Date();
-      t.textContent = pad(d.getHours()) + ':' + pad(d.getMinutes());
-      t.title = d.toLocaleString();
-    }
-  }
 
   function clearAllZoom() {
     var zoomed = document.querySelectorAll('img.zoomed');
@@ -66,25 +55,26 @@
     document.body.classList.remove('zooming');
   }
 
-  function enableImageZoom(scope){
-    var root = scope || document;
-    var imgs = root.querySelectorAll('img');
+  function enableImageZoom(){
+    var imgs = document.querySelectorAll('img');
+
     for (var i = 0; i < imgs.length; i++) {
       (function (img) {
-        if (img.dataset.zoomBound) return;
-        img.dataset.zoomBound = "1";
+        if (img.closest('.icon')) return;
+        if (img.dataset.nozoom === '1' || img.classList.contains('no-zoom')) return;
+        if (img.dataset.zoomBound === '1') return;
+
+        img.dataset.zoomBound = '1';
         img.style.cursor = 'zoom-in';
 
         img.addEventListener('click', function(ev){
-          if (img.closest('.icon')) return;
-          if (img.dataset.nozoom === "1" || img.classList.contains('no-zoom')) return;
-
           if (img.classList.contains('zoomed')) {
             img.classList.remove('zoomed');
             img.style.cursor = 'zoom-in';
             if (!document.querySelector('img.zoomed')) {
               document.body.classList.remove('zooming');
             }
+            ev.stopPropagation();
             return;
           }
 
@@ -101,9 +91,7 @@
       document.addEventListener('keydown', function(e){
         e = e || window.event;
         var key = e.key || e.keyCode;
-        if (key === 'Escape' || key === 27) {
-          clearAllZoom();
-        }
+        if (key === 'Escape' || key === 27) clearAllZoom();
       }, false);
       NS.escBound = true;
     }
@@ -123,11 +111,13 @@
     for (var i = 0; i < tbs.length; i++) {
       var tb = tbs[i];
       tb.classList.add('table');
+
       var w = tb.parentElement;
       if (w && w !== document.body && w !== document.documentElement) {
         w.classList.add('scroll-x');
       }
     }
+
     var codes = document.querySelectorAll('pre, code');
     for (var j = 0; j < codes.length; j++) {
       codes[j].classList.add('code');
@@ -140,11 +130,10 @@
   function getAvailableWidth(img) {
     var current = img.parentElement;
     while (current) {
-      if (current.clientWidth) {
-        return current.clientWidth;
-      }
+      if (current.clientWidth) return current.clientWidth;
       current = current.parentElement;
     }
+
     var docWidth = document.documentElement ? document.documentElement.clientWidth : 0;
     return docWidth || window.innerWidth || img.naturalWidth || 0;
   }
@@ -172,6 +161,7 @@
 
     var maxWidth = getMaxWidth(availableWidth) || availableWidth;
     var maxHeight = getMaxHeight();
+
     if (!maxHeight) {
       maxHeight = availableWidth * (img.naturalHeight / img.naturalWidth);
     }
@@ -194,22 +184,20 @@
     img.dataset.fitMode = height >= maxHeight ? 'height' : 'width';
   }
 
-  function bindFitOnLoad(img) {
-    if (img.closest('.icon')) return;
-    if (img.dataset.fitBound === '1') return;
-    img.dataset.fitBound = '1';
-    img.addEventListener('load', function(){
-      applyFitToImage(img);
-    });
-  }
+  function fitImages() {
+    var imgs = document.querySelectorAll('img');
 
-  function fitImages(scope) {
-    var root = scope || document;
-    var imgs = root.querySelectorAll('img');
     for (var i = 0; i < imgs.length; i++) {
       var img = imgs[i];
       if (img.closest('.icon')) continue;
-      bindFitOnLoad(img);
+
+      if (img.dataset.fitBound !== '1') {
+        img.dataset.fitBound = '1';
+        img.addEventListener('load', (function(currentImg){
+          return function(){ applyFitToImage(currentImg); };
+        })(img));
+      }
+
       if (img.complete && img.naturalWidth) {
         applyFitToImage(img);
       }
@@ -218,20 +206,16 @@
 
   function bindResizeForImages() {
     if (NS.resizeBound) return;
+
     var timer = null;
     window.addEventListener('resize', function(){
       if (timer) clearTimeout(timer);
-      timer = setTimeout(function(){
-        fitImages();
-      }, 120);
+      timer = setTimeout(fitImages, 120);
     });
+
     NS.resizeBound = true;
   }
 
-  NS.fitImages = fitImages;
-
-  // 兜底跑一遍
-  writeTimeOnce();
   enableImageZoom();
   enhanceTablesAndCode();
   fitImages();

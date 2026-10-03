@@ -19,16 +19,18 @@
   {{问题}}
 </div>
 
-<!-- 轻量功能脚本：时间、图片放大、表格增强 -->
+<!-- 轻量功能脚本：时间、图片放大、表格/代码增强、图片自适应 -->
 <script>
 (function () {
-  // 全局命名空间，前后面共用
+  // 全局命名空间，正反面共用。
+  // init() 必须允许重复执行：翻到背面后，答案/笔记等是新增 DOM，
+  // 需要重新扫描；事件绑定本身通过 data-* / NS 标记避免重复。
   window.__appleEnhance = window.__appleEnhance || {};
   var NS = window.__appleEnhance;
 
   function pad(n){ return String(n).padStart(2,'0'); }
 
-  // 只写一次时间，防止后面覆盖你手动写的
+  // 只写一次时间，防止背面初始化覆盖正面显示的复习时间。
   function writeTimeOnce() {
     var t = document.getElementById('time');
     if (!t) return;
@@ -39,7 +41,6 @@
     }
   }
 
-  // 清除所有放大态
   function clearAllZoom() {
     var zoomed = document.querySelectorAll('img.zoomed');
     for (var j = 0; j < zoomed.length; j++) {
@@ -49,50 +50,42 @@
     document.body.classList.remove('zooming');
   }
 
-  // 图片点击放大 + ESC 关闭 + 背景罩
   function enableImageZoom(scope){
     var root = scope || document;
     var imgs = root.querySelectorAll('img');
+
     for (var i = 0; i < imgs.length; i++) {
       (function (img) {
-        // 防重复绑定
-        if (img.dataset.zoomBound) return;
-        img.dataset.zoomBound = "1";
+        // 图标和明确禁用的图片不参与放大，也不显示 zoom-in 光标。
+        if (img.closest('.icon')) return;
+        if (img.dataset.nozoom === '1' || img.classList.contains('no-zoom')) return;
 
-        // 默认样式
+        // 防止重复绑定。
+        if (img.dataset.zoomBound === '1') return;
+        img.dataset.zoomBound = '1';
         img.style.cursor = 'zoom-in';
 
         img.addEventListener('click', function(ev){
-          // 1) 图标里的图片不放大
-          if (img.closest('.icon')) return;
-          // 2) 明确标了 data-nozoom / .no-zoom 的也不放大
-          if (img.dataset.nozoom === "1" || img.classList.contains('no-zoom')) return;
-
-          // 已经是放大状态 → 收回
           if (img.classList.contains('zoomed')) {
             img.classList.remove('zoomed');
             img.style.cursor = 'zoom-in';
             if (!document.querySelector('img.zoomed')) {
               document.body.classList.remove('zooming');
             }
+            ev.stopPropagation();
             return;
           }
 
-          // 先清掉别的放大图，保证只放大一张
           clearAllZoom();
-
-          // 再放大当前这张
           img.classList.add('zoomed');
           img.style.cursor = 'zoom-out';
           document.body.classList.add('zooming');
-
-          // 阻止冒泡到下面那个“点空白处收回”
           ev.stopPropagation();
         });
       })(imgs[i]);
     }
 
-    // ESC 一次全关（全局只绑一次）
+    // 全局事件只绑定一次。
     if (!NS.escBound) {
       document.addEventListener('keydown', function(e){
         e = e || window.event;
@@ -104,7 +97,6 @@
       NS.escBound = true;
     }
 
-    // 点空白处也关（全局只绑一次）
     if (!NS.clickBlankBound) {
       document.addEventListener('click', function(e){
         if (!document.body.classList.contains('zooming')) return;
@@ -115,18 +107,21 @@
     }
   }
 
-  // 表格/代码自动加样式
-  function enhanceTablesAndCode(){
-    var tbs = document.querySelectorAll('table');
+  function enhanceTablesAndCode(scope){
+    var root = scope || document;
+
+    var tbs = root.querySelectorAll('table');
     for (var i = 0; i < tbs.length; i++) {
       var tb = tbs[i];
       tb.classList.add('table');
+
       var w = tb.parentElement;
       if (w && w !== document.body && w !== document.documentElement) {
         w.classList.add('scroll-x');
       }
     }
-    var codes = document.querySelectorAll('pre, code');
+
+    var codes = root.querySelectorAll('pre, code');
     for (var j = 0; j < codes.length; j++) {
       codes[j].classList.add('code');
     }
@@ -143,6 +138,7 @@
       }
       current = current.parentElement;
     }
+
     var docWidth = document.documentElement ? document.documentElement.clientWidth : 0;
     return docWidth || window.innerWidth || img.naturalWidth || 0;
   }
@@ -170,6 +166,7 @@
 
     var maxWidth = getMaxWidth(availableWidth) || availableWidth;
     var maxHeight = getMaxHeight();
+
     if (!maxHeight) {
       maxHeight = availableWidth * (img.naturalHeight / img.naturalWidth);
     }
@@ -195,6 +192,7 @@
   function bindFitOnLoad(img) {
     if (img.closest('.icon')) return;
     if (img.dataset.fitBound === '1') return;
+
     img.dataset.fitBound = '1';
     img.addEventListener('load', function(){
       applyFitToImage(img);
@@ -204,9 +202,11 @@
   function fitImages(scope) {
     var root = scope || document;
     var imgs = root.querySelectorAll('img');
+
     for (var i = 0; i < imgs.length; i++) {
       var img = imgs[i];
       if (img.closest('.icon')) continue;
+
       bindFitOnLoad(img);
       if (img.complete && img.naturalWidth) {
         applyFitToImage(img);
@@ -216,6 +216,7 @@
 
   function bindResizeForImages() {
     if (NS.resizeBound) return;
+
     var timer = null;
     window.addEventListener('resize', function(){
       if (timer) clearTimeout(timer);
@@ -223,24 +224,24 @@
         fitImages();
       }, 120);
     });
+
     NS.resizeBound = true;
   }
 
-  // 暴露给背面用
+  NS.clearAllZoom = clearAllZoom;
   NS.fitImages = fitImages;
 
   NS.init = function () {
-    if (NS.__inited) return;
-    NS.__inited = true;
-
+    // 不做“已初始化就 return”：
+    // 背面会新增 DOM，需要再次扫描，但各类事件仍只绑定一次。
     writeTimeOnce();
     enhanceTablesAndCode();
     enableImageZoom();
     fitImages();
     bindResizeForImages();
+    NS.__inited = true;
   };
 
-  // 正面先跑一遍
   NS.init();
 })();
 </script>
