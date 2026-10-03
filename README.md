@@ -1,6 +1,9 @@
-# Apple 风格 Anki 问答模板
+# anki-apple-template
 
-![Template Check](https://github.com/zzpice/anki-apple-template/actions/workflows/check.yml/badge.svg)
+> 简洁的 Apple / iOS 风格 Anki 问答卡片模板，支持深色模式、响应式布局与移动端适配。
+
+[![Template Check](https://github.com/zzpice/anki-apple-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-apple-template/actions/workflows/check.yml)
+[![License](https://img.shields.io/github/license/zzpice/anki-apple-template)](./LICENSE)
 
 纯 HTML、CSS 和 JavaScript，无框架、构建步骤或第三方依赖。
 
