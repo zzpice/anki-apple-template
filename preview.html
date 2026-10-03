@@ -4,217 +4,79 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Apple 风格 Anki 模板预览</title>
-  <link rel="stylesheet" href="style.css">
   <style>
-    .preview-shell {
-      max-width:860px;
-      margin:0 auto;
-      padding:1rem;
-    }
-
-    .preview-controls {
-      position:sticky;
-      top:.6rem;
-      z-index:100;
-      display:flex;
-      justify-content:flex-end;
-      gap:.45rem;
-      margin-bottom:.75rem;
-    }
-
-    .preview-controls button {
-      appearance:none;
-      border:1px solid var(--ios-separator);
-      border-radius:999px;
-      padding:.35rem .7rem;
-      background:var(--ios-card);
-      color:var(--ios-label);
-      font:inherit;
-      cursor:pointer;
-      backdrop-filter:blur(8px);
-      -webkit-backdrop-filter:blur(8px);
-    }
-
-    .preview-force-light {
-      --ios-label:#1c1c1e;
-      --ios-secondary:rgba(60,60,67,.6);
-      --ios-tertiary:rgba(60,60,67,.3);
-      --ios-separator:rgba(60,60,67,.29);
-      --ios-bg:#f5f6f7;
-      --ios-card:rgba(255,255,255,.92);
-      --ios-card-alt:rgba(255,255,255,.82);
-      --ios-blue:#0a84ff;
-      --ios-green:#34c759;
-      --ios-orange:#ff9f0a;
-      background:#f5f6f7 !important;
-      color:#1c1c1e !important;
-    }
-
-    .preview-image {
-      max-width:100%;
-    }
-
-    .preview-related-content[hidden] {
-      display:none;
-    }
+    body { margin:0; font:16px sans-serif; }
+    header { padding:.6rem 1rem; background:#f5f6f7; }
+    select { font:inherit; }
+    iframe { display:block; width:100%; height:calc(100vh - 64px); border:0; }
+    #status { margin:0; }
   </style>
 </head>
 <body>
-  <main class="card preview-shell">
-    <div class="preview-controls" aria-label="预览主题">
-      <button type="button" data-theme="system">跟随系统</button>
-      <button type="button" data-theme="light">浅色</button>
-      <button type="button" data-theme="dark">深色</button>
-    </div>
-
-    <div class="bar xleft">
-      <span class="icon ximg breath" aria-hidden="true"></span>
-      <span class="bar-title">问题</span>
-      <span id="time">17:42</span>
-    </div>
-
-    <div class="section tag-section">
-      <span class="badge">Anki Apple Template 示例标签 长标签换行测试</span>
-    </div>
-
-    <div class="section h2">
-      为什么这个模板适合同时在桌面端和移动端使用？
-      <p>这里用于检查正文、<u>强调文本</u>、<a href="#">链接</a>以及行高。</p>
-      <img
-        class="preview-image"
-        alt="示例图片"
-        src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1200' height='700' viewBox='0 0 1200 700'%3E%3Crect width='1200' height='700' rx='36' fill='%23e9eef5'/%3E%3Ccircle cx='310' cy='350' r='150' fill='%230a84ff' opacity='.14'/%3E%3Ccircle cx='760' cy='300' r='210' fill='%2334c759' opacity='.12'/%3E%3Ctext x='600' y='360' text-anchor='middle' font-family='Arial' font-size='54' fill='%231c1c1e'%3EAnki Image Preview%3C/text%3E%3C/svg%3E">
-    </div>
-
-    <div id="answer" class="section slide">
-      <div class="bar yleft">
-        <span class="icon yimg" aria-hidden="true"></span>
-        <span class="bar-title">答案</span>
-      </div>
-      <div class="h2 answer">
-        因为模板使用响应式字号、图片视口适配、可横向滚动的表格，以及系统/Anki 双重深色模式。
-      </div>
-    </div>
-
-    <div class="section slide">
-      <div class="bar yleft">
-        <span class="icon yimg" aria-hidden="true"></span>
-        <span class="bar-title">笔记</span>
-      </div>
-      <div class="h2 note">
-        <pre class="code"><code class="code">html {
-  -webkit-text-size-adjust: 100%;
-}</code></pre>
-        行内代码示例：<code class="code">prefers-color-scheme</code>
-      </div>
-    </div>
-
-    <div class="section slide">
-      <div class="bar zleft">
-        <span class="icon zimg" aria-hidden="true"></span>
-        <span class="bar-title">相关知识</span>
-      </div>
-      <div class="h2 related">
-        <button type="button" class="hint" id="previewHint">显示相关知识</button>
-        <div class="preview-related-content" id="previewRelated" hidden>
-          <p>Anki 的 <code class="code">hint:</code> 过滤器会把内容折叠为提示。</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="scroll-x">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>项目</th>
-              <th>桌面端</th>
-              <th>移动端</th>
-              <th>说明</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>深色模式</td>
-              <td>支持</td>
-              <td>支持</td>
-              <td>同时兼容系统主题与 Anki nightMode</td>
-            </tr>
-            <tr>
-              <td>图片</td>
-              <td>自适应</td>
-              <td>自适应</td>
-              <td>点击上方示例图片可测试 Lightbox</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </main>
+  <header>
+    <label>预览主题
+      <select id="theme">
+        <option value="system">跟随系统</option>
+        <option value="light">浅色</option>
+        <option value="dark">深色</option>
+      </select>
+    </label>
+    <p id="status">正在读取模板…</p>
+  </header>
+  <iframe id="preview" title="卡片预览"></iframe>
 
   <script>
-    (function () {
-      var body = document.body;
-      var controls = document.querySelectorAll('[data-theme]');
+    var theme = document.getElementById('theme');
+    var frame = document.getElementById('preview');
+    var darkMedia;
 
-      for (var i = 0; i < controls.length; i++) {
-        controls[i].addEventListener('click', function () {
-          var theme = this.dataset.theme;
-          body.classList.remove('nightMode', 'preview-force-light');
+    function applyTheme() {
+      if (!darkMedia) return;
+      frame.contentDocument.documentElement.className = theme.value === 'dark' ? 'nightMode' : '';
+      // 使用真实 CSS；强制浅色时仅关闭系统深色规则，无需复制配色。
+      darkMedia.mediaText = theme.value === 'system' ? '(prefers-color-scheme: dark)' : 'not all';
+    }
+    theme.onchange = applyTheme;
 
-          if (theme === 'dark') body.classList.add('nightMode');
-          if (theme === 'light') body.classList.add('preview-force-light');
+    Promise.all(['front.html', 'back.html', 'style.css'].map(function (path) {
+      return fetch(path).then(function (response) {
+        if (!response.ok) throw new Error(path + ': ' + response.status);
+        return response.text();
+      });
+    })).then(function (files) {
+      // 样例字段均非空；只模拟字段替换和原生 Hint，不另写卡片交互。
+      var fields = {
+        '问题': '为什么这个模板适合桌面端和移动端？<p>正文、<u>强调</u>和<a href="#">链接</a>。</p>' +
+          '<img alt="示例图片" src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%271200%27 height=%27700%27%3E%3Crect width=%271200%27 height=%27700%27 rx=%2736%27 fill=%27%23e9eef5%27/%3E%3Ccircle cx=%27310%27 cy=%27350%27 r=%27150%27 fill=%27%230a84ff%27 opacity=%27.14%27/%3E%3Ccircle cx=%27760%27 cy=%27300%27 r=%27210%27 fill=%27%2334c759%27 opacity=%27.12%27/%3E%3Ctext x=%27600%27 y=%27360%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2754%27 fill=%27%231c1c1e%27%3EAnki Image Preview%3C/text%3E%3C/svg%3E">',
+        'Tags': 'Anki Apple Template 示例标签 长标签换行测试',
+        '答案': '响应式字号、图片自适应、表格横向滚动，以及系统和 Anki 深色模式。',
+        '笔记': '<pre><code>html {\n  -webkit-text-size-adjust: 100%;\n}</code></pre>行内代码：<code>prefers-color-scheme</code>' +
+          '<table><tr><th>项目</th><th>桌面端</th><th>移动端</th><th>说明</th></tr>' +
+          '<tr><td>图片</td><td>自适应</td><td>自适应</td><td>点击图片测试放大，Esc 或点击遮罩退出</td></tr>' +
+          '<tr><td>表格</td><td>横向滚动</td><td>横向滚动</td><td>窄屏不会挤压列宽</td></tr></table>',
+        'hint:相关知识': "<a class=\"hint\" href=\"#\" onclick=\"this.style.display='none';this.nextElementSibling.style.display='block';return false;\">显示相关知识</a>" +
+          '<div style="display:none"><p>Anki 的 <code>hint:</code> 过滤器默认折叠字段。</p></div>'
+      };
+      function render(template) {
+        return template.replace(/{{([^}]+)}}/g, function (_, name) {
+          return /^[#/]/.test(name) ? '' : fields[name];
         });
       }
-
-      var hint = document.getElementById('previewHint');
-      var related = document.getElementById('previewRelated');
-
-      hint.addEventListener('click', function () {
-        var willShow = related.hasAttribute('hidden');
-
-        if (willShow) {
-          related.removeAttribute('hidden');
-          hint.textContent = '隐藏相关知识';
-        } else {
-          related.setAttribute('hidden', '');
-          hint.textContent = '显示相关知识';
-        }
-      });
-
-      function clearZoom() {
-        var current = document.querySelector('img.zoomed');
-        if (current) {
-          current.classList.remove('zoomed');
-          current.style.cursor = 'zoom-in';
-        }
-        body.classList.remove('zooming');
-      }
-
-      var image = document.querySelector('.preview-image');
-      image.style.cursor = 'zoom-in';
-
-      image.addEventListener('click', function (event) {
-        if (image.classList.contains('zoomed')) {
-          clearZoom();
-        } else {
-          image.classList.add('zoomed');
-          image.style.cursor = 'zoom-out';
-          body.classList.add('zooming');
-        }
-        event.stopPropagation();
-      });
-
-      document.addEventListener('click', function (event) {
-        if (!body.classList.contains('zooming')) return;
-        if (event.target.tagName === 'IMG') return;
-        clearZoom();
-      });
-
-      document.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') clearZoom();
-      });
-    })();
+      fields.FrontSide = render(files[0]);
+      frame.onload = function () {
+        var rules = frame.contentDocument.styleSheets[0].cssRules;
+        darkMedia = Array.from(rules).find(function (rule) {
+          return rule.conditionText && rule.conditionText.includes('prefers-color-scheme');
+        }).media;
+        applyTheme();
+      };
+      frame.srcdoc = '<!doctype html><html lang="zh-CN"><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
+        '<style>' + files[2] + '\nbody { max-width:860px; margin:auto; padding:1rem; }</style></head>' +
+        '<body class="card">' + render(files[1]) + '</body></html>';
+      document.getElementById('status').textContent = '';
+    }).catch(function (error) {
+      document.getElementById('status').textContent = error.message + '。请通过本地 HTTP 服务打开预览，见 README。';
+    });
   </script>
 </body>
 </html>
