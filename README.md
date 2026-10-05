@@ -138,7 +138,7 @@
 
 <img src="preview-content.png" width="560" alt="问答背面：流程图、富文本、表格、JSON 代码块和来源链接">
 
-示例来自 [sing-box-rules](https://github.com/zzpice/sing-box-rules)、[sing-box-adblock](https://github.com/zzpice/sing-box-adblock)、[routeros-adlist](https://github.com/zzpice/routeros-adlist)、[assets](https://github.com/zzpice/assets)、[zashboard-config](https://github.com/zzpice/zashboard-config) 和 [zp-folio](https://github.com/zzpice/zp-folio) 的公开说明。安装包、在线预览和上面的截图使用同一批示例。
+问答、选择、填空和遮挡示例来自 [sing-box-rules](https://github.com/zzpice/sing-box-rules)、[sing-box-adblock](https://github.com/zzpice/sing-box-adblock)、[routeros-adlist](https://github.com/zzpice/routeros-adlist)、[assets](https://github.com/zzpice/assets)、[zashboard-config](https://github.com/zzpice/zashboard-config) 和 [zp-folio](https://github.com/zzpice/zp-folio) 的公开说明。思维导图使用通用格式示例。安装包、在线预览和上面的截图使用同一批示例。
 
 ## 修改与维护
 

@@ -122,6 +122,8 @@ module.exports = async function checkMindMap(page, showCard, cases, engine) {
       await page.emulateMedia({colorScheme:scheme});
       for (const name of ['mixed', 'deep', 'formatting']) {
         await showCard(page, cases[name][0].front);
+        assert.ok(await page.getByRole('searchbox').evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 16),
+          'search input avoids small-font focus zoom on iOS');
         await action('expand').click();
         await action('show').click();
         assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,

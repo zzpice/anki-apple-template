@@ -48,7 +48,7 @@ Windows 将 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`；PowerShell �
 
 检查包含源码与安装包、预览的一致性，重复导入，五个类型的内容及排程更新，随机排序与答案映射，以及浏览器布局和交互。浏览器检查覆盖移动屏幕尺寸与浅深色，不能代替 AnkiMobile、AnkiDroid 的设备测试。
 
-示例取自其他项目的公开说明，修改时核对来源链接与答案，保留 GUID。流程图为公开规则生成步骤的示意图；不引用节点、订阅、凭据或实际持仓。README 中的字段示例应与 `samples.json` 一致。
+问答、选择、填空和遮挡示例取自其他项目的公开说明，修改时核对来源链接与答案，保留 GUID。流程图为公开规则生成步骤的示意图；不引用节点、订阅、凭据或实际持仓。思维导图只用通用格式示例。README 中的字段示例应与 `samples.json` 一致。
 
 安装包和预览生成、测试通过后，运行 `ANKI_SCREENSHOTS=1 node tests/test_browser.cjs` 更新 README 的三张截图。截图读取同一份预览内容，切勿另外编写展示模板；图片保存在仓库根目录，随示例一起提交。PowerShell 使用 `$env:ANKI_SCREENSHOTS = "1"` 设置开关。
 
