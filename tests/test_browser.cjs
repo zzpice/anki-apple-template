@@ -83,7 +83,7 @@ async function checkChoices(page) {
   assert.equal(await page.locator('.review-choice[data-key="A"] .review-selected').count(), 1);
   assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'C');
   assert.equal(await page.locator('.review-answer-choice .review-choice-key').innerText(), 'B');
-  assert.match(await page.locator('[data-answer]').innerText(), /合上书/);
+  assert.match(await page.locator('[data-answer]').innerText(), /allowlist\.txt/);
   assert.equal(await page.locator('input:enabled').count(), 0);
   assert.equal(await page.locator('input:checked').count(), 1);
   assert.ok(await page.evaluate(() => sessionStorage.getItem('anki-template/current-choice')));
@@ -194,7 +194,7 @@ async function run(browserType, name, base) {
     await page.emulateMedia({colorScheme:'light'});
     await checkChoices(page);
     await showCard(page, cards.single[0].front);
-    assert.equal(await page.getByRole('radio', {name:/合上书/}).count(), 1);
+    assert.equal(await page.getByRole('radio', {name:/allowlist\.txt/}).count(), 1);
     await page.locator('label[for="review-choice-A"]').click();
     await page.locator('label[for="review-choice-C"]').click();
     assert.equal(await page.locator('input:checked').count(), 1);
@@ -205,7 +205,7 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator('#review-choice-A').isChecked(), true);
     await showCard(page, cards.single[0].back);
     assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'C');
-    assert.match(await page.locator('[data-answer]').innerText(), /合上书/);
+    assert.match(await page.locator('[data-answer]').innerText(), /allowlist\.txt/);
     assert.equal(await page.locator('input:enabled').count(), 0);
     assert.equal(await page.locator('input:checked').count(), 1);
     await showCard(page, cards.multiple[0].front);
@@ -297,7 +297,7 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator('.review-scroll .review-scroll').count(), 0);
     await page.locator('.review-question img').click();
     assert.equal(await page.locator('dialog').count(), 1, 'duplicate handlers');
-    await showCard(page, '<section><img src="_memory.svg"></section>');
+    await showCard(page, '<section><img src="_rule-build.svg"></section>');
     await page.locator('section img').click();
     assert.equal(await page.locator('dialog').count(), 0, 'other note types are intercepted');
     assert.equal(await page.locator(':modal').count(), 0);
@@ -349,11 +349,36 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator('#card option').count(), 3);
     await page.selectOption('#card', '2');
     await frame.locator('.cloze').waitFor();
-    assert.match(await frame.locator('.cloze').innerText(), /访问已存信息/);
+    assert.match(await frame.locator('.cloze').innerText(), /正负方向/);
     assert.equal((await page.request.get(base + '/downloads/anki-template.apkg')).status(), 200);
     await page.goto(base + '/index.html');
     await page.waitForURL('**/preview.html');
     await frame.locator('.review-choice').first().waitFor();
+    if (name === 'Chromium' && process.env.ANKI_SCREENSHOTS === '1') {
+      // README 截图直接取在线预览，随示例一起更新。
+      async function capture(filename) {
+        await frame.locator('.review-meta a').waitFor();
+        await page.locator('#preview').evaluate(el => {
+          el.style.minHeight = '0';
+          el.style.height = Math.ceil(el.contentDocument.body.getBoundingClientRect().height) + 'px';
+        });
+        await frame.locator('body').screenshot({path:path.join(root, filename)});
+      }
+      await page.setViewportSize({width:390,height:844});
+      await page.emulateMedia({colorScheme:'light'});
+      await page.selectOption('#theme', 'light');
+      await frame.locator('#review-choice-A').check();
+      await page.click('#flip');
+      await frame.locator('.review-selected').waitFor();
+      await frame.locator('.is-correct').waitFor();
+      await capture('preview-choice.png');
+      await page.setViewportSize({width:700,height:1200});
+      await page.selectOption('#sample', String(examples.findIndex(e => e.key === 'rich')));
+      await page.click('#flip');
+      await frame.locator('pre').waitFor();
+      await frame.locator('img').evaluate(el => el.decode());
+      await capture('preview-content.png');
+    }
     assert.deepEqual(errors, []);
     console.log(name + ': 11 cards, responsive layout, contrast, choices, Cloze, native occlusion, images, lifecycle and preview passed');
   } finally { await browser.close(); }

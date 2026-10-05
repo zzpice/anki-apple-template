@@ -4,6 +4,7 @@ import importlib.metadata
 import json
 import os
 from pathlib import Path
+import re
 import sys
 import tempfile
 import unittest
@@ -116,8 +117,8 @@ class PackageTests(unittest.TestCase):
         self.assertEqual((indexes.occlusions, indexes.image, indexes.header, indexes.back_extra), (0, 1, 2, 3))
         nid = collection.db.scalar("select id from notes where guid=?", package.sample_guid("occlusion"))
         source = collection._backend.get_image_occlusion_note(nid).note
-        self.assertEqual(source.image_file_name, "_memory.svg")
-        self.assertEqual(source.image_data, (package.ROOT / "media/_memory.svg").read_bytes())
+        self.assertEqual(source.image_file_name, "_rule-build.svg")
+        self.assertEqual(source.image_data, (package.ROOT / "media/_rule-build.svg").read_bytes())
         self.assertEqual({group.ordinal for group in source.occlusions}, {1, 2})
         self.assertTrue(source.occlude_inactive)
 
@@ -210,6 +211,21 @@ class PackageTests(unittest.TestCase):
         self.assertIn("选项", specs["choice"]["fields"])
         self.assertIn("题型", specs["choice"]["fields"])
         self.assertEqual(specs["basic"]["back"], specs["choice"]["back"])
+
+    def test_readme_field_examples_match_package_samples(self):
+        readme = package.read_source("README.md")
+        samples = {s["key"]: s for s in package.samples()}
+        blocks = re.findall(r"```text\n(.*?)\n```", readme, re.S)
+        self.assertEqual(len(blocks), 4)
+        for block, key in zip(blocks[:3], ("single", "multiple", "judgment")):
+            fields = dict(line.split("：", 1) for line in block.splitlines())
+            self.assertEqual(fields, {f: samples[key]["fields"][f] for f in ("问题", "选项", "答案", "题型")})
+        self.assertEqual(blocks[3].replace("\n", ""), samples["cloze"]["fields"]["正文"])
+        recall = samples["recall"]["fields"]
+        self.assertIn("问题：" + recall["问题"], readme)
+        self.assertIn("答案：" + re.sub(r"<[^>]+>", "", recall["答案"]), readme)
+        for name in re.findall(r'<img src="([^"]+)"', readme):
+            self.assertTrue((package.ROOT / name).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
 
     def test_rich_fields_are_never_inserted_into_script(self):
         collection = self.collection()
