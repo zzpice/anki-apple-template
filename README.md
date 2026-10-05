@@ -19,7 +19,7 @@
 
 [制卡工具](https://zzpice.github.io/anki-template/tools.html) 可以编辑五种类型的原生字段、插入图片、绘制原生矩形遮挡，并导入同名字段 CSV / TSV 或 JSON。支持本地自动保存、搜索筛选、批量标签、导入预检和 JSON 备份。外部 AI 辅助只生成提示词，不调用 API。
 
-完成后导出各类型 TSV 与图片，在 Anki 导入；也可用现有官方生成器从 JSON 构建自己的 `.apkg`。问答 / 选择复用模板预览，原生 Cloze、导图与遮挡的实际分卡和复习以 Anki 为准。完整步骤和保存边界见 [网页制卡说明](AUTHORING.md)。
+完成后导出各类型 TSV 与图片，在 Anki 导入；也可用现有官方生成器从 JSON 构建自己的 `.apkg`。问答 / 选择复用模板预览，原生 Cloze、导图与遮挡的实际分卡和复习以 Anki 为准。完整步骤和保存边界见 [网页制卡说明](docs/authoring.md)。
 
 ## 填写卡片
 
@@ -63,7 +63,7 @@
 
 单选、多选每次复习随机排序，判断保持原顺序；在标签栏添加 `固定顺序` 可让个别题目不随机。随机后显示字母会变化，答案字段仍按录入顺序填写。背面同时标出已选项和正确答案，换卡时清除临时选择，复习评分由你决定。
 
-<img src="preview-choice.png" width="360" alt="选择题背面：已选项与正确答案分别标记">
+<img src="docs/images/preview-choice.png" width="360" alt="选择题背面：已选项与正确答案分别标记">
 
 ### 填空
 
@@ -118,9 +118,9 @@
 - 「定位本卡」回到本卡第一处挖空；「下一处挖空」按正文顺序循环定位所有挖空，保持答案显隐状态。
 - 输入文字后点击「搜索」，用 ↑ / ↓ 循环跳转。搜索大小写不敏感，支持跨加粗等格式边界，包含折叠节点和隐藏答案；跳转只展开路径，不揭示答案。「清除」移除高亮。
 
-临时折叠、定位和搜索状态尽量在翻面时保留，新正面重新开始；存储不可用时回到默认路径，答案和复习仍可用。支持现代 Anki Desktop、AnkiMobile、AnkiDroid 的原生 Cloze 渲染，浅深色跟随客户端。缺少 Cloze 答案属性的旧渲染器保留原生填空显示；客户端验证边界见 [维护说明](DEVELOPMENT.md#验证边界)。全部交互离线运行。
+临时折叠、定位和搜索状态尽量在翻面时保留，新正面重新开始；存储不可用时回到默认路径，答案和复习仍可用。支持现代 Anki Desktop、AnkiMobile、AnkiDroid 的原生 Cloze 渲染，浅深色跟随客户端。缺少 Cloze 答案属性的旧渲染器保留原生填空显示；客户端验证边界见 [维护说明](docs/development.md#验证边界)。全部交互离线运行。
 
-<img src="preview-mindmap.png" width="360" alt="思维导图：层级列表、独立挖空和搜索工具">
+<img src="docs/images/preview-mindmap.png" width="360" alt="思维导图：层级列表、独立挖空和搜索工具">
 
 ### 可选信息
 
@@ -146,7 +146,7 @@
 <a href="https://github.com/zzpice/sing-box-rules">规则来源</a>
 ```
 
-<img src="preview-content.png" width="560" alt="问答背面：流程图、富文本、表格、JSON 代码块和来源链接">
+<img src="docs/images/preview-content.png" width="560" alt="问答背面：流程图、富文本、表格、JSON 代码块和来源链接">
 
 问答、选择、填空和遮挡示例来自 [sing-box-rules](https://github.com/zzpice/sing-box-rules)、[sing-box-adblock](https://github.com/zzpice/sing-box-adblock)、[routeros-adlist](https://github.com/zzpice/routeros-adlist)、[assets](https://github.com/zzpice/assets)、[zashboard-config](https://github.com/zzpice/zashboard-config) 和 [zp-folio](https://github.com/zzpice/zp-folio) 的公开说明。思维导图使用通用格式示例。安装包、在线预览和上面的截图使用同一批示例。
 
@@ -156,7 +156,7 @@
 
 - 分享自己的牌组：导出牌组包 `.apkg`，包含媒体，关闭学习进度 / 排程信息。模板脚本和图片随媒体一起带出，接收者导入后即可使用。
 - 备份整个 Anki 集合：导出 `.colpkg`，包含媒体与学习进度。重新导入会替换当前集合，请确认自己是在恢复备份。
-- 批量编辑文字：导出笔记文本，保留 HTML、标签及 GUID；文本不包含模板与媒体文件。带回网页工具前，按 [导入数据说明](AUTHORING.md#导入已有数据或-ai-结果) 整理表头和图片。
+- 批量编辑文字：导出笔记文本，保留 HTML、标签及 GUID；文本不包含模板与媒体文件。带回网页工具前，按 [导入数据说明](docs/authoring.md#导入已有数据或-ai-结果) 整理表头和图片。
 
 各格式与选项见 [Anki 导出手册](https://docs.ankiweb.net/exporting.html)。网页 JSON 是制卡草稿备份，不包含 Anki 中的复习历史，也不会自动接收在 Anki 中的编辑。
 
@@ -164,7 +164,9 @@
 
 更新时重新导入安装包，并检查导入界面的笔记类型更新设置；用户改过的模板是否被更新，取决于该设置和修改时间，见 [Anki 安装包更新说明](https://docs.ankiweb.net/importing/packaged-decks.html#updating)。重复导入也可能恢复已删除的示例。想自行修改并保留样式，可先在 Anki 中复制笔记类型并另取名称，再在「卡片」窗口编辑模板；模板修改会影响使用该类型的所有笔记。
 
-首次接手仓库可先读 [文件职责与生成关系](DEVELOPMENT.md#仓库结构)。手动安装、构建测试及发布步骤见 [维护说明](DEVELOPMENT.md)；仓库修改遵循 [协作约定](AGENTS.md)。
+仓库按职责分为 `cards/`（卡片源码与示例）、`web/`（网页资源）、`downloads/`（公开安装包）、`docs/`（详细说明与截图）、`scripts/`（维护工具与依赖）和 `tests/`（检查）。根目录保留项目说明、配置与三个公开网页入口。
+
+首次接手仓库可先读 [文件职责与生成关系](docs/development.md#仓库结构)。手动安装、构建测试及发布步骤见 [维护说明](docs/development.md)；仓库修改遵循 [协作约定](AGENTS.md)。
 
 ## 许可
 

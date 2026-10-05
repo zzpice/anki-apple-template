@@ -46,7 +46,7 @@ export function makePreview(resources, note, media, back = false, resume = false
   if (spec.kind === 'basic') {
     fields.FrontSide = templateHTML(resources.templates[spec.front],fields);
     content = back ? templateHTML(resources.templates[spec.back],fields) : fields.FrontSide;
-    content = content.replace(/src="_review.js"/g,'src="' + new URL('../media/_review.js',import.meta.url).href + '"');
+    content = content.replace(/src="_review.js"/g,'src="' + new URL('../../cards/media/_review.js',import.meta.url).href + '"');
   } else {
     const title = note.fields.标题 || note.fields.章节 || note.fields.Header || spec.name;
     const body = spec.kind === 'occlusion' ? fields.Image + fields['Back Extra'] + fields.Comments : fields[note.type === 'mindmap' ? '内容' : '正文'];
@@ -54,8 +54,8 @@ export function makePreview(resources, note, media, back = false, resume = false
   }
   // Only the project's own review script can execute. No user scripts, remote
   // media, form submissions or inherited styles can affect the working page.
-  const script = new URL('../media/_review.js',import.meta.url).href;
-  const base = new URL('../media/',import.meta.url).href;
+  const script = new URL('../../cards/media/_review.js',import.meta.url).href;
+  const base = new URL('../../cards/media/',import.meta.url).href;
   const policy = "default-src 'none'; script-src " + script + "; style-src 'unsafe-inline'; img-src data: blob: " + base + "; form-action 'none'; base-uri " + base;
   return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + policy + '"><base href="' + base + '"><style>' + resources.css + '</style></head><body class="card"' + (resume ? ' data-review-resume' : '') + '>' + content + '</body></html>';
 }

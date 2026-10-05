@@ -2,17 +2,17 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {workspace,normalizeWorkspace,ankiTSV,rectangleHTML} from '../tools/data.mjs';
-import {zipFiles} from '../tools/zip.mjs';
+import {workspace,normalizeWorkspace,ankiTSV,rectangleHTML} from '../web/tools/data.mjs';
+import {zipFiles} from '../web/tools/zip.mjs';
 const root=path.resolve(path.dirname(fileURLToPath(import.meta.url)),'..');
-export const specs=JSON.parse(fs.readFileSync(path.join(root,'note-types.json'),'utf8'));
+export const specs=JSON.parse(fs.readFileSync(path.join(root,'cards/note-types.json'),'utf8'));
 export async function fixture() {
   const data=workspace();data.deck='制卡测试::中文';
-  const image=fs.readFileSync(path.join(root,'preview-choice.png'));
+  const image=fs.readFileSync(path.join(root,'docs/images/preview-choice.png'));
   const hash=await crypto.subtle.digest('SHA-256',image);
   const name='at-'+Buffer.from(hash).toString('hex').slice(0,32)+'.png';
   data.media=[{name,data:'data:image/png;base64,'+image.toString('base64')}];
-  const samples=JSON.parse(fs.readFileSync(path.join(root,'samples.json'),'utf8'));
+  const samples=JSON.parse(fs.readFileSync(path.join(root,'cards/samples.json'),'utf8'));
   data.notes=samples.filter(s=>!['minimal','rich'].includes(s.key)).map((s,i)=>({...s,guid:'authoring-test-'+i}));
   data.notes[0].guid='aE$<>&:;+/'; // Native Anki base91 GUID characters are preserved.
   data.notes[0].fields.问题='<p># UTF-8 测试："引号"\t制表符，换行\n第二行 &amp; ` ${value}</p>';

@@ -266,16 +266,16 @@ module.exports = async function checkMindMap(page, showCard, cases, engine) {
   console.log(engine + ': Mind Map 2,001 nodes / 100 Clozes, init + 16 fold actions + search ' + (Date.now() - start) + 'ms');
   await action('clear').click();
   // Re-executing the same media script must not double handlers or controls.
-  await page.addScriptTag({url:new URL('/media/_mindmap.js', page.url()).href});
+  await page.addScriptTag({url:new URL('/cards/media/_mindmap.js', page.url()).href});
   assert.equal(await page.locator('.mm-actions').count(), 1);
   await page.locator('.mm-reveal').first().click();
   assert.equal(await revealed(), 1);
   if (engine === 'Chromium' && process.env.ANKI_SCREENSHOTS === '1') {
     await page.setViewportSize({width:390,height:844});
     await page.emulateMedia({colorScheme:'light'});
-    const preview = JSON.parse(require('node:fs').readFileSync(path.join(__dirname, '../preview-cards.json'), 'utf8'));
+    const preview = JSON.parse(require('node:fs').readFileSync(path.join(__dirname, '../web/preview-cards.json'), 'utf8'));
     await showCard(page, preview.find(e => e.type === 'mindmap').cards[0].front);
     await action('expand').click();
-    await page.locator('.mm-sheet').screenshot({path:path.join(__dirname, '../preview-mindmap.png')});
+    await page.locator('.mm-sheet').screenshot({path:path.join(__dirname, '../docs/images/preview-mindmap.png')});
   }
 };

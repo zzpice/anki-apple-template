@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {specs,fixture} from './authoring_fixture.mjs';
-import {newNote,workspace,normalizeNotes,normalizeWorkspace,importText,mergeWorkspace,parseDelimited,quoteCell,ankiTSV,validateNote,markupErrors,rectangles,rectangleHTML,promptFor,verifyMediaNames} from '../tools/data.mjs';
-import {crc32,zipFiles} from '../tools/zip.mjs';
-import {templateHTML} from '../tools/preview.mjs';
+import {newNote,workspace,normalizeNotes,normalizeWorkspace,importText,mergeWorkspace,parseDelimited,quoteCell,ankiTSV,validateNote,markupErrors,rectangles,rectangleHTML,promptFor,verifyMediaNames} from '../web/tools/data.mjs';
+import {crc32,zipFiles} from '../web/tools/zip.mjs';
+import {templateHTML} from '../web/tools/preview.mjs';
 const media=['_rule-build.svg'];
 test('all native schemas, Unicode HTML/quotes/tabs/newlines and stable GUID round trip',async()=>{
   const data=await fixture();await verifyMediaNames(data.media);

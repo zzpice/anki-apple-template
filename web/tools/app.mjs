@@ -283,19 +283,20 @@ $('export-zip').onclick=async()=>{
     for(const spec of resources.specs){const notes=valid.filter(n=>n.type===spec.key);if(notes.length)files.push([spec.name+'.tsv',ankiTSV(notes,spec,data.deck)]);}
     for(const media of data.media)files.push(['media/'+media.name,mediaBytes(media)]);
     for(const [name,url] of reservedMedia)if(valid.some(n=>Object.values(n.fields).some(f=>f.includes(name))))files.push(['media/'+name,new Uint8Array(await (await fetch(url)).arrayBuffer())]);
-    files.push(['导入说明.txt','1. 先在 Anki Desktop 导入本项目 downloads/anki-template.apkg，安装五个笔记类型。\n2. 将 media 中的文件平铺复制到当前集合的 collection.media（不要复制子目录）。\n3. 逐一导入各类型 TSV；检查笔记类型、同名字段映射、允许 HTML、标签、牌组、GUID。\n4. 核对实际卡片、原生分卡和媒体，再同步到手机。相同 GUID 更新原笔记；请保留 GUID。\nworkspace.json 含全部草稿和图片；本次有 '+invalid.length+' 条待修正笔记未放入 TSV。\n完整说明：https://github.com/zzpice/anki-template/blob/main/AUTHORING.md\n']);
+    files.push(['导入说明.txt','1. 先在 Anki Desktop 导入本项目 downloads/anki-template.apkg，安装五个笔记类型。\n2. 将 media 中的文件平铺复制到当前集合的 collection.media（不要复制子目录）。\n3. 逐一导入各类型 TSV；检查笔记类型、同名字段映射、允许 HTML、标签、牌组、GUID。\n4. 核对实际卡片、原生分卡和媒体，再同步到手机。相同 GUID 更新原笔记；请保留 GUID。\nworkspace.json 含全部草稿和图片；本次有 '+invalid.length+' 条待修正笔记未放入 TSV。\n完整说明：https://github.com/zzpice/anki-template/blob/main/docs/authoring.md\n']);
     download(jsonName()+'.zip',zipFiles(files),'application/zip');notice('已导出 '+valid.length+' 条笔记；JSON 备份保留全部草稿。');
   }catch(error){$('export-status').textContent='无法导出：'+error.message;}
 };
 $('ai-open').onclick=()=>$('ai-dialog').showModal();$('build-prompt').onclick=()=>{const spec=resources.specs.find(s=>s.key===$('ai-type').value),count=Number($('ai-count').value);if(!Number.isInteger(count)||count<1||count>100){$('ai-status').textContent='预计笔记数为 1～100。';return;}$('ai-prompt').value=promptFor(spec,$('ai-content').value,count);$('ai-status').textContent='提示词已生成。复制到外部 AI，回填后逐条核对。';};
 $('copy-prompt').onclick=()=>copyText($('ai-prompt').value);$('return-import').onclick=()=>{$('ai-dialog').close();resetImport();$('import-dialog').showModal();};
-async function loadText(name) {const response=await fetch(name);if(!response.ok)throw new Error(name+'：'+response.status);return response.text();}
+const cardsURL = new URL('../../cards/',import.meta.url);
+async function loadText(name) {const response=await fetch(new URL(name,cardsURL));if(!response.ok)throw new Error(name+'：'+response.status);return response.text();}
 async function start() {
   try {
     const [specs,css,samples]=await Promise.all(['note-types.json','style.css','samples.json'].map(loadText));
     resources={specs:JSON.parse(specs),css,samples:JSON.parse(samples),templates:{}};
     for(const name of [...new Set(resources.specs.filter(s=>s.kind==='basic').flatMap(s=>[s.front,s.back]))])resources.templates[name]=await loadText(name);
-    for(const sample of resources.samples)for(const value of Object.values(sample.fields)){const doc=new DOMParser().parseFromString(value,'text/html');for(const img of doc.querySelectorAll('img')){const src=img.getAttribute('src');if(/^_[\w.-]+\.(svg|png|jpg|gif|webp)$/.test(src))reservedMedia.set(src,new URL('./media/'+src,location.href).href);}}
+    for(const sample of resources.samples)for(const value of Object.values(sample.fields)){const doc=new DOMParser().parseFromString(value,'text/html');for(const img of doc.querySelectorAll('img')){const src=img.getAttribute('src');if(/^_[\w.-]+\.(svg|png|jpg|gif|webp)$/.test(src))reservedMedia.set(src,new URL('media/'+src,cardsURL).href);}}
     for(const id of ['new-type','type-filter','import-type','ai-type'])for(const spec of resources.specs){if(id==='ai-type'&&spec.kind==='occlusion')continue;const option=document.createElement('option');option.value=spec.key;option.textContent=spec.name;$(id).append(option);}
     try{store=await openWorkspaceStore();const record=await store.read();revision=record.revision;if(record.data)data=normalizeWorkspace(record.data,resources.specs,true);saveStatus('已读取本地草稿 · 请定期下载 JSON 备份');}
     catch(error){store=null;saveStatus('无法读取本地草稿：'+error.message+'。当前页面可编辑和导出，请勿依赖缓存。',true);}

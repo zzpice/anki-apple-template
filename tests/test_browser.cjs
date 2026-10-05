@@ -17,8 +17,8 @@ const server = http.createServer((request, response) => {
   if (url === '/card') {
     response.setHeader('Content-Type', 'text/html; charset=utf-8');
     response.end('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
-      '<base href="/media/"><link rel="stylesheet" href="/native/css/reviewer.css">' +
-      '<link rel="stylesheet" href="/style.css"></head><body class="card"><div id="qa"></div>' +
+      '<base href="/cards/media/"><link rel="stylesheet" href="/native/css/reviewer.css">' +
+      '<link rel="stylesheet" href="/cards/style.css"></head><body class="card"><div id="qa"></div>' +
       '<script src="/native/js/reviewer.js"></script></body></html>');
     return;
   }
@@ -447,13 +447,13 @@ async function run(browserType, name, base) {
       await page.click('#flip');
       await frame.locator('.review-selected').waitFor();
       await frame.locator('.is-correct').waitFor();
-      await capture('preview-choice.png');
+      await capture('docs/images/preview-choice.png');
       await page.setViewportSize({width:700,height:1200});
       await page.selectOption('#sample', String(examples.findIndex(e => e.key === 'rich')));
       await page.click('#flip');
       await frame.locator('pre').waitFor();
       await frame.locator('img').evaluate(el => el.decode());
-      await capture('preview-content.png');
+      await capture('docs/images/preview-content.png');
     }
     assert.deepEqual(errors, []);
     console.log(name + ': 14 sample cards, responsive layout, contrast, choices, Cloze, native occlusion, images, lifecycle, Mind Map and preview passed');

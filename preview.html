@@ -103,7 +103,7 @@
         var example = examples[Number(sample.value)];
         var content = example.cards[Number(card.value) || 0][back ? 'back' : 'front'];
         // 卡片 HTML 由 Anki 生成，与安装包共用样式和媒体。
-        var base = new URL('./media/', location.href).href;
+        var base = new URL('./cards/media/', location.href).href;
         frame.srcdoc = '<!doctype html><html lang="zh-CN"><head>' +
           '<meta name="viewport" content="width=device-width,initial-scale=1">' +
           '<base href="' + base + '"><style>' + css + (example.css || '') + '</style></head>' +
@@ -138,7 +138,7 @@
           event.preventDefault(); flip.click();
         }
       });
-      Promise.all(['preview-cards.json', 'style.css'].map(function (name) {
+      Promise.all(['web/preview-cards.json', 'cards/style.css'].map(function (name) {
         return fetch(name).then(function (response) {
           if (!response.ok) throw new Error(name + ': ' + response.status);
           return response.text();

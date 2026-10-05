@@ -77,7 +77,7 @@ async function run(engine,name,base,data) {
     assert.equal(await page.locator('.mask').count(),4);assert.match(await page.locator('[id="source-Occlusion"]').inputValue(),/\{\{c4::image-occlusion:rect:/);
     await page.locator('#rect-list button').last().click();await page.fill('#occlusion-group','1');await page.locator('#occlusion-group').dispatchEvent('change');
     assert.equal(await page.locator('.mask').last().innerText(),'c1');await page.click('#delete-rect');assert.equal(await page.locator('.mask').count(),3);
-    await page.selectOption('#new-type','occlusion');await page.click('#new-note');await page.click('#occlusion-image');await page.locator('#image-file').setInputFiles(path.join(root,'preview-choice.png'));
+    await page.selectOption('#new-type','occlusion');await page.click('#new-note');await page.click('#occlusion-image');await page.locator('#image-file').setInputFiles(path.join(root,'docs/images/preview-choice.png'));
     await page.waitForFunction(()=>document.getElementById('occlusion-picture').src.startsWith('data:'));await page.locator('#occlusion-picture').evaluate(el=>el.decode());assert.match(await page.locator('[id="source-Image"]').inputValue(),/at-[a-f0-9]{32}\.png/);
     await page.selectOption('#type-filter','');await page.selectOption('#new-type','mindmap');await page.click('#new-note');
     await htmlField(page,'内容','<ul><li>章节<ul><li>{{c1::答案}} 与 {{c2::第二点}}<ul><li>上下文</li></ul></li></ul></li></ul>');

@@ -15,14 +15,16 @@ from anki.models import StockNotetypeKind
 from authoring import read_workspace
 
 ROOT = Path(__file__).resolve().parents[1]
+CARDS = ROOT / "cards"
 OUTPUT = ROOT / "downloads/anki-template.apkg"
-PREVIEW = ROOT / "preview-cards.json"
+PREVIEW = ROOT / "web/preview-cards.json"
 DECK_ID = 2040368696
 DECK_NAME = "Anki 模板 · 示例"
 
 
 def read_source(name):
-    return (ROOT / name).read_text(encoding="utf-8")
+    """规格内的模板与附加样式路径相对 cards/，与网页读取基址一致。"""
+    return (CARDS / name).read_text(encoding="utf-8")
 
 
 def specifications():
@@ -38,7 +40,7 @@ def sample_guid(key):
 
 
 def media_names():
-    return sorted(path.name for path in (ROOT / "media").iterdir() if path.is_file())
+    return sorted(path.name for path in (CARDS / "media").iterdir() if path.is_file())
 
 
 def make_model(collection, spec, timestamp):
@@ -63,7 +65,7 @@ def make_model(collection, spec, timestamp):
 
 
 def preview_data(collection, records=None):
-    """只去掉后端附加的样式块；预览直接读取同一份 style.css。"""
+    """只去掉后端附加的样式块；预览直接读取同一份 cards/style.css。"""
     def without_style(html):
         return re.sub(r"^<style>.*?</style>", "", html, count=1, flags=re.S)
 
@@ -125,7 +127,7 @@ def build_package(output=OUTPUT, preview=PREVIEW, timestamp=None, workspace=None
                     # same build timestamp as models, including deterministic tests.
                     collection.db.execute("update notes set mod=? where id=?", timestamp, note.id)
             for name in media_names():
-                collection.media.write_data(name, (ROOT / "media" / name).read_bytes())
+                collection.media.write_data(name, (CARDS / "media" / name).read_bytes())
             for name, content in extra_media.items():
                 collection.media.write_data(name, content)
             if workspace is not None:

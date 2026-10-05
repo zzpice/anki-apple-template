@@ -56,10 +56,10 @@ class PackageTests(unittest.TestCase):
             if spec["kind"] == "occlusion":
                 self.assertEqual(model["originalStockKind"], 6)
                 self.assertEqual([f["tag"] for f in model["flds"]], [0, 1, 2, 3, 4])
-        self.assertIn(package.read_source("LICENSE").strip(), package.read_source("media/_review.js"))
+        self.assertIn((package.ROOT / "LICENSE").read_text().strip(), package.read_source("media/_review.js"))
         for name in package.media_names():
             self.assertEqual((Path(collection.media.dir()) / name).read_bytes(),
-                             (package.ROOT / "media" / name).read_bytes())
+                             (package.CARDS / "media" / name).read_bytes())
         for sample in package.samples():
             nid = collection.db.scalar("select id from notes where guid=?", package.sample_guid(sample["key"]))
             note = collection.get_note(nid)
@@ -72,7 +72,7 @@ class PackageTests(unittest.TestCase):
                 self.assertNotIn("{{FrontSide}}", card.answer())
                 self.assertEqual((card.type, card.queue, card.reps), (0, 0, 0))
         data = package.preview_data(collection)
-        self.assertEqual(data, json.loads(package.read_source("preview-cards.json")))
+        self.assertEqual(data, json.loads(package.PREVIEW.read_text()))
         return data
 
     def test_download_import_and_preview(self):
@@ -121,7 +121,7 @@ class PackageTests(unittest.TestCase):
         nid = collection.db.scalar("select id from notes where guid=?", package.sample_guid("occlusion"))
         source = collection._backend.get_image_occlusion_note(nid).note
         self.assertEqual(source.image_file_name, "_rule-build.svg")
-        self.assertEqual(source.image_data, (package.ROOT / "media/_rule-build.svg").read_bytes())
+        self.assertEqual(source.image_data, (package.CARDS / "media/_rule-build.svg").read_bytes())
         self.assertEqual({group.ordinal for group in source.occlusions}, {1, 2})
         self.assertTrue(source.occlude_inactive)
 
@@ -216,7 +216,7 @@ class PackageTests(unittest.TestCase):
         self.assertEqual(specs["basic"]["back"], specs["choice"]["back"])
 
     def test_readme_field_examples_match_package_samples(self):
-        readme = package.read_source("README.md")
+        readme = (package.ROOT / "README.md").read_text()
         samples = {s["key"]: s for s in package.samples()}
         blocks = re.findall(r"```text\n(.*?)\n```", readme, re.S)
         self.assertEqual(len(blocks), 4)

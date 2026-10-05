@@ -118,7 +118,7 @@ class MindMapTests(unittest.TestCase):
                     note = source.new_note(model)
                     note["标题"], note["内容"] = title, content
                     source.add_note(note, deck_id)
-                media = (package.ROOT / "media/_rule-build.svg").read_bytes()
+                media = (package.CARDS / "media/_rule-build.svg").read_bytes()
                 source.media.write_data('_rule-build.svg', media)
                 apkg = Path(d) / "chapters.apkg"
                 source.export_anki_package(out_path=str(apkg), limit=deck_id,
