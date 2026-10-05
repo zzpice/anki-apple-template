@@ -1,6 +1,6 @@
 # 维护说明
 
-项目概览见 [README](../README.md)，日常安装与字段教学见 [Anki 使用说明](usage.md)，网页制卡与数据交换见 [AUTHORING](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
+[项目首页](https://zzpice.github.io/anki-template/) 提供统一入口；项目概览见 [README](../README.md)，日常安装与字段教学见 [Anki 使用说明](usage.md)，网页制卡与数据交换见 [AUTHORING](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
 
 ## 仓库结构
 

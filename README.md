@@ -2,7 +2,7 @@
 
 个人日常复习用的 Anki 模板，支持问答、选择、填空、原生图片遮挡和思维导图。配套网页工具可整理自己的笔记，导入 Anki 后复习。
 
-[下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [网页制卡](https://zzpice.github.io/anki-template/tools.html) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [使用说明](docs/usage.md)
+[**项目首页**](https://zzpice.github.io/anki-template/) · [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [网页制卡](https://zzpice.github.io/anki-template/tools.html) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [使用说明](docs/usage.md)
 
 [![Template Check](https://github.com/zzpice/anki-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-template/actions/workflows/check.yml)
 

@@ -1,6 +1,6 @@
 # 网页制卡
 
-[打开制卡工具](https://zzpice.github.io/anki-template/tools.html) · [项目示例预览](https://zzpice.github.io/anki-template/preview.html) · [模板使用与字段教学](usage.md#填写卡片)
+[项目首页](https://zzpice.github.io/anki-template/) · [打开制卡工具](https://zzpice.github.io/anki-template/tools.html) · [项目示例预览](https://zzpice.github.io/anki-template/preview.html) · [模板使用与字段教学](usage.md#填写卡片)
 
 浏览器负责整理和编辑笔记，Anki 负责生成原生卡片与复习排程。工具直接读取 `cards/note-types.json` 的五个类型和字段；不需要账号、API Key 或服务端。本地使用时在仓库根目录运行 `python3 -m http.server 8000`，打开 <http://localhost:8000/tools.html>。请通过 HTTP / HTTPS 打开，双击 HTML 文件不能可靠加载模块与字段定义。
 

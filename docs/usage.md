@@ -1,6 +1,6 @@
 # Anki 使用说明
 
-[项目概览](../README.md) · [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [网页制卡说明](authoring.md)
+[项目首页](https://zzpice.github.io/anki-template/) · [项目概览](../README.md) · [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [网页制卡说明](authoring.md)
 
 ## 开始使用
 
