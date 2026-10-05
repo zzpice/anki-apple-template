@@ -43,7 +43,10 @@ def make_model(collection, spec, timestamp):
             "cloze": StockNotetypeKind.KIND_CLOZE,
             "occlusion": StockNotetypeKind.KIND_IMAGE_OCCLUSION}[spec["kind"]]
     model = json.loads(collection._backend.get_stock_notetype_legacy(kind))
-    model.update(id=spec["id"], name=spec["name"], mod=timestamp, css=read_source("style.css"))
+    css = read_source("style.css")
+    if spec.get("css"):
+        css += "\n" + read_source(spec["css"])
+    model.update(id=spec["id"], name=spec["name"], mod=timestamp, css=css)
     if spec["kind"] != "occlusion":
         model["flds"] = [collection.models.new_field(name) for name in spec["fields"]]
     for index, field in enumerate(model["flds"]):
@@ -62,10 +65,13 @@ def preview_data(collection):
         return re.sub(r"^<style>.*?</style>", "", html, count=1, flags=re.S)
 
     result = []
+    specs = {spec["key"]: spec for spec in specifications()}
     for sample in samples():
+        spec = specs[sample["type"]]
         note_id = collection.db.scalar("select id from notes where guid=?", sample_guid(sample["key"]))
         card_ids = collection.db.list("select id from cards where nid=? order by ord", note_id)
         result.append({"key": sample["key"], "label": sample["label"], "type": sample["type"],
+                       **({"css": read_source(spec["css"])} if spec.get("css") else {}),
                        "cards": [{"front": without_style(collection.get_card(cid).question()),
                                   "back": without_style(collection.get_card(cid).answer())}
                                  for cid in card_ids]})

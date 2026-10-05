@@ -34,5 +34,15 @@
     "fields": ["Occlusion", "Image", "Header", "Back Extra", "Comments"],
     "front": "templates/occlusion/front.html",
     "back": "templates/occlusion/back.html"
+  },
+  {
+    "key": "mindmap",
+    "id": 1303378378,
+    "name": "思维导图",
+    "kind": "cloze",
+    "fields": ["标题", "内容"],
+    "front": "templates/mindmap/front.html",
+    "back": "templates/mindmap/back.html",
+    "css": "templates/mindmap/style.css"
   }
 ]

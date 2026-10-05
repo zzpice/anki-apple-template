@@ -36,14 +36,17 @@ class PackageTests(unittest.TestCase):
 
     def check_collection(self, collection):
         self.assertEqual(collection.note_count(), len(package.samples()))
-        self.assertEqual(len(collection.find_cards("")), 11)
-        self.assertEqual([s["name"] for s in package.specifications()], ["问答", "选择", "填空", "图片遮挡"])
+        self.assertEqual(len(collection.find_cards("")), 14)
+        self.assertEqual([s["name"] for s in package.specifications()], ["问答", "选择", "填空", "图片遮挡", "思维导图"])
         self.assertIsNotNone(collection.decks.id_for_name(package.DECK_NAME))
         for spec in package.specifications():
             model = collection.models.get(spec["id"])
             self.assertEqual(model["name"], spec["name"])
             self.assertEqual([f["name"] for f in model["flds"]], spec["fields"])
-            self.assertEqual(model["css"], package.read_source("style.css"))
+            expected_css = package.read_source("style.css")
+            if spec.get("css"):
+                expected_css += "\n" + package.read_source(spec["css"])
+            self.assertEqual(model["css"], expected_css)
             self.assertEqual(model["tmpls"][0]["qfmt"], package.read_source(spec["front"]))
             self.assertEqual(model["tmpls"][0]["afmt"], package.read_source(spec["back"]))
             self.assertEqual([f["id"] for f in model["flds"]],
@@ -138,8 +141,8 @@ class PackageTests(unittest.TestCase):
         self.import_into(collection, package.OUTPUT)
         rebuilt = package.build_package(self.directory / "rebuilt.apkg", preview=None)
         self.import_into(collection, rebuilt)
-        self.assertEqual(collection.note_count(), 8)
-        self.assertEqual(len(collection.find_cards("")), 11)
+        self.assertEqual(collection.note_count(), 9)
+        self.assertEqual(len(collection.find_cards("")), 14)
         for spec in package.specifications():
             self.assertEqual(len([m for m in collection.models.all() if m["name"] == spec["name"]]), 1)
         for cid, schedule in schedules.items():
@@ -175,7 +178,7 @@ class PackageTests(unittest.TestCase):
         self.import_into(collection, rebuilt)
         for spec in specs:
             model = collection.models.get(spec["id"])
-            self.assertEqual(model["css"], css)
+            self.assertEqual(model["css"], css + ("\n" + original(spec["css"]) if spec.get("css") else ""))
             self.assertEqual(model["tmpls"][0]["qfmt"], replacements[spec["front"]])
             self.assertEqual(model["tmpls"][0]["afmt"], replacements[spec["back"]])
         for note in saved:
@@ -184,7 +187,7 @@ class PackageTests(unittest.TestCase):
         for cid, schedule in schedules.items():
             card = collection.get_card(cid)
             self.assertEqual((card.type, card.queue, card.ivl, card.reps, card.due), schedule)
-        self.assertEqual(collection.note_count(), 12)
+        self.assertEqual(collection.note_count(), 14)
 
     def test_empty_question_is_reported_by_anki(self):
         collection = self.collection()
@@ -221,6 +224,11 @@ class PackageTests(unittest.TestCase):
             fields = dict(line.split("：", 1) for line in block.splitlines())
             self.assertEqual(fields, {f: samples[key]["fields"][f] for f in ("问题", "选项", "答案", "题型")})
         self.assertEqual(blocks[3].replace("\n", ""), samples["cloze"]["fields"]["正文"])
+        mindmap_section = readme.split('### 思维导图', 1)[1]
+        mindmap_html = re.search(r'```html\n(.*?)\n```', mindmap_section, re.S).group(1)
+        # Editor-friendly line indentation is not content.
+        mindmap_html = re.sub(r'\s*\n\s*', '', mindmap_html)
+        self.assertEqual(mindmap_html, samples["mindmap"]["fields"]["内容"])
         recall = samples["recall"]["fields"]
         self.assertIn("问题：" + recall["问题"], readme)
         self.assertIn("答案：" + re.sub(r"<[^>]+>", "", recall["答案"]), readme)

@@ -12,6 +12,9 @@ def check():
     specs = json.loads((ROOT / "note-types.json").read_text())
     assert len({spec["id"] for spec in specs}) == len(specs)
     for spec in specs:
+        if spec.get("css"):
+            css = (ROOT / spec["css"]).read_text()
+            assert "@import" not in css and "url(" not in css
         fields = set(spec["fields"]) | {"FrontSide", "Tags"}
         assert len(fields) == len(spec["fields"]) + 2
         for side in ("front", "back"):
@@ -34,6 +37,9 @@ def check():
     for path in (ROOT / "media").glob("*.js"):
         assert "{{" not in path.read_text()
         subprocess.run(["node", "--check", str(path)], check=True)
+    mindmap = (ROOT / "media/_mindmap.js").read_text()
+    assert not re.search(r'\b(?:fetch|XMLHttpRequest|MutationObserver|setInterval|localStorage)\b', mindmap)
+    assert "https://" not in mindmap and "console." not in mindmap
     preview = (ROOT / "preview.html").read_text()
     for script in re.findall(r"<script>(.*?)</script>", preview, re.S):
         subprocess.run(["node", "--check"], input=script, text=True, check=True)

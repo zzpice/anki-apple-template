@@ -8,6 +8,8 @@ const {chromium, webkit} = require('playwright');
 const root = path.resolve(__dirname, '..');
 const examples = JSON.parse(fs.readFileSync(path.join(root, 'build/cards.json'), 'utf8'));
 const choiceCases = JSON.parse(fs.readFileSync(path.join(root, 'build/choice-cases.json'), 'utf8'));
+const mindmapCases = JSON.parse(fs.readFileSync(path.join(root, 'build/mindmap-cases.json'), 'utf8'));
+const checkMindMap = require('./mindmap_browser.cjs');
 const nativeRoot = JSON.parse(fs.readFileSync(path.join(root, 'build/anki-web.json'), 'utf8'));
 const cards = Object.fromEntries(examples.map(example => [example.key, example.cards]));
 const server = http.createServer((request, response) => {
@@ -32,6 +34,9 @@ const server = http.createServer((request, response) => {
 });
 
 async function showCard(page, html) {
+  if (html.includes('data-mindmap=') && !html.startsWith('<style>')) {
+    html = '<style>' + examples.find(e => e.type === 'mindmap').css + '</style>' + html;
+  }
   await page.evaluate(async html => {
     const qa = document.getElementById('qa');
     qa.innerHTML = html;
@@ -178,7 +183,7 @@ async function checkChoices(page) {
 async function run(browserType, name, base) {
   const browser = await browserType.launch();
   try {
-    const page = await browser.newPage();
+    const page = await browser.newPage({hasTouch:true});
     const errors = [];
     page.on('pageerror', error => errors.push(error.message));
     await page.goto(base + '/card');
@@ -209,6 +214,9 @@ async function run(browserType, name, base) {
     await page.setViewportSize({width:390,height:844});
     await page.emulateMedia({colorScheme:'light'});
     await checkChoices(page);
+    await checkMindMap(page, showCard, mindmapCases, name);
+    await page.setViewportSize({width:390,height:844});
+    await page.emulateMedia({colorScheme:'light'});
     await showCard(page, cards.single[0].front);
     assert.equal(await page.getByRole('radio', {name:/allowlist\.txt/}).count(), 1);
     await page.locator('label[for="review-choice-A"]').click();
@@ -448,7 +456,7 @@ async function run(browserType, name, base) {
       await capture('preview-content.png');
     }
     assert.deepEqual(errors, []);
-    console.log(name + ': 11 cards, responsive layout, contrast, choices, Cloze, native occlusion, images, lifecycle and preview passed');
+    console.log(name + ': 14 sample cards, responsive layout, contrast, choices, Cloze, native occlusion, images, lifecycle, Mind Map and preview passed');
   } finally { await browser.close(); }
 }
 
