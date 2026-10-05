@@ -154,7 +154,7 @@ SOFTWARE.
       container.hidden = true;
       var message = document.getElementById('occlusion-error');
       message.hidden = false;
-      message.textContent = '图片遮挡需要支持原生图片遮挡的 Anki 客户端。请更新客户端后复习；在线预览不模拟此功能。';
+      message.textContent = '请使用支持原生图片遮挡的 Anki 客户端打开这张卡片。';
       var toggle = document.getElementById('toggle');
       if (toggle) toggle.hidden = true;
     }

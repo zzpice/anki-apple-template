@@ -1,12 +1,11 @@
 # 仓库协作约定
 
-- 默认直接在 `main` 修改、提交并推送；只有用户明确要求时才使用其他分支或 Pull Request。
-- 保持纯 HTML、CSS、JavaScript，无前端框架、前端打包器或第三方卡片运行时依赖。
-- `note-types.json`、`templates/`、`style.css`、`media/` 和 `samples.json` 是唯一源码；`downloads/anki-apple-template.apkg` 与 `preview-cards.json` 是官方后端生成的交付文件。
-- 修改字段、模板、交互、媒体或样式后，重新生成两个交付文件，通过 Template Check、官方 Anki 导入／一致性检查和 Chromium／WebKit 回归。
-- 固定本次新结构的类型 ID、字段 ID、模板 ID、示例 key 和字段顺序；不要为了外观更新重新分配标识。源牌组 ID 固定，导入到用户集合后 Anki 可按名称映射为当地 ID。
-- 填空和图片遮挡继续使用 Anki 原生机制。图片遮挡类型必须保留 originalStockKind 和字段 tag，避免破坏编辑器识别。
-- 预览直接读取官方渲染的 HTML，不增加浏览器字段替换器或另外一套卡片。普通浏览器不具备原生遮挡 API，应隐藏图片并说明导入体验。
-- 保持桌面和移动端兼容性优先；浏览器引擎和官方后端测试不能冒充真机测试。
-- 视觉服务于阅读：统一排版、留白和少量分隔线。新交互必须有明确复习收益；不引入倒计时、统计、设置面板、自动评分、状态持久化或历史兼容层。
-- 开发依赖只用于生成和测试，不进入卡片运行时；测试和生成只操作临时集合，不访问个人 Anki 数据。
+- 默认在 `main` 修改、提交并推送；用户明确要求时才使用其他分支或 Pull Request。
+- 保持纯 HTML、CSS、JavaScript，卡片不依赖框架、打包器或第三方运行库。
+- 模板源码位于 `note-types.json`、`templates/`、`style.css`、`media/` 和 `samples.json`。安装包与 `preview-cards.json` 由生成器产出，勿手动修改。
+- 修改模板、字段、样式、媒体或示例后，重新生成安装包和预览数据，并运行静态检查、Anki 导入测试及 Chromium／WebKit 检查。命令见 `DEVELOPMENT.md`。
+- 保留笔记类型、字段、模板、牌组和示例的固定标识，以及字段顺序；示例 GUID 存放在 `samples.json`。
+- 填空和图片遮挡使用 Anki 原生机制。图片遮挡保留 `originalStockKind` 和字段 `tag`。
+- 预览读取 Anki 生成的 HTML，共用模板样式和媒体。浏览器缺少原生遮挡 API 时隐藏图片并提示导入。
+- 以日常阅读和复习为准判断改动。文案简洁，交互保持简单；区分浏览器检查和客户端设备测试。
+- 开发依赖只用于生成和测试；这些操作只使用临时集合，不访问个人 Anki 数据。

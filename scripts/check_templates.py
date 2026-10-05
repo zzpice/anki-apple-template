@@ -38,7 +38,7 @@ def check():
     for script in re.findall(r"<script>(.*?)</script>", preview, re.S):
         subprocess.run(["node", "--check"], input=script, text=True, check=True)
     assert 'preview-cards.json' in preview and 'style.css' in preview
-    for file in ("index.html", "preview.html", "downloads/anki-apple-template.apkg", ".nojekyll"):
+    for file in ("index.html", "preview.html", "downloads/anki-template.apkg", ".nojekyll"):
         assert (ROOT / file).is_file(), file
     css = (ROOT / "style.css").read_text()
     assert "@import" not in css and "url(" not in css

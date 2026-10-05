@@ -1,7 +1,6 @@
 """用官方 Anki 后端生成安装包和真实卡片预览；只操作临时集合。"""
 
 import argparse
-import hashlib
 import json
 from pathlib import Path
 import re
@@ -13,7 +12,7 @@ from anki.import_export_pb2 import ExportAnkiPackageOptions
 from anki.models import StockNotetypeKind
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT = ROOT / "downloads/anki-apple-template.apkg"
+OUTPUT = ROOT / "downloads/anki-template.apkg"
 PREVIEW = ROOT / "preview-cards.json"
 DECK_ID = 2040368696
 DECK_NAME = "简明模板 · 示例"
@@ -32,7 +31,7 @@ def samples():
 
 
 def sample_guid(key):
-    return hashlib.sha256(("zzpice/anki-apple-template/v2/" + key).encode()).hexdigest()[:16]
+    return next(sample["guid"] for sample in samples() if sample["key"] == key)
 
 
 def media_names():
@@ -85,12 +84,14 @@ def build_package(output=OUTPUT, preview=PREVIEW, timestamp=None):
             collection.decks.update(deck)
             specs = {spec["key"]: spec for spec in specifications()}
             models = {key: make_model(collection, spec, timestamp) for key, spec in specs.items()}
-            seen = set()
+            seen, guids = set(), set()
             for sample in samples():
                 spec = specs[sample["type"]]
-                if sample["key"] in seen or list(sample["fields"]) != spec["fields"]:
-                    raise ValueError("示例 key 必须唯一，字段顺序必须与 note-types.json 一致")
+                if (sample["key"] in seen or sample["guid"] in guids
+                        or list(sample["fields"]) != spec["fields"]):
+                    raise ValueError("示例 key 和 guid 必须唯一，字段顺序必须与 note-types.json 一致")
                 seen.add(sample["key"])
+                guids.add(sample["guid"])
                 note = collection.new_note(models[sample["type"]])
                 note.guid = sample_guid(sample["key"])
                 note.fields = list(sample["fields"].values())

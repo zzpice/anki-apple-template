@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="简明 Anki 模板：内容优先的问答、选择、填空与原生图片遮挡。直接下载导入，免复制代码。">
-  <title>简明 Anki 模板 · 在线预览</title>
+  <meta name="description" content="个人 Anki 模板，支持问答、选择、填空和原生图片遮挡。">
+  <title>Anki 模板 · 在线预览</title>
   <style>
     :root { color-scheme:light dark; }
     * { box-sizing:border-box; }
@@ -45,13 +45,13 @@
 <body data-theme="system">
   <div class="preview-shell">
     <header>
-      <h1>简明 Anki 模板</h1>
+      <h1>Anki 模板</h1>
       <nav aria-label="项目链接">
-        <a href="./downloads/anki-apple-template.apkg" download>下载并导入 Anki</a>
-        <a href="https://github.com/zzpice/anki-apple-template#readme">使用说明</a>
+        <a href="./downloads/anki-template.apkg" download>下载安装包</a>
+        <a href="https://github.com/zzpice/anki-template#readme">使用说明</a>
       </nav>
     </header>
-    <p class="intro">先回忆，再核对。为每天的复习保留清楚的文字和恰当的留白。</p>
+    <p class="intro">选择示例，查看卡片的正面和背面。</p>
     <div class="controls">
       <label>题型 <select id="sample" disabled></select></label>
       <label id="card-label" hidden>卡片 <select id="card"></select></label>
@@ -91,7 +91,7 @@
       function render() {
         var example = examples[Number(sample.value)];
         var content = example.cards[Number(card.value) || 0][back ? 'back' : 'front'];
-        // 内容是官方 Anki 后端生成的 HTML，不在浏览器重写字段、Cloze 或卡片逻辑。
+        // 卡片 HTML 由 Anki 生成，与安装包共用样式和媒体。
         var base = new URL('./media/', location.href).href;
         frame.srcdoc = '<!doctype html><html lang="zh-CN"><head>' +
           '<meta name="viewport" content="width=device-width,initial-scale=1">' +
@@ -99,8 +99,8 @@
           '<body class="card">' + content + '</body></html>';
         flip.textContent = back ? '返回正面' : '显示答案';
         status.textContent = example.type === 'occlusion' ?
-          '图片遮挡使用客户端内置的绘制与编辑功能，请导入安装包体验。在线预览不模拟遮挡。' :
-          '预览与安装包共用真实卡片内容、样式和脚本。选择仅辅助回忆，评分仍由你在 Anki 中决定。';
+          '图片遮挡请在 Anki 中导入体验。' :
+          '在 Anki 中复习时，翻面后自行评分。';
       }
       function chooseSample() {
         var example = examples[Number(sample.value)];
@@ -140,7 +140,7 @@
         sample.disabled = flip.disabled = false;
         chooseSample();
       }).catch(function (error) {
-        status.textContent = error.message + '。本地预览请使用 HTTP 服务，见使用说明。';
+        status.textContent = '无法加载预览：' + error.message + '。本地预览方法见使用说明。';
       });
     })();
   </script>

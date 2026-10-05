@@ -1,6 +1,7 @@
 [
   {
     "key": "recall",
+    "guid": "30b4cf7879f85e7f",
     "label": "普通问答",
     "type": "basic",
     "fields": {
@@ -9,7 +10,7 @@
       "选项": "",
       "题型": "",
       "解析": "<p>把一个复杂问题拆成几个小问题，通常能减少答题时的犹豫。答错时，也更容易定位是哪一部分没有理解。</p><ul><li>问题要具体。</li><li>答案要短，但保留必要的上下文。</li></ul>",
-      "补充": "<p>复习不是重新阅读整章内容。较长的资料可以放在这里，需要时再展开。</p><table><tr><th>字段</th><th>放什么</th><th>何时阅读</th></tr><tr><td>答案</td><td>本次需要回忆的内容</td><td>每次翻面</td></tr><tr><td>解析</td><td>原因和容易混淆的点</td><td>核对之后</td></tr><tr><td>补充</td><td>更多背景和个人笔记</td><td>需要时</td></tr></table>",
+      "补充": "<p>复习不是重新阅读整章内容。较长的资料可以放在这里，需要时再展开。</p><table><tr><th>字段</th><th>放什么</th><th>何时阅读</th></tr><tr><td>答案</td><td>要回忆的内容</td><td>每次翻面</td></tr><tr><td>解析</td><td>原因和容易混淆的点</td><td>核对之后</td></tr><tr><td>补充</td><td>更多背景和个人笔记</td><td>需要时</td></tr></table>",
       "章节": "学习方法 · 卡片设计",
       "来源": "<a href=\"https://docs.ankiweb.net/editing.html#effective-learning\">Anki 手册 · 有效学习</a>"
     },
@@ -19,6 +20,7 @@
   },
   {
     "key": "single",
+    "guid": "04dd2835fbf849a6",
     "label": "单选",
     "type": "basic",
     "fields": {
@@ -37,6 +39,7 @@
   },
   {
     "key": "multiple",
+    "guid": "20c149d58790d488",
     "label": "多选",
     "type": "basic",
     "fields": {
@@ -55,6 +58,7 @@
   },
   {
     "key": "judgment",
+    "guid": "8dcbed7227cc0891",
     "label": "判断",
     "type": "basic",
     "fields": {
@@ -73,6 +77,7 @@
   },
   {
     "key": "minimal",
+    "guid": "881f8a51407cee4c",
     "label": "最简问答",
     "type": "basic",
     "fields": {
@@ -89,6 +94,7 @@
   },
   {
     "key": "rich",
+    "guid": "0fec597b7fc7c178",
     "label": "图片、表格与代码",
     "type": "basic",
     "fields": {
@@ -107,6 +113,7 @@
   },
   {
     "key": "cloze",
+    "guid": "59cab2b27a1b517c",
     "label": "填空与完形段落",
     "type": "cloze",
     "fields": {
@@ -122,6 +129,7 @@
   },
   {
     "key": "occlusion",
+    "guid": "106aa421cea756c7",
     "label": "原生图片遮挡",
     "type": "occlusion",
     "fields": {
@@ -129,7 +137,7 @@
       "Image": "<img src=\"_memory.svg\">",
       "Header": "回忆图中被遮住的过程。",
       "Back Extra": "从左到右依次为编码、存储、提取。",
-      "Comments": "此示例使用 Anki 内置的图片遮挡编辑器和复习渲染器，无需安装插件。"
+      "Comments": "用 Anki 内置编辑器修改遮挡区域。"
     },
     "tags": [
       "简明模板::示例"

@@ -227,7 +227,7 @@ async function run(browserType, name, base) {
     await page.selectOption('#card', '2');
     await frame.locator('.cloze').waitFor();
     assert.match(await frame.locator('.cloze').innerText(), /访问已存信息/);
-    assert.equal((await page.request.get(base + '/downloads/anki-apple-template.apkg')).status(), 200);
+    assert.equal((await page.request.get(base + '/downloads/anki-template.apkg')).status(), 200);
     await page.goto(base + '/index.html');
     await page.waitForURL('**/preview.html');
     await frame.locator('.review-choice').first().waitFor();
