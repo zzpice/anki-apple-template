@@ -5,6 +5,8 @@
 [![Template Check](https://github.com/zzpice/anki-apple-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-apple-template/actions/workflows/check.yml)
 [![License](https://img.shields.io/github/license/zzpice/anki-apple-template)](./LICENSE)
 
+**[→ 在线预览](https://zzpice.github.io/anki-apple-template/)**
+
 纯 HTML、CSS 和 JavaScript，无框架、构建步骤或第三方依赖。
 
 保留问题、答案、笔记、相关知识分区、Tags、复习时间、深色模式、图片自适应与点击放大、表格横向滚动、代码块，以及手机横竖屏适配。
