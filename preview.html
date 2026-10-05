@@ -20,7 +20,8 @@
     select, button { font:inherit; color:inherit; background:transparent; border:1px solid #a7ada0; border-radius:3px; padding:5px 8px; }
     button { cursor:pointer; }
     button:disabled { cursor:default; opacity:.5; }
-    iframe { display:block; width:100%; border:0; min-height:570px; height:calc(100vh - 230px); background:#faf9f6; }
+    iframe { display:block; width:100%; max-width:100%; margin-inline:auto; border:0; min-height:570px; height:calc(100vh - 230px); background:#faf9f6; }
+    body[data-viewport="phone"] iframe { width:390px; }
     #status { margin:10px 0 0; color:#63685e; font-size:13px; }
     [hidden] { display:none !important; }
     @media (prefers-color-scheme:dark) {
@@ -42,7 +43,7 @@
     }
   </style>
 </head>
-<body data-theme="system">
+<body data-theme="system" data-viewport="auto">
   <div class="preview-shell">
     <header>
       <h1>Anki 模板</h1>
@@ -55,6 +56,12 @@
     <div class="controls">
       <label>题型 <select id="sample" disabled></select></label>
       <label id="card-label" hidden>卡片 <select id="card"></select></label>
+      <label>视口
+        <select id="viewport">
+          <option value="auto">自适应</option>
+          <option value="phone">手机 · 390px</option>
+        </select>
+      </label>
       <label>外观
         <select id="theme">
           <option value="system">跟随系统</option>
@@ -120,6 +127,7 @@
         render();
       }
       frame.onload = applyTheme;
+      document.getElementById('viewport').onchange = function () { document.body.dataset.viewport = this.value; };
       theme.onchange = applyTheme;
       sample.onchange = chooseSample;
       card.onchange = function () { back = false; render(); };

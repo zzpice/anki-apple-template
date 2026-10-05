@@ -4,6 +4,8 @@
 
 [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [在线预览](https://zzpice.github.io/anki-template/)
 
+在线预览可切换到 390px 手机视口，查看同一张卡片在窄屏下的效果；更窄的屏幕会自动适应。
+
 [![Template Check](https://github.com/zzpice/anki-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-template/actions/workflows/check.yml)
 
 ## 开始使用

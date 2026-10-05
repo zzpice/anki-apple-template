@@ -60,4 +60,6 @@ python3 -m http.server 8000
 
 打开 <http://localhost:8000/preview.html>。预览使用 Anki 后端生成的 HTML、共用样式和媒体；返回当前正面时仅添加 `data-review-resume`，保留同一次选择。普通浏览器不支持原生遮挡 API，遮挡题只显示导入提示。
 
+视口选项在自适应宽度与 390px 手机宽度之间切换，小屏仍限制在页面宽度内。切换只改变同一个 iframe 的宽度，不重新渲染卡片，当前选择和正反面保持不变。浏览器检查覆盖桌面及 320、360、375、390、430px 手机宽度。
+
 GitHub Pages 从 `main` 根目录发布。保留 `.nojekyll`，使以下划线开头的媒体正常发布。安装包存放在 `downloads/anki-template.apkg`，随源码提交；更改模板或示例后，同时生成并提交安装包和 `preview-cards.json`。

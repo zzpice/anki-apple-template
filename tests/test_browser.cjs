@@ -69,6 +69,22 @@ async function choiceOrder(page) {
   })));
 }
 
+async function checkPreviewViewport(page, width) {
+  const view = await page.locator('#preview').evaluate(el => ({
+    width:el.contentWindow.innerWidth,
+    left:el.getBoundingClientRect().left,
+    outerWidth:innerWidth,
+    mobile:el.contentWindow.matchMedia('(max-width:480px)').matches,
+    cardOverflow:el.contentDocument.documentElement.scrollWidth > el.contentWindow.innerWidth,
+    pageOverflow:document.documentElement.scrollWidth > innerWidth,
+  }));
+  assert.equal(view.width, width, 'card viewport width');
+  assert.ok(Math.abs(view.left - (view.outerWidth - width) / 2) < 1, 'viewport centering');
+  assert.equal(view.mobile, width <= 480, 'card media queries use iframe width');
+  assert.equal(view.cardOverflow, false, 'card overflows viewport');
+  assert.equal(view.pageOverflow, false, 'preview controls overflow page');
+}
+
 async function checkChoices(page) {
   // 控制熵验证不同排序，并按原始选项标识核对背面的显示字母和正文。
   await page.evaluate(() => { Math.random = () => 0; });
@@ -303,16 +319,27 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator(':modal').count(), 0);
 
     // 页面读取相同官方渲染；全套示例、填空分卡、强制主题和下载链接可用。
+    await page.setViewportSize({width:1280,height:900});
     await page.goto(base + '/preview.html');
     const frame = page.frameLocator('#preview');
     await frame.locator('.review-choice').first().waitFor();
+    await checkPreviewViewport(page, 1280);
     const previewOrder = await choiceOrder(frame);
     await frame.locator('#review-choice-A').check();
+    await page.selectOption('#viewport', 'phone');
+    await checkPreviewViewport(page, 390);
+    assert.deepEqual(await choiceOrder(frame), previewOrder);
+    assert.equal(await frame.locator('#review-choice-A').isChecked(), true);
     await page.click('#flip');
     await frame.locator('#answer').waitFor();
     assert.deepEqual(await choiceOrder(frame), previewOrder);
     assert.equal(await frame.locator('.review-choice[data-key="A"] .review-selected').count(), 1);
     assert.equal(await frame.locator('.is-correct').getAttribute('data-key'), 'C');
+    await page.selectOption('#viewport', 'auto');
+    await checkPreviewViewport(page, 1280);
+    assert.equal(await frame.locator('.review-selected').count(), 1);
+    assert.deepEqual(await choiceOrder(frame), previewOrder);
+    await page.selectOption('#viewport', 'phone');
     await page.click('#flip');
     await frame.locator('input:enabled').first().waitFor();
     assert.deepEqual(await choiceOrder(frame), previewOrder);
@@ -343,13 +370,54 @@ async function run(browserType, name, base) {
       }
       await page.click('#flip');
       await frame.locator('#answer').waitFor();
-      assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth));
+      await checkPreviewViewport(page, 390);
     }
     await page.selectOption('#sample', String(examples.findIndex(e => e.key === 'cloze')));
     assert.equal(await page.locator('#card option').count(), 3);
     await page.selectOption('#card', '2');
     await frame.locator('.cloze').waitFor();
     assert.match(await frame.locator('.cloze').innerText(), /正负方向/);
+
+    // 桌面上的手机视口与真实窄屏共用同一张富文本卡片，调整宽度不重绘内容。
+    await page.selectOption('#sample', String(examples.findIndex(e => e.key === 'rich')));
+    await frame.locator('#answer').waitFor({state:'detached'});
+    await page.click('#flip');
+    await frame.locator('pre').waitFor();
+    await frame.locator('.review-question img').evaluate(el => el.decode());
+    const viewports = [
+      {width:1280, mode:'auto'}, {width:1280, mode:'phone'},
+      ...[320, 360, 375, 390, 430].map(width => ({width, mode:'auto'})),
+      {width:320, mode:'phone'}, {width:430, mode:'phone'},
+    ];
+    for (const scheme of ['light', 'dark']) {
+      await page.selectOption('#theme', scheme);
+      for (const view of viewports) {
+        await page.setViewportSize({width:view.width,height:900});
+        await page.selectOption('#viewport', view.mode);
+        const width = view.mode === 'phone' ? Math.min(390, view.width) : view.width;
+        await checkPreviewViewport(page, width);
+        assert.equal(await frame.locator('#answer').count(), 1, 'resize changed card side');
+        assert.ok((await frame.locator('.review-question img').boundingBox()).width <= width);
+        if (width <= 430) {
+          for (const selector of ['.review-scroll', 'pre']) {
+            const scroll = frame.locator(selector);
+            assert.ok(await scroll.evaluate(el => el.scrollWidth > el.clientWidth));
+            await scroll.evaluate(el => { el.scrollLeft = 60; });
+            assert.ok(await scroll.evaluate(el => el.scrollLeft > 0));
+          }
+        }
+      }
+    }
+    await page.setViewportSize({width:1280,height:900});
+    await page.selectOption('#viewport', 'phone');
+    await frame.locator('.review-question img').click();
+    await frame.locator('dialog[open]').waitFor();
+    await checkPreviewViewport(page, 390);
+    const zoom = await frame.locator('dialog').boundingBox();
+    const viewportBox = await page.locator('#preview').boundingBox();
+    assert.ok(zoom.x >= viewportBox.x && zoom.x + zoom.width <= viewportBox.x + viewportBox.width);
+    await frame.locator('dialog button').click();
+    await frame.locator('dialog').waitFor({state:'detached'});
     assert.equal((await page.request.get(base + '/downloads/anki-template.apkg')).status(), 200);
     await page.goto(base + '/index.html');
     await page.waitForURL('**/preview.html');
