@@ -143,6 +143,8 @@ hr { border:0; border-top:1px solid var(--line); margin:1.5em 0; }
 .review-choice input:disabled + label { cursor:default; }
 .review-choice.is-correct .review-choice-key, .review-correct { color:var(--accent); }
 .review-correct { font-size:.72em; white-space:nowrap; }
+.review-choice-marks { display:flex; flex-direction:column; align-items:flex-end; flex-shrink:0; }
+.review-selected { color:var(--muted); font-size:.72em; white-space:nowrap; }
 .review-answer-choice { display:flex; gap:.9rem; margin:.3em 0; align-items:baseline; }
 .review-answer-choice .content { min-width:0; }
 .cloze { color:var(--accent); font-weight:600; }

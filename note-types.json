@@ -1,17 +1,26 @@
 [
   {
     "key": "basic",
-    "id": 1303378373,
-    "name": "简明 · 问答",
+    "id": 1303378376,
+    "name": "问答",
+    "kind": "basic",
+    "fields": ["问题", "答案", "解析", "补充", "章节", "来源"],
+    "front": "templates/basic/front.html",
+    "back": "templates/basic/back.html"
+  },
+  {
+    "key": "choice",
+    "id": 1303378377,
+    "name": "选择",
     "kind": "basic",
     "fields": ["问题", "答案", "选项", "题型", "解析", "补充", "章节", "来源"],
-    "front": "templates/basic/front.html",
+    "front": "templates/choice/front.html",
     "back": "templates/basic/back.html"
   },
   {
     "key": "cloze",
     "id": 1303378374,
-    "name": "简明 · 填空",
+    "name": "填空",
     "kind": "cloze",
     "fields": ["正文", "解析", "补充", "章节", "来源"],
     "front": "templates/cloze/front.html",
@@ -20,7 +29,7 @@
   {
     "key": "occlusion",
     "id": 1303378375,
-    "name": "简明 · 图片遮挡",
+    "name": "图片遮挡",
     "kind": "occlusion",
     "fields": ["Occlusion", "Image", "Header", "Back Extra", "Comments"],
     "front": "templates/occlusion/front.html",

@@ -7,6 +7,7 @@ const {chromium, webkit} = require('playwright');
 
 const root = path.resolve(__dirname, '..');
 const examples = JSON.parse(fs.readFileSync(path.join(root, 'build/cards.json'), 'utf8'));
+const choiceCases = JSON.parse(fs.readFileSync(path.join(root, 'build/choice-cases.json'), 'utf8'));
 const nativeRoot = JSON.parse(fs.readFileSync(path.join(root, 'build/anki-web.json'), 'utf8'));
 const cards = Object.fromEntries(examples.map(example => [example.key, example.cards]));
 const server = http.createServer((request, response) => {
@@ -60,6 +61,104 @@ function contrast(rgb1, rgb2) {
   return (Math.max(a, b) + .05) / (Math.min(a, b) + .05);
 }
 
+async function choiceOrder(page) {
+  return page.locator('.review-choice').evaluateAll(rows => rows.map(row => ({
+    source:row.dataset.key,
+    letter:row.querySelector('.review-choice-key').textContent,
+    content:row.querySelector('.content').innerHTML,
+  })));
+}
+
+async function checkChoices(page) {
+  // 控制熵验证不同排序，并按原始选项标识核对背面的显示字母和正文。
+  await page.evaluate(() => { Math.random = () => 0; });
+  await showCard(page, cards.single[0].front);
+  const first = await choiceOrder(page);
+  assert.deepEqual(first.map(row => row.source), ['B', 'C', 'D', 'A']);
+  assert.deepEqual(first.map(row => row.letter), ['A', 'B', 'C', 'D']);
+  await page.locator('#review-choice-A').check();
+  await showCard(page, cards.single[0].back);
+  assert.deepEqual(await choiceOrder(page), first);
+  assert.equal(await page.locator('.review-selected').count(), 1);
+  assert.equal(await page.locator('.review-choice[data-key="A"] .review-selected').count(), 1);
+  assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'C');
+  assert.equal(await page.locator('.review-answer-choice .review-choice-key').innerText(), 'B');
+  assert.match(await page.locator('[data-answer]').innerText(), /合上书/);
+  assert.equal(await page.locator('input:enabled').count(), 0);
+  assert.equal(await page.locator('input:checked').count(), 1);
+  assert.ok(await page.evaluate(() => sessionStorage.getItem('anki-template/current-choice')));
+  // 重绘背面不丢选择；新正面即使是同一道题也开启新一次复习。
+  await showCard(page, cards.single[0].back);
+  assert.deepEqual(await choiceOrder(page), first);
+  assert.equal(await page.locator('.review-selected').count(), 1);
+  await page.evaluate(() => { Math.random = () => .999; });
+  await showCard(page, cards.single[0].front);
+  assert.deepEqual((await choiceOrder(page)).map(row => row.source), ['A', 'B', 'C', 'D']);
+  assert.equal(await page.locator('input:checked').count(), 0);
+  await page.locator('#review-choice-C').check();
+  // 同一浏览上下文重载文档后仍可核对刚才的选择。
+  await page.reload();
+  await page.evaluate(() => { window.originalRandom = Math.random; });
+  await showCard(page, cards.single[0].back);
+  assert.equal(await page.locator('.is-correct .review-selected').count(), 1);
+  assert.equal(await page.locator('.review-answer-choice .review-choice-key').innerText(), 'C');
+
+  for (const key of ['multiple', 'judgment']) {
+    await page.evaluate(() => { Math.random = () => 0; });
+    await showCard(page, cards[key][0].front);
+    const order = await choiceOrder(page);
+    if (key === 'judgment') assert.deepEqual(order.map(row => row.source), ['A', 'B']);
+    else assert.deepEqual(order.map(row => row.source), ['B', 'C', 'D', 'A']);
+    await page.locator('#review-choice-A').check();
+    if (key === 'multiple') await page.locator('#review-choice-C').check();
+    await showCard(page, cards[key][0].back);
+    assert.deepEqual(await choiceOrder(page), order);
+    assert.equal(await page.locator('.review-selected').count(), key === 'multiple' ? 2 : 1);
+    const correct = key === 'multiple' ? ['A', 'B', 'D'] : ['B'];
+    assert.deepEqual((await page.locator('.is-correct').evaluateAll(rows => rows.map(row => row.dataset.key))).sort(), correct);
+    for (const source of correct) {
+      const row = order.find(row => row.source === source);
+      assert.ok((await page.locator('[data-answer]').innerText()).includes(row.letter));
+      assert.ok((await page.locator('[data-answer]').innerText()).includes(row.content));
+    }
+  }
+  for (const key of ['fixed', 'fixed_multi', 'duplicates', 'literal', 'maximum']) {
+    await showCard(page, choiceCases[key].front);
+    const order = await choiceOrder(page);
+    if (key.startsWith('fixed')) assert.deepEqual(order.map(row => row.source), ['A', 'B', 'C', 'D']);
+    const picked = key === 'maximum' ? 'Z' : 'A';
+    await page.locator('#review-choice-' + picked).check();
+    await showCard(page, choiceCases[key].back);
+    assert.deepEqual(await choiceOrder(page), order);
+    assert.equal(await page.locator('.review-selected').count(), 1);
+    if (key === 'literal') {
+      assert.equal(await page.locator('.is-correct').count(), 0);
+      assert.equal(await page.locator('[data-answer]').innerText(), '直接核对这段答案');
+    } else {
+      const correct = key === 'fixed_multi' ? ['A', 'C'] : key === 'maximum' ? ['A', 'Z'] : ['C'];
+      assert.deepEqual((await page.locator('.is-correct').evaluateAll(rows => rows.map(row => row.dataset.key))).sort(), correct);
+      const expected = order.filter(row => correct.includes(row.source));
+      assert.deepEqual(await page.locator('.review-answer-choice .review-choice-key').allTextContents(), expected.map(row => row.letter));
+      assert.deepEqual(await page.locator('.review-answer-choice .content').allInnerTexts(),
+        await page.locator('.is-correct .content').allInnerTexts());
+    }
+  }
+  await showCard(page, cards.minimal[0].front);
+  assert.equal(await page.evaluate(() => sessionStorage.getItem('anki-template/current-choice')), null);
+  // 存储被禁用时，确定性排序保证两面一致，答案照常对应。
+  await page.evaluate(() => {
+    window.originalGet = Storage.prototype.getItem; window.originalSet = Storage.prototype.setItem;
+    Storage.prototype.getItem = Storage.prototype.setItem = () => { throw new Error('disabled'); };
+  });
+  await showCard(page, cards.single[0].front);
+  const fallback = await choiceOrder(page);
+  await showCard(page, cards.single[0].back);
+  assert.deepEqual(await choiceOrder(page), fallback);
+  assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'C');
+  await page.evaluate(() => { Storage.prototype.getItem = window.originalGet; Storage.prototype.setItem = window.originalSet; });
+  await page.evaluate(() => { Math.random = window.originalRandom; });
+}
+
 async function run(browserType, name, base) {
   const browser = await browserType.launch();
   try {
@@ -93,6 +192,7 @@ async function run(browserType, name, base) {
     }
     await page.setViewportSize({width:390,height:844});
     await page.emulateMedia({colorScheme:'light'});
+    await checkChoices(page);
     await showCard(page, cards.single[0].front);
     assert.equal(await page.getByRole('radio', {name:/合上书/}).count(), 1);
     await page.locator('label[for="review-choice-A"]').click();
@@ -107,7 +207,7 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'C');
     assert.match(await page.locator('[data-answer]').innerText(), /合上书/);
     assert.equal(await page.locator('input:enabled').count(), 0);
-    assert.equal(await page.locator('input:checked').count(), 0);
+    assert.equal(await page.locator('input:checked').count(), 1);
     await showCard(page, cards.multiple[0].front);
     await page.locator('#review-choice-A').check();
     await page.locator('#review-choice-B').check();
@@ -119,6 +219,7 @@ async function run(browserType, name, base) {
     assert.equal(await page.locator('.review-answer-choice').count(), 3);
     await showCard(page, cards.judgment[0].back);
     assert.equal(await page.locator('.is-correct').getAttribute('data-key'), 'B');
+    assert.equal(await page.locator('.review-selected').count(), 0);
     await showCard(page, cards.minimal[0].back);
     assert.equal(await page.locator('.review-context').isVisible(), false);
     assert.equal(await page.locator('.review-meta').isVisible(), false);
@@ -205,11 +306,33 @@ async function run(browserType, name, base) {
     await page.goto(base + '/preview.html');
     const frame = page.frameLocator('#preview');
     await frame.locator('.review-choice').first().waitFor();
+    const previewOrder = await choiceOrder(frame);
+    await frame.locator('#review-choice-A').check();
+    await page.click('#flip');
+    await frame.locator('#answer').waitFor();
+    assert.deepEqual(await choiceOrder(frame), previewOrder);
+    assert.equal(await frame.locator('.review-choice[data-key="A"] .review-selected').count(), 1);
+    assert.equal(await frame.locator('.is-correct').getAttribute('data-key'), 'C');
+    await page.click('#flip');
+    await frame.locator('input:enabled').first().waitFor();
+    assert.deepEqual(await choiceOrder(frame), previewOrder);
+    assert.equal(await frame.locator('#review-choice-A').isChecked(), true);
     await page.selectOption('#theme', 'dark');
     assert.notEqual(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
+    assert.equal(await frame.locator('#review-choice-A').isChecked(), true);
     await page.emulateMedia({colorScheme:'dark'});
     await page.selectOption('#theme', 'light');
     assert.equal(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
+    await page.selectOption('#theme', 'system');
+    assert.notEqual(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
+    await page.emulateMedia({colorScheme:'light'});
+    assert.equal(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
+    await page.click('#flip');
+    await frame.locator('#answer').waitFor();
+    assert.equal(await frame.locator('.review-selected').count(), 1);
+    await page.selectOption('#sample', String(examples.findIndex(e => e.key === 'multiple')));
+    await frame.locator('input:enabled').first().waitFor();
+    assert.equal(await frame.locator('input:checked').count(), 0);
     for (let i = 0; i < examples.length; i++) {
       await page.selectOption('#sample', String(i));
       if (examples[i].type === 'occlusion') {

@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "downloads/anki-template.apkg"
 PREVIEW = ROOT / "preview-cards.json"
 DECK_ID = 2040368696
-DECK_NAME = "简明模板 · 示例"
+DECK_NAME = "Anki 模板 · 示例"
 
 
 def read_source(name):
@@ -50,7 +50,7 @@ def make_model(collection, spec, timestamp):
         # 固定字段标识使重建和重复导入识别为同一结构；原生遮挡保留字段 tag。
         field.update(id=spec["id"] * 100 + index + 1, ord=index)
     template = model["tmpls"][0]
-    template.update(id=spec["id"] * 100, name=spec["name"].split(" · ")[-1],
+    template.update(id=spec["id"] * 100, name=spec["name"],
                     ord=0, qfmt=read_source(spec["front"]), afmt=read_source(spec["back"]))
     collection.models.update(model)
     return collection.models.get(spec["id"])

@@ -22,7 +22,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 (function () {
-  var back = !!document.getElementById('answer');
+  var back = !!document.querySelector('[data-review-back], #answer');
+  var stateKey = 'anki-template/current-choice';
   var sheets = document.querySelectorAll('[data-review]');
 
   function openImage(image, sheet) {
@@ -46,33 +47,81 @@ SOFTWARE.
     dialog.showModal();
   }
 
+  // 只存当前卡片；正反面共用，开始下一张正面时清除。
+  function saveChoice(state) {
+    try { sessionStorage.setItem(stateKey, JSON.stringify(state)); return true; }
+    catch (error) { return false; }
+  }
+  function readChoice() {
+    try {
+      var stored = sessionStorage.getItem(stateKey);
+      return JSON.parse(stored);
+    } catch (error) { return null; }
+  }
+  function clearChoice() {
+    try { sessionStorage.removeItem(stateKey); } catch (error) {}
+  }
+  function seededRandom(text) {
+    var seed = 2166136261;
+    for (var i = 0; i < text.length; i++) seed = Math.imul(seed ^ text.charCodeAt(i), 16777619);
+    seed = seed || 1;
+    return function () {
+      seed ^= seed << 13; seed ^= seed >>> 17; seed ^= seed << 5;
+      return (seed >>> 0) / 4294967296;
+    };
+  }
+  function shuffle(order, random) {
+    for (var i = order.length - 1; i > 0; i--) {
+      var j = Math.floor(random() * (i + 1));
+      var value = order[i]; order[i] = order[j]; order[j] = value;
+    }
+  }
+
   function choices(sheet) {
     var options = sheet.querySelector('[data-options]');
     if (!options) return;
     if (!options.dataset.ready) {
-      // 字段留在 HTML 中读取；不把用户内容插进 JavaScript 字符串。
       var parts = options.innerHTML.split('||');
       if (parts.length < 2 || parts.length > 26) return;
-      options.textContent = '';
       var type = sheet.querySelector('[data-question-type]');
-      var multi = type && type.textContent.trim() === '多选';
-      parts.forEach(function (html, index) {
-        var key = String.fromCharCode(65 + index);
+      type = type ? type.textContent.trim() : '';
+      var tags = sheet.querySelector('[data-choice-tags]').textContent.trim().split(/\s+/);
+      var fixed = type === '判断' || tags.indexOf('固定顺序') !== -1;
+      var key = JSON.stringify([sheet.querySelector('.review-question').innerHTML, parts, type, fixed]);
+      var state = readChoice();
+      var validState = state && state.key === key && Array.isArray(state.order) &&
+        state.order.length === parts.length && new Set(state.order).size === parts.length &&
+        state.order.every(function (i) { return Number.isInteger(i) && i >= 0 && i < parts.length; }) &&
+        Array.isArray(state.selected);
+      if (!validState) {
+        state = {key:key, order:parts.map(function (_, i) { return i; }), selected:[]};
+        // 存储不可用时用题目内容作种子，两面仍有同一顺序和正确映射。
+        var random = !back && saveChoice(state) ? Math.random : seededRandom(key);
+        if (!fixed) shuffle(state.order, random);
+      }
+      if (!back) saveChoice(state);
+      options.textContent = '';
+      state.order.forEach(function (sourceIndex, displayIndex) {
+        var sourceKey = String.fromCharCode(65 + sourceIndex);
+        var displayKey = String.fromCharCode(65 + displayIndex);
         var row = document.createElement('div');
         row.className = 'review-choice';
-        row.dataset.key = key;
+        row.dataset.key = sourceKey;
+        row.dataset.displayKey = displayKey;
         var input = document.createElement('input');
-        input.type = multi ? 'checkbox' : 'radio';
+        input.type = type === '多选' ? 'checkbox' : 'radio';
         input.name = 'review-choice';
-        input.id = 'review-choice-' + key;
+        input.id = 'review-choice-' + sourceKey;
+        input.value = sourceKey;
+        input.checked = state.selected.indexOf(sourceKey) !== -1;
         var label = document.createElement('label');
         label.htmlFor = input.id;
         var letter = document.createElement('span');
         letter.className = 'review-choice-key';
-        letter.textContent = key;
+        letter.textContent = displayKey;
         var content = document.createElement('div');
         content.className = 'content';
-        content.innerHTML = html.trim();
+        content.innerHTML = parts[sourceIndex].trim();
         label.appendChild(letter);
         label.appendChild(content);
         row.appendChild(input);
@@ -80,6 +129,11 @@ SOFTWARE.
         options.appendChild(row);
       });
       options.dataset.ready = 'true';
+      if (!back) options.addEventListener('change', function () {
+        state.selected = Array.from(options.querySelectorAll('.review-choice > input:checked'))
+          .map(function (input) { return input.value; });
+        saveChoice(state);
+      });
     }
     if (!back) return;
     var answer = document.querySelector('[data-answer]');
@@ -97,23 +151,37 @@ SOFTWARE.
         item.className = 'review-answer-choice';
         var letter = document.createElement('span');
         letter.className = 'review-choice-key';
-        letter.textContent = row.dataset.key;
+        letter.textContent = row.dataset.displayKey;
         item.appendChild(letter);
         item.appendChild(row.querySelector('.content').cloneNode(true));
         answer.appendChild(item);
       });
     }
     rows.forEach(function (row) {
-      row.querySelector('input').disabled = true;
-      if (valid && key.indexOf(row.dataset.key) !== -1 && !row.querySelector('.review-correct')) {
+      var input = row.querySelector('input');
+      input.disabled = true;
+      var correct = valid && key.indexOf(row.dataset.key) !== -1;
+      if (!input.checked && !correct) return;
+      var marks = row.querySelector('.review-choice-marks');
+      if (!marks) {
+        marks = document.createElement('span');
+        marks.className = 'review-choice-marks';
+        row.appendChild(marks);
+      }
+      if (input.checked && !marks.querySelector('.review-selected')) {
+        var selected = document.createElement('span');
+        selected.className = 'review-selected'; selected.textContent = '已选';
+        marks.appendChild(selected);
+      }
+      if (correct && !marks.querySelector('.review-correct')) {
         row.classList.add('is-correct');
         var mark = document.createElement('span');
-        mark.className = 'review-correct';
-        mark.textContent = '✓ 正确';
-        row.appendChild(mark);
+        mark.className = 'review-correct'; mark.textContent = '✓ 正确';
+        marks.appendChild(mark);
       }
     });
   }
+  if (!back && !document.body.hasAttribute('data-review-resume')) clearChoice();
 
   sheets.forEach(function (sheet) {
     choices(sheet);
@@ -132,7 +200,7 @@ SOFTWARE.
     });
     if (sheet.dataset.events) return;
     sheet.dataset.events = 'true';
-    // 所有监听和放大层属于当前卡片；换卡移除 DOM 即清理，无全局状态。
+    // 监听和放大层属于当前卡片；换卡移除 DOM 即清理。
     sheet.addEventListener('click', function (event) {
       var target = event.target;
       if (target.closest('.review-choice, details, #toggle')) event.stopPropagation();

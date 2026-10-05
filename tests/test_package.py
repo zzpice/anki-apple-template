@@ -36,6 +36,7 @@ class PackageTests(unittest.TestCase):
     def check_collection(self, collection):
         self.assertEqual(collection.note_count(), len(package.samples()))
         self.assertEqual(len(collection.find_cards("")), 11)
+        self.assertEqual([s["name"] for s in package.specifications()], ["问答", "选择", "填空", "图片遮挡"])
         self.assertIsNotNone(collection.decks.id_for_name(package.DECK_NAME))
         for spec in package.specifications():
             model = collection.models.get(spec["id"])
@@ -58,6 +59,8 @@ class PackageTests(unittest.TestCase):
         for sample in package.samples():
             nid = collection.db.scalar("select id from notes where guid=?", package.sample_guid(sample["key"]))
             note = collection.get_note(nid)
+            spec = next(s for s in package.specifications() if s["key"] == sample["type"])
+            self.assertEqual(note.mid, spec["id"])
             self.assertEqual(note.fields, list(sample["fields"].values()))
             self.assertEqual(set(note.tags), set(sample["tags"]))
             for card in note.cards():
@@ -79,7 +82,7 @@ class PackageTests(unittest.TestCase):
             if example["key"] == "occlusion":
                 self.assertEqual(len(example["cards"]), 2)
                 self.assertIn('data-shape="rect"', example["cards"][0]["front"])
-            if example["type"] == "basic":
+            if example["type"] in ("basic", "choice"):
                 self.assertNotIn('data-answer', example["cards"][0]["front"])
                 self.assertNotIn('review-explanation', example["cards"][0]["front"])
         if os.environ.get("ANKI_RENDER_OUTPUT"):
@@ -88,10 +91,27 @@ class PackageTests(unittest.TestCase):
             path.write_text(json.dumps(data, ensure_ascii=False), encoding="utf-8")
             web = importlib.metadata.distribution("aqt").locate_file("_aqt/data/web")
             (path.parent / "anki-web.json").write_text(json.dumps(str(web.resolve())))
+            choice = next(s for s in package.specifications() if s["key"] == "choice")
+            model = collection.models.get(choice["id"])
+            cases = {}
+            for key, options, answer, question_type in (
+                ("fixed", "第一项||第二项||第三项||第四项", "C", "单选"),
+                ("fixed_multi", "第一项||第二项||第三项||第四项", "AC", "多选"),
+                ("duplicates", '同一内容||<b>富文本 ` ${value}</b>||同一内容', "C", "单选"),
+                ("literal", "第一项||第二项", "直接核对这段答案", "单选"),
+                ("maximum", "||".join(f"选项 {i}" for i in range(26)), "AZ", "多选"),
+            ):
+                note = collection.new_note(model)
+                note["问题"], note["选项"], note["答案"], note["题型"] = key, options, answer, question_type
+                note.tags = ["固定顺序"] if key.startswith("fixed") else []
+                collection.add_note(note, collection.decks.id_for_name(package.DECK_NAME))
+                card = note.cards()[0]
+                cases[key] = {"front": card.question(), "back": card.answer()}
+            (path.parent / "choice-cases.json").write_text(json.dumps(cases, ensure_ascii=False), encoding="utf-8")
 
     def test_native_occlusion_editor_recognizes_note(self):
         collection = self.collection()
-        spec = package.specifications()[2]
+        spec = next(s for s in package.specifications() if s["key"] == "occlusion")
         indexes = collection._backend.get_image_occlusion_fields(spec["id"])
         self.assertEqual((indexes.occlusions, indexes.image, indexes.header, indexes.back_extra), (0, 1, 2, 3))
         nid = collection.db.scalar("select id from notes where guid=?", package.sample_guid("occlusion"))
@@ -128,6 +148,7 @@ class PackageTests(unittest.TestCase):
     def test_template_update_preserves_user_notes(self):
         collection = self.collection()
         saved = []
+        schedules = {}
         specs = package.specifications()
         for spec in specs:
             note = collection.new_note(collection.models.get(spec["id"]))
@@ -135,31 +156,60 @@ class PackageTests(unittest.TestCase):
             note.tags = ["用户内容"]
             collection.add_note(note, collection.decks.id_for_name(package.DECK_NAME))
             saved.append(note)
+            for card in note.cards():
+                card.type = card.queue = 2
+                card.ivl, card.reps, card.due = 60, 8, 120
+                collection.update_card(card)
+                schedules[card.id] = (2, 2, 60, 8, 120)
         original = package.read_source
         css = original("style.css") + "\n/* update regression */\n"
+        replacements = {"style.css": css}
+        for spec in specs:
+            for side in ("front", "back"):
+                name = spec[side]
+                replacements[name] = original(name) + "\n<!-- update regression -->\n"
         timestamp = max(collection.models.get(s["id"])["mod"] for s in specs) + 10
-        with patch.object(package, "read_source", side_effect=lambda name: css if name == "style.css" else original(name)):
+        with patch.object(package, "read_source", side_effect=lambda name: replacements.get(name, original(name))):
             rebuilt = package.build_package(self.directory / "updated.apkg", preview=None, timestamp=timestamp)
         self.import_into(collection, rebuilt)
         for spec in specs:
-            self.assertEqual(collection.models.get(spec["id"])["css"], css)
+            model = collection.models.get(spec["id"])
+            self.assertEqual(model["css"], css)
+            self.assertEqual(model["tmpls"][0]["qfmt"], replacements[spec["front"]])
+            self.assertEqual(model["tmpls"][0]["afmt"], replacements[spec["back"]])
         for note in saved:
             self.assertEqual(collection.get_note(note.id).fields, note.fields)
             self.assertEqual(collection.get_note(note.id).tags, note.tags)
-        self.assertEqual(collection.note_count(), 11)
+        for cid, schedule in schedules.items():
+            card = collection.get_card(cid)
+            self.assertEqual((card.type, card.queue, card.ivl, card.reps, card.due), schedule)
+        self.assertEqual(collection.note_count(), 12)
 
     def test_empty_question_is_reported_by_anki(self):
         collection = self.collection()
-        model = collection.models.get(package.specifications()[0]["id"])
-        note = collection.new_note(model)
-        note["章节"] = "只有章节"
-        note["题型"] = "多选"
-        note["选项"] = "A||B"
-        collection.add_note(note, collection.decks.id_for_name(package.DECK_NAME))
-        self.assertNotIn('data-review="basic"', note.cards()[0].question())
-        report = collection.get_empty_cards()
-        self.assertIn(note.cards()[0].id, [cid for group in report.notes for cid in group.card_ids])
-        self.assertEqual(model["req"], [[0, "any", [0]]])
+        for spec in package.specifications():
+            if spec["kind"] != "basic":
+                continue
+            model = collection.models.get(spec["id"])
+            note = collection.new_note(model)
+            note["章节"] = "只有章节"
+            if spec["key"] == "choice":
+                note["题型"] = "多选"
+                note["选项"] = "A||B"
+            collection.add_note(note, collection.decks.id_for_name(package.DECK_NAME))
+            self.assertNotIn('data-review=', note.cards()[0].question())
+            report = collection.get_empty_cards()
+            self.assertIn(note.cards()[0].id, [cid for group in report.notes for cid in group.card_ids])
+            self.assertEqual(model["req"], [[0, "any", [0]]])
+
+    def test_question_and_choice_have_separate_fields_and_shared_back(self):
+        specs = {s["key"]: s for s in package.specifications()}
+        self.assertNotEqual(specs["basic"]["id"], specs["choice"]["id"])
+        self.assertNotIn("选项", specs["basic"]["fields"])
+        self.assertNotIn("题型", specs["basic"]["fields"])
+        self.assertIn("选项", specs["choice"]["fields"])
+        self.assertIn("题型", specs["choice"]["fields"])
+        self.assertEqual(specs["basic"]["back"], specs["choice"]["back"])
 
     def test_rich_fields_are_never_inserted_into_script(self):
         collection = self.collection()

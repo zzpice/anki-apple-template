@@ -84,11 +84,14 @@
         doc.documentElement.className = theme.value === 'dark' ? 'nightMode' : '';
         Array.from(doc.styleSheets[0].cssRules).forEach(function (rule) {
           if (rule.conditionText && rule.conditionText.indexOf('prefers-color-scheme') !== -1) {
+            rule.reviewThemeMedia = true;
+          }
+          if (rule.reviewThemeMedia) {
             rule.media.mediaText = theme.value === 'system' ? '(prefers-color-scheme:dark)' : 'not all';
           }
         });
       }
-      function render() {
+      function render(resume) {
         var example = examples[Number(sample.value)];
         var content = example.cards[Number(card.value) || 0][back ? 'back' : 'front'];
         // 卡片 HTML 由 Anki 生成，与安装包共用样式和媒体。
@@ -96,11 +99,12 @@
         frame.srcdoc = '<!doctype html><html lang="zh-CN"><head>' +
           '<meta name="viewport" content="width=device-width,initial-scale=1">' +
           '<base href="' + base + '"><style>' + css + '</style></head>' +
-          '<body class="card">' + content + '</body></html>';
+          '<body class="card"' + (resume ? ' data-review-resume' : '') + '>' + content + '</body></html>';
         flip.textContent = back ? '返回正面' : '显示答案';
         status.textContent = example.type === 'occlusion' ?
           '图片遮挡请在 Anki 中导入体验。' :
-          '在 Anki 中复习时，翻面后自行评分。';
+          example.type === 'choice' ? '翻面后可核对已选项和正确答案。' :
+          '按空格或点击按钮翻面。';
       }
       function chooseSample() {
         var example = examples[Number(sample.value)];
@@ -119,7 +123,7 @@
       theme.onchange = applyTheme;
       sample.onchange = chooseSample;
       card.onchange = function () { back = false; render(); };
-      flip.onclick = function () { back = !back; render(); };
+      flip.onclick = function () { back = !back; render(!back); };
       document.addEventListener('keydown', function (event) {
         if (event.code === 'Space' && event.target === document.body && examples) {
           event.preventDefault(); flip.click();
