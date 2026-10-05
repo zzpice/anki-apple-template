@@ -1,0 +1,24 @@
+{{FrontSide}}
+<section class="review-sheet review-answer" id="answer" data-review="extra">
+  {{#答案}}
+  <h2 class="review-label">答案</h2>
+  <div class="content" data-answer>{{答案}}</div>
+  {{/答案}}
+  {{#解析}}
+  <section class="review-explanation">
+    <h2 class="review-label">解析</h2>
+    <div class="content">{{解析}}</div>
+  </section>
+  {{/解析}}
+  {{#补充}}
+  <details class="review-extra">
+    <summary>补充</summary>
+    <div class="content">{{补充}}</div>
+  </details>
+  {{/补充}}
+  <footer class="review-meta">
+    {{#来源}}<div>{{来源}}</div>{{/来源}}
+    {{#Tags}}<div class="review-tags">{{Tags}}</div>{{/Tags}}
+  </footer>
+</section>
+<script src="_review.js"></script>

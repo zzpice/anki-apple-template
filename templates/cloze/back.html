@@ -1,0 +1,24 @@
+<article class="review-sheet" data-review="cloze" id="answer">
+  <header class="review-context">
+    {{#章节}}<span>{{章节}}</span>{{/章节}}
+    <span>填空</span>
+  </header>
+  <div class="review-question content">{{cloze:正文}}</div>
+  {{#解析}}
+  <section class="review-explanation">
+    <h2 class="review-label">解析</h2>
+    <div class="content">{{解析}}</div>
+  </section>
+  {{/解析}}
+  {{#补充}}
+  <details class="review-extra">
+    <summary>补充</summary>
+    <div class="content">{{补充}}</div>
+  </details>
+  {{/补充}}
+  <footer class="review-meta">
+    {{#来源}}<div>{{来源}}</div>{{/来源}}
+    {{#Tags}}<div class="review-tags">{{Tags}}</div>{{/Tags}}
+  </footer>
+</article>
+<script src="_review.js"></script>

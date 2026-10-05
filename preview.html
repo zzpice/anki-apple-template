@@ -3,94 +3,146 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Apple 风格 Anki 模板预览</title>
+  <meta name="description" content="简明 Anki 模板：内容优先的问答、选择、填空与原生图片遮挡。直接下载导入，免复制代码。">
+  <title>简明 Anki 模板 · 在线预览</title>
   <style>
-    body { margin:0; font:16px sans-serif; height:100vh; display:flex; flex-direction:column; }
-    header { padding:.6rem 1rem; background:#f5f6f7; display:flex; flex-wrap:wrap; gap:.5rem 1rem; }
-    select { font:inherit; }
-    iframe { display:block; width:100%; flex:1; min-height:0; border:0; }
-    #status { margin:0; }
+    :root { color-scheme:light dark; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:#f3f3ef; color:#282b26; font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif; }
+    .preview-shell { max-width:1000px; margin:auto; padding:26px 24px 18px; }
+    header { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 20px; }
+    h1 { font-size:19px; font-weight:600; margin:0; }
+    nav { display:flex; flex-wrap:wrap; gap:18px; }
+    a { color:inherit; text-underline-offset:4px; }
+    .intro { color:#63685e; margin:8px 0 24px; }
+    .controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px 20px; padding:14px 0; border-top:1px solid #d4d7ce; }
+    label { display:flex; align-items:center; gap:8px; }
+    select, button { font:inherit; color:inherit; background:transparent; border:1px solid #a7ada0; border-radius:3px; padding:5px 8px; }
+    button { cursor:pointer; }
+    button:disabled { cursor:default; opacity:.5; }
+    iframe { display:block; width:100%; border:0; min-height:570px; height:calc(100vh - 230px); background:#faf9f6; }
+    #status { margin:10px 0 0; color:#63685e; font-size:13px; }
+    [hidden] { display:none !important; }
+    @media (prefers-color-scheme:dark) {
+      body { background:#191c18; color:#e3e5df; }
+      .intro, #status { color:#adb2a7; }
+      .controls { border-color:#44483f; }
+    }
+    body[data-theme="light"] { background:#f3f3ef; color:#282b26; color-scheme:light; }
+    body[data-theme="light"] .intro, body[data-theme="light"] #status { color:#63685e; }
+    body[data-theme="light"] .controls { border-color:#d4d7ce; }
+    body[data-theme="dark"] { background:#191c18; color:#e3e5df; color-scheme:dark; }
+    body[data-theme="dark"] .intro, body[data-theme="dark"] #status { color:#adb2a7; }
+    body[data-theme="dark"] .controls { border-color:#44483f; }
+    @media (max-width:480px) {
+      .preview-shell { padding:18px 16px 12px; }
+      .intro { margin-bottom:14px; }
+      .controls { gap:12px; }
+      iframe { min-height:560px; height:calc(100vh - 280px); }
+    }
   </style>
 </head>
-<body>
-  <header>
-    <label>预览主题
-      <select id="theme">
-        <option value="system">跟随系统</option>
-        <option value="light">浅色</option>
-        <option value="dark">深色</option>
-      </select>
-    </label>
-    <label>卡片面
-      <select id="side">
-        <option value="back">背面</option>
-        <option value="front">正面</option>
-      </select>
-    </label>
-    <label>示例
-      <select id="sample">
-        <option value="0">完整内容</option>
-        <option value="1">可选字段为空</option>
-      </select>
-    </label>
-    <a href="./downloads/anki-apple-template.apkg" download>下载 Anki 安装包</a>
-    <p id="status" role="status">正在读取模板…</p>
-  </header>
-  <iframe id="preview" title="卡片预览"></iframe>
-
+<body data-theme="system">
+  <div class="preview-shell">
+    <header>
+      <h1>简明 Anki 模板</h1>
+      <nav aria-label="项目链接">
+        <a href="./downloads/anki-apple-template.apkg" download>下载并导入 Anki</a>
+        <a href="https://github.com/zzpice/anki-apple-template#readme">使用说明</a>
+      </nav>
+    </header>
+    <p class="intro">先回忆，再核对。为每天的复习保留清楚的文字和恰当的留白。</p>
+    <div class="controls">
+      <label>题型 <select id="sample" disabled></select></label>
+      <label id="card-label" hidden>卡片 <select id="card"></select></label>
+      <label>外观
+        <select id="theme">
+          <option value="system">跟随系统</option>
+          <option value="light">浅色</option>
+          <option value="dark">深色</option>
+        </select>
+      </label>
+      <button id="flip" type="button" disabled>显示答案</button>
+    </div>
+  </div>
+  <iframe id="preview" title="Anki 卡片预览"></iframe>
+  <div class="preview-shell"><p id="status" role="status">正在读取卡片…</p></div>
   <script>
-    var theme = document.getElementById('theme');
-    var frame = document.getElementById('preview');
-    var side = document.getElementById('side');
-    var sample = document.getElementById('sample');
-    var darkMedia;
+    (function () {
+      var frame = document.getElementById('preview');
+      var sample = document.getElementById('sample');
+      var card = document.getElementById('card');
+      var theme = document.getElementById('theme');
+      var flip = document.getElementById('flip');
+      var status = document.getElementById('status');
+      var examples, css, back = false;
 
-    function applyTheme() {
-      if (!darkMedia) return;
-      frame.contentDocument.documentElement.className = theme.value === 'dark' ? 'nightMode' : '';
-      // 使用真实 CSS；强制浅色时仅关闭系统深色规则，无需复制配色。
-      darkMedia.mediaText = theme.value === 'system' ? '(prefers-color-scheme: dark)' : 'not all';
-    }
-    theme.onchange = applyTheme;
-
-    Promise.all(['front.html', 'back.html', 'style.css', 'samples.json'].map(function (path) {
-      return fetch(path).then(function (response) {
-        if (!response.ok) throw new Error(path + ': ' + response.status);
-        return response.text();
-      });
-    })).then(function (files) {
-      // 与安装包共用示例；仅模拟本模板的条件字段和原生 Hint。
-      var examples = JSON.parse(files[3]);
-      function updatePreview() {
-        darkMedia = null;
-        var example = examples[Number(sample.value)];
-        var fields = Object.assign({}, example.fields, {Tags: example.tags.join(' ')});
-        fields['hint:相关知识'] = '<a class="hint" href="#" onclick="this.style.display=\'none\';' +
-          'this.nextElementSibling.style.display=\'block\';return false;">相关知识</a>' +
-          '<div class="hint" style="display:none">' + fields['相关知识'] + '</div>';
-        function render(template) {
-          return template.replace(/{{#([^}]+)}}([\s\S]*?){{\/\1}}/g, function (_, name, content) {
-            return fields[name] ? content : '';
-          }).replace(/{{([^}]+)}}/g, function (_, name) { return fields[name]; });
-        }
-        fields.FrontSide = render(files[0]);
-        frame.srcdoc = '<!doctype html><html lang="zh-CN"><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
-          '<style>' + files[2] + '</style></head><body class="card">' +
-          (side.value === 'front' ? fields.FrontSide : render(files[1])) + '</body></html>';
+      function applyTheme() {
+        document.body.dataset.theme = theme.value;
+        var doc = frame.contentDocument;
+        if (!doc || !doc.styleSheets.length) return;
+        doc.documentElement.className = theme.value === 'dark' ? 'nightMode' : '';
+        Array.from(doc.styleSheets[0].cssRules).forEach(function (rule) {
+          if (rule.conditionText && rule.conditionText.indexOf('prefers-color-scheme') !== -1) {
+            rule.media.mediaText = theme.value === 'system' ? '(prefers-color-scheme:dark)' : 'not all';
+          }
+        });
       }
-      frame.onload = function () {
-        var rules = frame.contentDocument.styleSheets[0].cssRules;
-        darkMedia = Array.from(rules).find(function (rule) {
-          return rule.conditionText && rule.conditionText.includes('prefers-color-scheme');
-        }).media;
-        applyTheme();
-      };
-      side.onchange = sample.onchange = updatePreview;
-      updatePreview();
-      document.getElementById('status').textContent = '';
-    }).catch(function (error) {
-      document.getElementById('status').textContent = error.message + '。请通过本地 HTTP 服务打开预览，见 README。';
-    });
+      function render() {
+        var example = examples[Number(sample.value)];
+        var content = example.cards[Number(card.value) || 0][back ? 'back' : 'front'];
+        // 内容是官方 Anki 后端生成的 HTML，不在浏览器重写字段、Cloze 或卡片逻辑。
+        var base = new URL('./media/', location.href).href;
+        frame.srcdoc = '<!doctype html><html lang="zh-CN"><head>' +
+          '<meta name="viewport" content="width=device-width,initial-scale=1">' +
+          '<base href="' + base + '"><style>' + css + '</style></head>' +
+          '<body class="card">' + content + '</body></html>';
+        flip.textContent = back ? '返回正面' : '显示答案';
+        status.textContent = example.type === 'occlusion' ?
+          '图片遮挡使用客户端内置的绘制与编辑功能，请导入安装包体验。在线预览不模拟遮挡。' :
+          '预览与安装包共用真实卡片内容、样式和脚本。选择仅辅助回忆，评分仍由你在 Anki 中决定。';
+      }
+      function chooseSample() {
+        var example = examples[Number(sample.value)];
+        card.textContent = '';
+        example.cards.forEach(function (_, index) {
+          var option = document.createElement('option');
+          option.value = index;
+          option.textContent = '第 ' + (index + 1) + ' 张';
+          card.appendChild(option);
+        });
+        document.getElementById('card-label').hidden = example.cards.length < 2;
+        back = false;
+        render();
+      }
+      frame.onload = applyTheme;
+      theme.onchange = applyTheme;
+      sample.onchange = chooseSample;
+      card.onchange = function () { back = false; render(); };
+      flip.onclick = function () { back = !back; render(); };
+      document.addEventListener('keydown', function (event) {
+        if (event.code === 'Space' && event.target === document.body && examples) {
+          event.preventDefault(); flip.click();
+        }
+      });
+      Promise.all(['preview-cards.json', 'style.css'].map(function (name) {
+        return fetch(name).then(function (response) {
+          if (!response.ok) throw new Error(name + ': ' + response.status);
+          return response.text();
+        });
+      })).then(function (files) {
+        examples = JSON.parse(files[0]); css = files[1];
+        examples.forEach(function (example, index) {
+          var option = document.createElement('option');
+          option.value = index; option.textContent = example.label; sample.appendChild(option);
+        });
+        sample.value = examples.findIndex(function (example) { return example.key === 'single'; });
+        sample.disabled = flip.disabled = false;
+        chooseSample();
+      }).catch(function (error) {
+        status.textContent = error.message + '。本地预览请使用 HTTP 服务，见使用说明。';
+      });
+    })();
   </script>
 </body>
 </html>

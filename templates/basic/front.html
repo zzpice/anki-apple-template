@@ -1,0 +1,11 @@
+{{#问题}}
+<article class="review-sheet" data-review="basic">
+  <header class="review-context">
+    {{#章节}}<span>{{章节}}</span>{{/章节}}
+    {{#题型}}<span data-question-type>{{题型}}</span>{{/题型}}
+  </header>
+  <div class="review-question content">{{问题}}</div>
+  {{#选项}}<div class="review-options" data-options>{{选项}}</div>{{/选项}}
+</article>
+<script src="_review.js"></script>
+{{/问题}}

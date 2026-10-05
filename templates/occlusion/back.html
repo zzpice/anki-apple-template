@@ -1,0 +1,25 @@
+<article class="review-sheet" data-review="occlusion" id="answer">
+  <header class="review-context"><span>图片遮挡</span></header>
+  {{#Header}}<div class="review-question content">{{Header}}</div>{{/Header}}
+  <div hidden>{{cloze:Occlusion}}</div>
+  <p id="occlusion-error" role="status" hidden></p>
+  <div id="image-occlusion-container">
+    {{Image}}
+    <canvas id="image-occlusion-canvas"></canvas>
+  </div>
+  <button id="toggle" type="button">显示 / 隐藏其他遮挡</button>
+  {{#Back Extra}}
+  <section class="review-explanation">
+    <h2 class="review-label">解析</h2>
+    <div class="content">{{Back Extra}}</div>
+  </section>
+  {{/Back Extra}}
+  {{#Comments}}
+  <details class="review-extra">
+    <summary>补充</summary>
+    <div class="content">{{Comments}}</div>
+  </details>
+  {{/Comments}}
+  {{#Tags}}<footer class="review-meta review-tags">{{Tags}}</footer>{{/Tags}}
+</article>
+<script src="_review.js"></script>

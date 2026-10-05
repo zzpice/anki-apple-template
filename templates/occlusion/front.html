@@ -1,0 +1,11 @@
+<article class="review-sheet" data-review="occlusion">
+  <header class="review-context"><span>图片遮挡</span></header>
+  {{#Header}}<div class="review-question content">{{Header}}</div>{{/Header}}
+  <div hidden>{{cloze:Occlusion}}</div>
+  <p id="occlusion-error" role="status" hidden></p>
+  <div id="image-occlusion-container">
+    {{Image}}
+    <canvas id="image-occlusion-canvas"></canvas>
+  </div>
+</article>
+<script src="_review.js"></script>
