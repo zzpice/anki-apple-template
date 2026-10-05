@@ -20,6 +20,17 @@ const server = http.createServer((request, response) => {
   response.end(fs.readFileSync(file));
 });
 
+async function render(page, action) {
+  // Install the listener before changing srcdoc. A matching element can still
+  // belong to the previous document; wait for scripts and images in the new one.
+  await page.evaluate(() => {
+    window.siteFrameLoaded = new Promise(resolve =>
+      document.getElementById('preview').addEventListener('load', () => resolve(), {once:true}));
+  });
+  await action();
+  await page.evaluate(() => window.siteFrameLoaded);
+}
+
 async function check(engine, name, base) {
   const browser = await engine.launch();
   try {
@@ -41,10 +52,10 @@ async function check(engine, name, base) {
     const examples = JSON.parse(fs.readFileSync(path.join(root, 'web/preview-cards.json')));
     assert.equal(await page.locator('#sample option').count(), examples.length);
     for (let index = 0; index < examples.length; index++) {
-      await page.selectOption('#sample', String(index));
+      await render(page, () => page.selectOption('#sample', String(index)));
       if (examples[index].type === 'occlusion') await frame.locator('#occlusion-error').waitFor();
       else await frame.locator('.review-question').waitFor();
-      await page.click('#flip');
+      await render(page, () => page.click('#flip'));
       await frame.locator('#answer').waitFor();
     }
     for (const file of ['cards/note-types.json', 'cards/samples.json', 'cards/style.css',
@@ -58,12 +69,12 @@ async function check(engine, name, base) {
     await page.getByRole('link', {name:'网页制卡', exact:true}).click();
     await page.locator('#app').waitFor();
     assert.equal(page.url(), new URL('tools.html', base).href);
-    await page.click('#load-samples');
+    await render(page, () => page.click('#load-samples'));
     assert.equal(await page.locator('#count').innerText(), '9 / 9 条');
     await page.selectOption('#type-filter', 'choice');
-    await page.locator('.note-row button').first().click();
+    await render(page, () => page.locator('.note-row button').first().click());
     await frame.locator('.review-choice').first().waitFor();
-    await page.click('#flip');
+    await render(page, () => page.click('#flip'));
     await frame.locator('#answer').waitFor();
     await page.click('#export-open');
     const pending = page.waitForEvent('download');
