@@ -1,0 +1,3 @@
+-r requirements-build.txt
+# 用官方后端验证导入与字段渲染，无需启动或修改用户的 Anki。
+anki==25.9.2

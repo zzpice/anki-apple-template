@@ -3,33 +3,23 @@
 <div id="answer"></div>
 
 {{#答案}}
-  <div class="section slide">
-    <div class="bar yleft">
-      <span class="icon yimg" aria-hidden="true"></span>
-      <span class="bar-title">答案</span>
-    </div>
-    <div class="h2">{{答案}}</div>
-  </div>
+  <section class="section">
+    <h2 class="section-title">答案</h2>
+    <div class="content">{{答案}}</div>
+  </section>
 {{/答案}}
 
 {{#笔记}}
-  <div class="section slide">
-    <div class="bar yleft">
-      <span class="icon yimg" aria-hidden="true"></span>
-      <span class="bar-title">笔记</span>
-    </div>
-    <div class="h2">{{笔记}}</div>
-  </div>
+  <section class="section">
+    <h2 class="section-title">笔记</h2>
+    <div class="content">{{笔记}}</div>
+  </section>
 {{/笔记}}
 
 {{#相关知识}}
-  <div class="section slide">
-    <div class="bar zleft">
-      <span class="icon zimg" aria-hidden="true"></span>
-      <span class="bar-title">相关知识</span>
-    </div>
-    <div class="h2">{{hint:相关知识}}</div>
-  </div>
+  <section class="section" aria-label="相关知识">
+    <div class="content">{{hint:相关知识}}</div>
+  </section>
 {{/相关知识}}
 
 <script>

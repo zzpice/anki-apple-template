@@ -1,16 +1,10 @@
-<div class="bar xleft" data-apple-template>
-  <span class="icon ximg breath" aria-hidden="true"></span>
-  <span class="bar-title">问题</span>
-  <span id="time" aria-label="当前复习时间"></span>
-</div>
-
-{{#Tags}}
-  <div class="section tag-section">
-    <span class="badge">{{Tags}}</span>
-  </div>
-{{/Tags}}
-
-<div class="section h2">{{问题}}</div>
+<section class="section" data-apple-template>
+  <h2 class="section-title">问题</h2>
+  {{#Tags}}
+    <div class="tags">{{Tags}}</div>
+  {{/Tags}}
+  <div class="content">{{问题}}</div>
+</section>
 
 <script>
 (function () {
@@ -36,7 +30,8 @@
         closeZoom();
       } else {
         var image = event.target.closest('.section img');
-        if (!image || image.matches('.no-zoom, [data-nozoom="1"]')) return;
+        if (!image || image.matches('.no-zoom, [data-nozoom="1"]') ||
+            image.closest('a, button')) return;
 
         source = image;
         lightbox = document.createElement('div');
@@ -45,7 +40,7 @@
         enlarged.src = image.currentSrc || image.src;
         enlarged.alt = image.alt;
         lightbox.appendChild(enlarged);
-        // 放到 body 下，避开卡片的模糊、动画和隐藏 Hint 所建立的层级。
+        // 放到 body 下，不受正文布局和隐藏 Hint 的影响。
         document.body.appendChild(lightbox);
         document.body.classList.add('zooming');
       }
@@ -72,11 +67,6 @@
     };
   }
 
-  var time = document.getElementById('time');
-  var now = new Date();
-  time.textContent = String(now.getHours()).padStart(2, '0') + ':' +
-    String(now.getMinutes()).padStart(2, '0');
-  time.title = now.toLocaleString();
   window.appleTemplate();
 })();
 </script>

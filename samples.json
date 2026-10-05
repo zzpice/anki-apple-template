@@ -1,0 +1,22 @@
+[
+  {
+    "key": "full",
+    "fields": {
+      "问题": "如何使用 Apple 风格问答模板？<p>可以写正文、<u>强调</u>、列表和<a href=\"https://docs.ankiweb.net/\">链接</a>。</p>",
+      "答案": "添加笔记时选择 <strong>Apple 风格问答</strong>，填写「问题」和「答案」，再按需填写「笔记」和「相关知识」。这是一张安装示例，可以删除。",
+      "笔记": "<p>代码块和行内代码直接使用 HTML：</p><pre><code>html {\n  -webkit-text-size-adjust: 100%;\n}</code></pre><p>行内代码：<code>prefers-color-scheme</code></p><table><tr><th>内容</th><th>桌面端</th><th>手机端</th><th>说明</th></tr><tr><td>图片</td><td>自适应</td><td>自适应</td><td>点击图片放大，点击遮罩或按 Esc 关闭</td></tr><tr><td>表格</td><td>横向滚动</td><td>横向滚动</td><td>窄屏可左右滑动，保留原有列宽</td></tr></table>",
+      "相关知识": "<p>这是 Anki 原生的折叠字段。答案、笔记、相关知识和 Tags 为空时不会显示对应区块。</p><table><tr><th>已有卡片</th><th>如何使用模板</th></tr><tr><td>普通问答</td><td>在桌面端浏览器中选择笔记，使用「更改笔记类型」，将原字段映射到这四个字段。</td></tr></table>"
+    },
+    "tags": ["Apple模板::示例", "Anki"]
+  },
+  {
+    "key": "minimal",
+    "fields": {
+      "问题": "不填写可选字段会怎样？",
+      "答案": "只显示问题和答案，不出现空的笔记、相关知识或标签区块。这张示例也可以删除。",
+      "笔记": "",
+      "相关知识": ""
+    },
+    "tags": []
+  }
+]

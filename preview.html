@@ -5,10 +5,10 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Apple 风格 Anki 模板预览</title>
   <style>
-    body { margin:0; font:16px sans-serif; }
-    header { padding:.6rem 1rem; background:#f5f6f7; }
+    body { margin:0; font:16px sans-serif; height:100vh; display:flex; flex-direction:column; }
+    header { padding:.6rem 1rem; background:#f5f6f7; display:flex; flex-wrap:wrap; gap:.5rem 1rem; }
     select { font:inherit; }
-    iframe { display:block; width:100%; height:calc(100vh - 64px); border:0; }
+    iframe { display:block; width:100%; flex:1; min-height:0; border:0; }
     #status { margin:0; }
   </style>
 </head>
@@ -21,13 +21,28 @@
         <option value="dark">深色</option>
       </select>
     </label>
-    <p id="status">正在读取模板…</p>
+    <label>卡片面
+      <select id="side">
+        <option value="back">背面</option>
+        <option value="front">正面</option>
+      </select>
+    </label>
+    <label>示例
+      <select id="sample">
+        <option value="0">完整内容</option>
+        <option value="1">可选字段为空</option>
+      </select>
+    </label>
+    <a href="./downloads/anki-apple-template.apkg" download>下载 Anki 安装包</a>
+    <p id="status" role="status">正在读取模板…</p>
   </header>
   <iframe id="preview" title="卡片预览"></iframe>
 
   <script>
     var theme = document.getElementById('theme');
     var frame = document.getElementById('preview');
+    var side = document.getElementById('side');
+    var sample = document.getElementById('sample');
     var darkMedia;
 
     function applyTheme() {
@@ -38,31 +53,31 @@
     }
     theme.onchange = applyTheme;
 
-    Promise.all(['front.html', 'back.html', 'style.css'].map(function (path) {
+    Promise.all(['front.html', 'back.html', 'style.css', 'samples.json'].map(function (path) {
       return fetch(path).then(function (response) {
         if (!response.ok) throw new Error(path + ': ' + response.status);
         return response.text();
       });
     })).then(function (files) {
-      // 样例字段均非空；只模拟字段替换和原生 Hint，不另写卡片交互。
-      var fields = {
-        '问题': '为什么这个模板适合桌面端和移动端？<p>正文、<u>强调</u>和<a href="#">链接</a>。</p>' +
-          '<img alt="示例图片" src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%271200%27 height=%27700%27%3E%3Crect width=%271200%27 height=%27700%27 rx=%2736%27 fill=%27%23e9eef5%27/%3E%3Ccircle cx=%27310%27 cy=%27350%27 r=%27150%27 fill=%27%230a84ff%27 opacity=%27.14%27/%3E%3Ccircle cx=%27760%27 cy=%27300%27 r=%27210%27 fill=%27%2334c759%27 opacity=%27.12%27/%3E%3Ctext x=%27600%27 y=%27360%27 text-anchor=%27middle%27 font-family=%27Arial%27 font-size=%2754%27 fill=%27%231c1c1e%27%3EAnki Image Preview%3C/text%3E%3C/svg%3E">',
-        'Tags': 'Anki Apple Template 示例标签 长标签换行测试',
-        '答案': '响应式字号、图片自适应、表格横向滚动，以及系统和 Anki 深色模式。',
-        '笔记': '<pre><code>html {\n  -webkit-text-size-adjust: 100%;\n}</code></pre>行内代码：<code>prefers-color-scheme</code>' +
-          '<table><tr><th>项目</th><th>桌面端</th><th>移动端</th><th>说明</th></tr>' +
-          '<tr><td>图片</td><td>自适应</td><td>自适应</td><td>点击图片测试放大，Esc 或点击遮罩退出</td></tr>' +
-          '<tr><td>表格</td><td>横向滚动</td><td>横向滚动</td><td>窄屏不会挤压列宽</td></tr></table>',
-        'hint:相关知识': "<a class=\"hint\" href=\"#\" onclick=\"this.style.display='none';this.nextElementSibling.style.display='block';return false;\">显示相关知识</a>" +
-          '<div style="display:none"><p>Anki 的 <code>hint:</code> 过滤器默认折叠字段。</p></div>'
-      };
-      function render(template) {
-        return template.replace(/{{([^}]+)}}/g, function (_, name) {
-          return /^[#/]/.test(name) ? '' : fields[name];
-        });
+      // 与安装包共用示例；仅模拟本模板的条件字段和原生 Hint。
+      var examples = JSON.parse(files[3]);
+      function updatePreview() {
+        darkMedia = null;
+        var example = examples[Number(sample.value)];
+        var fields = Object.assign({}, example.fields, {Tags: example.tags.join(' ')});
+        fields['hint:相关知识'] = '<a class="hint" href="#" onclick="this.style.display=\'none\';' +
+          'this.nextElementSibling.style.display=\'block\';return false;">相关知识</a>' +
+          '<div class="hint" style="display:none">' + fields['相关知识'] + '</div>';
+        function render(template) {
+          return template.replace(/{{#([^}]+)}}([\s\S]*?){{\/\1}}/g, function (_, name, content) {
+            return fields[name] ? content : '';
+          }).replace(/{{([^}]+)}}/g, function (_, name) { return fields[name]; });
+        }
+        fields.FrontSide = render(files[0]);
+        frame.srcdoc = '<!doctype html><html lang="zh-CN"><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
+          '<style>' + files[2] + '</style></head><body class="card">' +
+          (side.value === 'front' ? fields.FrontSide : render(files[1])) + '</body></html>';
       }
-      fields.FrontSide = render(files[0]);
       frame.onload = function () {
         var rules = frame.contentDocument.styleSheets[0].cssRules;
         darkMedia = Array.from(rules).find(function (rule) {
@@ -70,9 +85,8 @@
         }).media;
         applyTheme();
       };
-      frame.srcdoc = '<!doctype html><html lang="zh-CN"><head><meta name="viewport" content="width=device-width,initial-scale=1">' +
-        '<style>' + files[2] + '\nbody { max-width:860px; margin:auto; padding:1rem; }</style></head>' +
-        '<body class="card">' + render(files[1]) + '</body></html>';
+      side.onchange = sample.onchange = updatePreview;
+      updatePreview();
       document.getElementById('status').textContent = '';
     }).catch(function (error) {
       document.getElementById('status').textContent = error.message + '。请通过本地 HTTP 服务打开预览，见 README。';
