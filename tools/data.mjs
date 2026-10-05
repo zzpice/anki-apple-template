@@ -195,16 +195,45 @@ export function validateNote(note, spec, availableMedia = []) {
   }
   return [...new Set(errors)];
 }
+// Inspect original attributes without rewriting fields. A quote starts a value
+// only after =; angle brackets inside that value do not end the tag.
+function* htmlTags(html) {
+  const start = /<([a-z][a-z0-9-]*)(?=[\s/>])/gi;
+  let token;
+  while ((token = start.exec(html))) {
+    const attributes = []; let position = start.lastIndex;
+    while (position < html.length) {
+      while (/[\s/]/.test(html[position] || '') && position < html.length) position++;
+      if (position >= html.length || html[position] === '>') { position++; break; }
+      const begin = position;
+      while (position < html.length && !/[\s=/>]/.test(html[position])) position++;
+      if (position === begin) { position++; continue; }
+      const name = html.slice(begin, position).toLowerCase(); let value = '';
+      while (/\s/.test(html[position] || '') && position < html.length) position++;
+      if (html[position] === '=') {
+        position++;
+        while (/\s/.test(html[position] || '') && position < html.length) position++;
+        const quote = html[position] === '"' || html[position] === "'" ? html[position++] : null;
+        const valueStart = position;
+        while (position < html.length && (quote ? html[position] !== quote : !/[\s>]/.test(html[position]))) position++;
+        value = html.slice(valueStart, position);
+        if (quote && position < html.length) position++;
+      }
+      attributes.push([name, decodeEntities(value)]);
+    }
+    start.lastIndex = position;
+    yield {tag:token[1].toLowerCase(), attributes};
+  }
+}
 export function markupErrors(html, availableMedia) {
   const errors = [];
-  for (const token of html.matchAll(/<([a-z][a-z0-9-]*)([\s/][^<>]*?)?\s*\/?>/gi)) {
-    const tag = token[1].toLowerCase();
+  for (const {tag, attributes} of htmlTags(html)) {
     if (['script','iframe','object','embed','form','input','button','textarea','link','meta','style','svg','math','template','base'].includes(tag)) errors.push('字段包含不能用于制卡的活动内容，请在 HTML 模式移除');
-    for (const attr of (token[2] || '').matchAll(/([^\s=/]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s]+)))?/g)) {
-      const name = attr[1].toLowerCase(), value = decodeEntities(attr[2] ?? attr[3] ?? attr[4] ?? '');
+    if (['img','image'].includes(tag) && !attributes.some(([name,value]) => name === 'src' && value)) errors.push('图片缺少本地媒体文件名');
+    for (const [name, value] of attributes) {
       if (name.startsWith('on') || /(?:javascript|vbscript):/i.test(value.replace(/[\s\x00-\x1f]/g,'')) ||
           name === 'srcset' || name === 'poster' || (name === 'style' && /url\s*\(|expression\s*\(|@import|\\/i.test(value))) errors.push('字段包含活动属性或远程样式，请在 HTML 模式移除');
-      if (name === 'src' && ['img','audio','video','source'].includes(tag) && !availableMedia.includes(value)) errors.push('缺少本地媒体：' + value);
+      if (name === 'src' && ['img','image','audio','video','source'].includes(tag) && !availableMedia.includes(value)) errors.push('缺少本地媒体：' + value);
     }
   }
   return errors;

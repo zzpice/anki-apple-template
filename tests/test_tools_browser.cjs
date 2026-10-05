@@ -119,6 +119,18 @@ async function run(engine,name,base,data) {
       await page.screenshot({path:process.env.AUTHORING_SCREENSHOT,fullPage:false});
     }
     await context.close();
+    // These drafts alone must never produce TSVs; JSON keeps their exact source.
+    const rejected=await browser.newContext(), blocked=await rejected.newPage();blocked.on('dialog',d=>d.accept());
+    await blocked.goto(base+'/tools.html');await blocked.locator('#app').waitFor();
+    const badImages=['<img title="1 < 2 > 0" src="https://example.invalid/secret" onerror="window.top.pwned=1">','<img alt="粘贴时已移除远程地址">'];
+    await importData(blocked,badImages.map((答案,i)=>({type:'basic',fields:{问题:'图片检查 '+i,答案},tags:[]})));
+    assert.match(await blocked.locator('#validation').innerText(),/活动属性/);assert.match(await blocked.locator('#validation').innerText(),/缺少本地媒体/);
+    await blocked.click('#flip');await blocked.frameLocator('#preview').locator('#answer').waitFor();
+    assert.equal(await blocked.evaluate(()=>window.pwned),undefined);
+    await blocked.click('#next');assert.match(await blocked.locator('#validation').innerText(),/图片缺少本地媒体文件名/);
+    await blocked.click('#export-open');await blocked.click('#export-zip');assert.match(await blocked.locator('#export-status').innerText(),/待修正/);
+    await blocked.check('#valid-only');await blocked.click('#export-zip');assert.match(await blocked.locator('#export-status').innerText(),/没有通过检查/);
+    assert.deepEqual(JSON.parse(await downloaded(blocked,'#export-json')).notes.map(n=>n.fields.答案),badImages);await saved(blocked);await rejected.close();
     const unavailable=await browser.newContext();await unavailable.addInitScript(()=>{indexedDB.open=()=>{throw new Error('存储被禁用');};});
     const fallback=await unavailable.newPage();fallback.on('dialog',d=>d.accept());await fallback.goto(base+'/tools.html');await fallback.locator('#app').waitFor();
     assert.match(await fallback.locator('#save-status').innerText(),/无法读取/);await fallback.click('#new-note');await htmlField(fallback,'问题','缓存不可用仍能编辑');await fallback.click('#export-open');

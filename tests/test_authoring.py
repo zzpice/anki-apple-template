@@ -133,6 +133,11 @@ class AuthoringTests(unittest.TestCase):
             lambda d: d['notes'][0]['fields'].update(答案='<img src=x onerror="alert(1)">'),
             lambda d: d['notes'][0]['fields'].update(答案='<a href="java&#115;cript:alert(1)">x</a>'),
             lambda d: d['notes'][0]['fields'].update(答案='<div style="background:url(https://example.com)">x</div>'),
+            lambda d: d['notes'][0]['fields'].update(答案='<img title="1 < 2" src="https://example.invalid/a.png">'),
+            lambda d: d['notes'][0]['fields'].update(答案='<img src="_rule-build.svg" onerror="if (1 < 2) alert(1)">'),
+            lambda d: d['notes'][0]['fields'].update(答案='<a title="x > y" href="javascript:alert(1)">x</a>'),
+            lambda d: d['notes'][0]['fields'].update(答案='<img alt="没有文件名">'),
+            lambda d: d['notes'][0]['fields'].update(答案='<image src="https://example.invalid/a.png">'),
             lambda d: d['media'][0].update(name='../escape.png'),
             lambda d: d['media'][0].update(name='at-' + '0' * 32 + '.png'),
             lambda d: d['media'][0].update(data='data:image/png;base64,aW52YWxpZA=='),
@@ -166,6 +171,19 @@ class AuthoringTests(unittest.TestCase):
         self.assertEqual(note['标题'], '')
         self.assertEqual(len(note.cards()), 2)
         self.assertEqual(collection.note_count(), 7)
+
+    def test_local_image_with_quoted_angle_brackets_roundtrips(self):
+        data = copy.deepcopy(self.data)
+        source = data['notes'][0]
+        source['fields']['答案'] = '<img title="1 < 2 > 0" src="' + data['media'][0]['name'] + '">'
+        path = self.directory / 'quoted.json'
+        path.write_text(json.dumps(data, ensure_ascii=False))
+        apkg = self.directory / 'quoted.apkg'
+        package.build_package(apkg, None, workspace=path)
+        collection = self.collection(apkg)
+        note = collection.get_note(collection.db.scalar('select id from notes where guid=?', source['guid']))
+        self.assertEqual(note.fields, list(source['fields'].values()))
+        self.assertIn(source['fields']['答案'], note.cards()[0].answer())
 
 
 def verify_browser_zip(path):

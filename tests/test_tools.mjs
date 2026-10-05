@@ -46,6 +46,18 @@ test('active markup is rejected; literal code and media remain valid',async()=>{
   const data=await fixture();data.media[0].name='at-'+'a'.repeat(32)+'.png';await assert.rejects(verifyMediaNames(data.media));
   assert.throws(()=>normalizeWorkspace({...workspace(),media:[{name:'../x.png',data:'x'}]},specs));
 });
+test('media and active attributes cannot hide behind quoted angle brackets',()=>{
+  for(const html of [
+    '<img title="1 < 2" src="https://example.invalid/a.png">',
+    '<img src="_rule-build.svg" onerror="if (1 < 2) alert(1)">',
+    '<a title="x > y" href="javascript:alert(1)">x</a>',
+    "<a title='x < y > z' href='java&#115;cript:alert(1)'>x</a>",
+    '<img src="_rule-build.svg" /onerror=alert(1)>',
+    '<img alt="粘贴时已移除远程地址">',
+    '<image src="https://example.invalid/a.png">',
+  ])assert.ok(markupErrors(html,media).length,html);
+  for(const html of ['<p title="1 < 2 > 0">安全文字</p>', '<img title="1 < 2 > 0" src="_rule-build.svg"/>', '<img src=_rule-build.svg />'])assert.deepEqual(markupErrors(html,media),[],html);
+});
 test('AI prompt uses actual fields and native syntax, has no credentials or endpoint',()=>{
   for(const spec of specs.filter(s=>s.kind!=='occlusion')){const prompt=promptFor(spec,'测试材料',5);for(const name of spec.fields)assert.ok(prompt.includes('"'+name+'"'));assert.ok(prompt.includes('测试材料'));assert.ok(!/API Key|https:\/\//.test(prompt));}
 });

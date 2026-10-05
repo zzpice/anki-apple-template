@@ -23,13 +23,15 @@ class StaticHTML(HTMLParser):
     def handle_starttag(self, tag, attributes):
         if tag in {"script", "iframe", "object", "embed", "form", "input", "button", "textarea", "link", "meta", "style", "svg", "math", "template", "base"}:
             self.errors.append("字段含活动内容")
+        if tag in {"img", "image"} and not any(name == "src" and value for name, value in attributes):
+            self.errors.append("图片缺少本地媒体文件名")
         for name, value in attributes:
             value = value or ""
             if name.startswith("on") or re.search(r"(?:javascript|vbscript):", re.sub(r"[\s\x00-\x1f]", "", value), re.I):
                 self.errors.append("字段含活动属性")
             if name in {"srcset", "poster"} or (name == "style" and re.search(r"url\s*\(|expression\s*\(|@import|\\", value, re.I)):
                 self.errors.append("字段含活动样式")
-            if tag in {"img", "audio", "video", "source"} and name == "src" and value not in self.available:
+            if tag in {"img", "image", "audio", "video", "source"} and name == "src" and value not in self.available:
                 self.errors.append("缺少本地媒体：" + value)
 
     handle_startendtag = handle_starttag
