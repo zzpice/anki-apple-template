@@ -2,17 +2,57 @@
 
 日常安装与字段教学见 [README](README.md)，网页制卡与数据交换见 [AUTHORING](AUTHORING.md)，提交约定见 [AGENTS](AGENTS.md)。本页说明源码、生成、验证与发布。
 
-## 源码与标识
+## 仓库结构
 
-| 文件 | 维护职责 |
+仓库根目录也是 GitHub Pages 的发布根目录。卡片源码、网页直接读取的资源和已提交的生成产物因此共存；判断该编辑哪个文件时，以职责和生成关系为准。用户操作见 `README.md`，网页制卡与交换格式见 `AUTHORING.md`，维护流程集中在本页，`AGENTS.md` 只记录协作约束。
+
+| 位置 | 职责与维护方式 |
 | --- | --- |
-| `note-types.json` | 五个类型的 ID、字段顺序、正背面及附加样式路径，共供构包与网页制卡读取 |
-| `templates/`、`style.css`、`media/` | 模板、公共样式、卡片脚本与示例媒体 |
-| `samples.json` | 示例字段、标签、来源及固定 GUID |
-| `scripts/build_package.py`、`scripts/authoring.py` | 官方 Anki 构包、渲染与用户工作空间校验，只操作临时集合 |
-| `downloads/anki-template.apkg`、`preview-cards.json` | 随源码提交的生成产物，不手动修改 |
-| `index.html`、`preview.html`、`tools.html`、`tools/` | 静态网页入口、示例预览与制卡工具，不需前端构建 |
-| `tests/`、`.github/workflows/check.yml` | 回归检查与 CI；`build/` 是不提交的测试 / 自制包输出目录 |
+| `note-types.json` | 手工维护的公共规格：五个类型的 ID、字段顺序、正背面及附加样式路径，共供构包与网页制卡读取；路径相对仓库根目录 |
+| `templates/` | 卡片 HTML 源码，按类型组织；`choice/` 只有正面，背面复用 `basic/back.html`；`mindmap/style.css` 是该类型的附加样式 |
+| `style.css` | 卡片公共样式源码，构包时写入笔记类型，两个网页预览直接读取 |
+| `media/` | 卡片运行脚本 `_review.js`、`_mindmap.js` 和手工维护的示例图 `_rule-build.svg`；构包时平铺写入 Anki 媒体，也供网页读取 |
+| `samples.json` | 手工维护的示例字段、标签、来源及固定 GUID；构包与网页的「载入项目示例副本」共用此数据 |
+| `scripts/` | Python 维护工具：`build_package.py` 构包与官方渲染，`authoring.py` 校验用户工作空间，`check_templates.py` 静态检查；不进入网页或卡片运行时 |
+| `downloads/anki-template.apkg` | 已提交的公开安装包，由 `build_package.py` 生成，不手动修改 |
+| `preview-cards.json` | 已提交的官方 Anki 渲染结果，由同一生成器产出，供 `preview.html` 读取，不手动修改 |
+| `preview-choice.png`、`preview-content.png`、`preview-mindmap.png` | 已提交的 README 截图，由浏览器检查在 `ANKI_SCREENSHOTS=1` 时生成；不属于 Anki 包内媒体 |
+| `index.html`、`preview.html`、`tools.html` | 手工维护的公开网页入口，分别为跳转、项目示例预览和网页制卡；无需前端构建 |
+| `tools/` | 网页制卡的浏览器源码与界面样式：`app.mjs` 组织界面，`data.mjs` 处理数据与交换格式，`preview.mjs` 编辑预览，`storage.mjs` 本地草稿，`zip.mjs` 导出；`tools/style.css` 只负责制卡界面 |
+| `tests/` | Python 后端测试、Node 数据测试及 Chromium / WebKit 检查；`authoring_fixture.mjs` 提供网页导出数据，`mindmap_browser.cjs` 由卡片浏览器检查调用 |
+| `requirements-build.txt`、`requirements-test.txt`、`.github/workflows/check.yml` | 生成 / 测试依赖与 CI 版本、检查顺序；依赖仅用于开发，CI 不生成发布提交 |
+| `.nojekyll` | Pages 发布标记，保证以下划线开头的媒体可访问 |
+| `.editorconfig`、`.gitattributes`、`.gitignore` | 编辑格式、Git 换行规则、临时文件忽略规则；`LICENSE` 为项目许可 |
+| `build/`、`.venv/`、`node_modules/`、`__pycache__/` | 本地生成数据、自制安装包、开发依赖与 Python 缓存，均由 Git 忽略，不随仓库提交 |
+
+### 读取与生成关系
+
+```text
+note-types.json → templates/ 中的正背面与可选附加样式
+公共规格 + 模板 + style.css + media/ + samples.json
+  → scripts/build_package.py → 临时 Anki 集合与官方渲染
+    → downloads/anki-template.apkg
+    → preview-cards.json
+preview-cards.json + style.css + media/ → preview.html
+note-types.json + samples.json + 问答/选择模板 + style.css + media/ → tools.html / tools/
+网页 JSON 备份 → scripts/authoring.py 校验 → 同一构包流程 → 自制 .apkg / 可选预览
+```
+
+生成的预览数据包含导图附加样式，卡片媒体引用仍为平铺文件名；`preview.html` 的 iframe 以 `media/` 为基址。网页制卡从公共规格读取问答 / 选择模板，用原脚本预览；其他类型只展示字段，不消费项目的 `preview-cards.json`。用户自制包应输出到 `build/`，保留公开示例产物，完整命令见 [生成与检查](#生成与检查) 和 [网页制卡说明](AUTHORING.md#生成-apkg)。
+
+Python 测试在临时目录重建安装包并核对语义；设置 `ANKI_RENDER_OUTPUT=build/cards.json` 时另写出卡片、选择 / 导图用例和官方 reviewer 资源位置，随后供 `test_browser.cjs` 使用。这批 `build/` 数据与已提交的 `preview-cards.json` 用途不同。三张 README 截图由卡片浏览器检查及其导图检查生成，生成方法见 [生成与检查](#生成与检查)。
+
+### 保留现有路径的原因
+
+- `index.html`、`preview.html`、`tools.html` 和 `downloads/anki-template.apkg` 是已有公开入口；根 URL 通过 `index.html` 跳转。文档与用户书签继续使用这些路径。
+- 根目录的公共规格、示例、卡片样式和预览数据可由静态网页直接读取，Python 也按同一根目录读取源码。另建源码目录会同时改变网页请求、规格路径和维护命令。
+- `media/` 保持平铺，模板写 `_review.js` / `_mindmap.js`、示例写 `_rule-build.svg`；生成器复制到 Anki 的 `collection.media`，网页通过基址解析同一引用。脚本留在媒体目录与 Anki 安装、导出方式一致。
+- `templates/choice/` 复用 `templates/basic/back.html`，导图附加样式留在 `templates/mindmap/`；公共规格明确表达共享与专属关系，避免复制源码。
+- README 截图留在根目录，保留文档图片 URL、截图输出位置和制卡测试对自有测试图片的引用；维护文档也保留现有路径及章节锚点。
+
+静态网页源码直接作为 Pages 资源发布，公开生成产物随源码提交，开发输出留在忽略目录。这一布局省去独立站点复制与打包流程；调整路径时需同时核对规格、Python / Node 读取、网页请求、媒体引用、文档及 Pages。
+
+## 源码与标识
 
 五个类型为问答、选择、填空、图片遮挡和思维导图。问答与选择分别使用独立字段和正面，共用背面、样式和脚本。
 
