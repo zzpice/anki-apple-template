@@ -1,6 +1,6 @@
 # 维护说明
 
-日常安装与字段教学见 [README](../README.md)，网页制卡与数据交换见 [AUTHORING](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
+项目概览见 [README](../README.md)，日常安装与字段教学见 [Anki 使用说明](usage.md)，网页制卡与数据交换见 [AUTHORING](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
 
 ## 仓库结构
 
@@ -21,8 +21,8 @@ anki-template/
 │   └── tools/                           制卡模块与界面样式
 ├── downloads/anki-template.apkg          官方 Anki 生成的公开安装包
 ├── docs/
-│   ├── authoring.md / development.md     制卡说明与维护说明
-│   └── images/                          README 截图
+│   ├── usage.md / authoring.md / development.md  使用、制卡与维护说明
+│   └── images/                          使用说明截图
 ├── scripts/                             Python 维护工具与依赖清单
 ├── tests/                               后端、数据、浏览器与 Pages 路径检查
 └── .github/workflows/check.yml           检查矩阵；其他根配置见下表
@@ -36,7 +36,7 @@ anki-template/
 | `cards/samples.json` | 示例字段、标签、来源与固定 GUID；紧邻其类型规格，构包与网页「载入项目示例副本」共用 |
 | `web/tools/` | 浏览器制卡模块：界面 `app.mjs`、数据与交换 `data.mjs`、编辑预览 `preview.mjs`、草稿 `storage.mjs`、ZIP `zip.mjs`；`style.css` 只负责制卡界面 |
 | `web/preview-cards.json`、`downloads/anki-template.apkg` | 已提交的官方渲染和安装包，由同一生成器产出，勿手动修改；前者是网页资源，后者是稳定公开下载 |
-| `docs/`、`docs/images/` | 详细制卡与维护说明、README 截图；截图由浏览器检查在 `ANKI_SCREENSHOTS=1` 时生成，不属于包内媒体 |
+| `docs/`、`docs/images/` | 详细使用、制卡与维护说明、使用说明截图；截图由浏览器检查在 `ANKI_SCREENSHOTS=1` 时生成，不属于包内媒体 |
 | `scripts/` | 构包、工作空间校验和静态检查；`requirements-build.txt` / `requirements-test.txt` 固定开发依赖，不进入网页或卡片运行时 |
 | `tests/` | Python 官方后端、Node 数据、Chromium / WebKit 检查；`authoring_fixture.mjs` 提供导出数据，`mindmap_browser.cjs` 由卡片浏览器检查调用 |
 | `.github/`、`.nojekyll` | CI 矩阵与 Pages 标记；保留 `.nojekyll`，使嵌套媒体目录里以下划线开头的文件正常发布 |
@@ -64,7 +64,7 @@ Python 测试在临时目录重建包并核对语义；`ANKI_RENDER_OUTPUT=build
 
 - Pages 根 URL、`index.html`、`preview.html`、`tools.html`、`downloads/anki-template.apkg` 保持原位置。HTML 仍是实际页面，避免新增转跳改变浏览行为；制卡页面地址、站点与存储名称不变，已有 IndexedDB 草稿继续使用。
 - 根 `AUTHORING.md` 是旧 ZIP「导入说明.txt」中 GitHub 链接的简短入口，并保留 `#生成-apkg`；正文只在 `docs/authoring.md` 维护。新网页与新 ZIP 直接链接正文。
-- 站内 JSON、CSS、JS、模板、媒体与 README 图片属于随项目同步的资源路径，迁移后全部消费方一起更新，不为旧内部位置保留副本或代理。`DEVELOPMENT.md` 的旧 GitHub 文件路径也不保留兼容文件。
+- 站内 JSON、CSS、JS、模板、媒体与文档图片属于随项目同步的资源路径，迁移后全部消费方一起更新，不为旧内部位置保留副本或代理。`DEVELOPMENT.md` 的旧 GitHub 文件路径也不保留兼容文件。
 - Anki 包内媒体文件名、规格内模板相对路径、类型 / 字段 / 模板 ID、示例 GUID 和交换格式均不改变。
 
 根 HTML 包含各自页面的样式或控制代码，是保留稳定入口与直接静态运行的取舍。公开生成产物仍随源码提交，避免额外部署系统；`cards/samples.json` 和媒体示例图留在卡片源单元内，便于一起构包，无需再分一层小目录。
@@ -79,7 +79,7 @@ Python 测试在临时目录重建包并核对语义；`ANKI_RENDER_OUTPUT=build
 
 ## 模板行为与手动安装
 
-字段填写与选项规则见 [README](../README.md#填写卡片)。维护选择脚本时须区分原始选项标识与显示字母，答案始终按原始标识映射到排序后的内容；判断和带 `固定顺序` 标签的笔记不随机。
+字段填写与选项规则见 [Anki 使用说明](usage.md#填写卡片)。维护选择脚本时须区分原始选项标识与显示字母，答案始终按原始标识映射到排序后的内容；判断和带 `固定顺序` 标签的笔记不随机。
 
 当前排序和选择只占用一个 `sessionStorage` 条目：翻面继续读取并保留，开始下一张正面时清除。存储不可用时改用题目内容生成确定性排序，正反面仍一致，但不能保留已选项。背面模板的 `data-review-back` 标记让嵌入的正面脚本识别翻面，不提前清除状态。
 
@@ -125,7 +125,7 @@ ANKI_PYTHON=.venv/bin/python node tests/test_tools_browser.cjs
 
 Python 测试会在临时目录重建并比较源码、安装包与预览，并验证重复导入、五个类型的模板 / 内容更新及排程保留。`ANKI_RENDER_OUTPUT` 还输出 `build/cards.json`、选择 / 导图测试数据和 `anki-web.json`；`test_browser.cjs` 依赖这些文件，需先完成 Python 测试。`mindmap_browser.cjs` 由它调用，无需单独运行。
 
-`test_site.cjs` 在 `/anki-template/` 项目子路径下验证入口跳转、站内请求、五类示例、制卡共用源码与媒体、下载及 README 图片；`SITE_URL=https://zzpice.github.io/anki-template/ node tests/test_site.cjs` 可复用同一检查验证已部署站点。
+`test_site.cjs` 在 `/anki-template/` 项目子路径下验证首页导航、手机 / 桌面浅深色布局、无 JavaScript 的入口、站内请求、五类示例、制卡共用源码与媒体、下载、文档及图片；`SITE_URL=https://zzpice.github.io/anki-template/ node tests/test_site.cjs` 可复用同一检查验证已部署站点。
 
 `test_tools.mjs` 检查网页数据、文本往返与 ZIP；`test_tools_browser.cjs` 检查实际编辑、预览、导入预检、图片分组、下载、存储恢复 / 冲突和小屏浅深色布局。浏览器实际下载的 ZIP 再经官方后端导入，核对字段、GUID、标签、牌组与空卡。`ANKI_PYTHON` 指定这一步的 Python；CI 使用环境默认 Python。
 
@@ -140,9 +140,9 @@ node tests/test_tools_browser.cjs
 
 其他不带行首环境变量的检查命令照常运行。
 
-问答、选择、填空和遮挡示例取自其他项目的公开说明，修改时核对来源链接与答案，保留 GUID。流程图为公开规则生成步骤的示意图；不引用节点、订阅、凭据或实际持仓。思维导图只用通用格式示例。README 中的字段示例应与 `cards/samples.json` 一致。
+问答、选择、填空和遮挡示例取自其他项目的公开说明，修改时核对来源链接与答案，保留 GUID。流程图为公开规则生成步骤的示意图；不引用节点、订阅、凭据或实际持仓。思维导图只用通用格式示例。使用说明中的字段示例应与 `cards/samples.json` 一致。
 
-示例或外观变化且测试通过后，运行 `ANKI_SCREENSHOTS=1 node tests/test_browser.cjs` 更新 README 的三张截图。截图读取同一份预览内容，切勿另外编写展示模板；图片保存在 `docs/images/`，随示例一起提交。PowerShell 先设置 `$env:ANKI_SCREENSHOTS = "1"`，再运行 `node tests/test_browser.cjs`。纯文档或仅网页制卡界面的修改不需要重建公共示例包或卡片截图。
+示例或外观变化且测试通过后，运行 `ANKI_SCREENSHOTS=1 node tests/test_browser.cjs` 更新使用说明的三张截图。截图读取同一份预览内容，切勿另外编写展示模板；图片保存在 `docs/images/`，随示例一起提交。PowerShell 先设置 `$env:ANKI_SCREENSHOTS = "1"`，再运行 `node tests/test_browser.cjs`。纯文档或仅网页制卡界面的修改不需要重建公共示例包或卡片截图。
 
 ## 预览与发布
 
@@ -150,7 +150,7 @@ node tests/test_tools_browser.cjs
 python3 -m http.server 8000
 ```
 
-打开 <http://localhost:8000/preview.html> 或 <http://localhost:8000/tools.html>；需使用 HTTP / HTTPS 加载数据与模块。`index.html` 跳转到示例预览。预览使用 Anki 后端生成的 HTML、共用样式和媒体；返回当前正面时仅添加 `data-review-resume`，保留同一次选择。普通浏览器不支持原生遮挡 API，遮挡题只显示导入提示。
+打开 <http://localhost:8000/preview.html> 或 <http://localhost:8000/tools.html>；需使用 HTTP / HTTPS 加载数据与模块。`index.html` 是轻量项目入口，提供下载、制卡、预览及详细说明链接；无需 JavaScript，不自动跳转。预览使用 Anki 后端生成的 HTML、共用样式和媒体；返回当前正面时仅添加 `data-review-resume`，保留同一次选择。普通浏览器不支持原生遮挡 API，遮挡题只显示导入提示。
 
 视口选项在自适应宽度与 390px 手机宽度之间切换，小屏仍限制在页面宽度内。切换只改变同一个 iframe 的宽度，不重新渲染卡片，当前选择和正反面保持不变。浏览器检查覆盖桌面及 320、360、375、390、430px 手机宽度。
 

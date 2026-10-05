@@ -46,7 +46,44 @@ async function check(engine, name, base) {
       }
     });
     await page.goto(base);
-    await page.waitForURL(new URL('preview.html', base).href);
+    assert.equal(page.url(), base, 'home must stay at the project root');
+    await page.getByRole('heading', {name:'Anki 模板', exact:true}).waitFor();
+    const entries = page.getByRole('navigation', {name:'开始使用'});
+    const downloadLink = entries.getByRole('link', {name:/下载安装包/});
+    assert.equal(new URL(await downloadLink.getAttribute('href'), base).href,
+      new URL('downloads/anki-template.apkg', base).href);
+    const downloadPending = page.waitForEvent('download');
+    await downloadLink.click();
+    const packageDownload = await downloadPending;
+    assert.equal(await packageDownload.failure(), null);
+    assert.deepEqual(fs.readFileSync(await packageDownload.path()),
+      fs.readFileSync(path.join(root, 'downloads/anki-template.apkg')));
+    const backgrounds = [];
+    for (const colorScheme of ['light', 'dark']) {
+      await page.emulateMedia({colorScheme});
+      backgrounds.push(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor));
+      for (const width of [1280, 390, 320]) {
+        await page.setViewportSize({width, height:844});
+        assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'home overflow');
+        for (const link of await entries.getByRole('link').all()) {
+          const box = await link.boundingBox();
+          assert.ok(box.x >= 0 && box.x + box.width <= width && box.height >= 44, 'home entry is clipped or too small');
+        }
+      }
+    }
+    assert.notEqual(backgrounds[0], backgrounds[1], 'home must follow system appearance');
+    await page.setViewportSize({width:1280, height:900});
+    await page.emulateMedia({colorScheme:'light'});
+    await entries.getByRole('link', {name:/网页制卡/}).click();
+    await page.locator('#app').waitFor();
+    assert.equal(page.url(), new URL('tools.html', base).href);
+    await page.getByRole('link', {name:'Anki 模板', exact:true}).click();
+    assert.equal(page.url(), base);
+    await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
+    assert.equal(page.url(), new URL('preview.html', base).href);
+    await page.getByRole('link', {name:'项目首页', exact:true}).click();
+    assert.equal(page.url(), base);
+    await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     const frame = page.frameLocator('#preview');
     await frame.locator('.review-choice').first().waitFor();
     const examples = JSON.parse(fs.readFileSync(path.join(root, 'web/preview-cards.json')));
@@ -58,7 +95,9 @@ async function check(engine, name, base) {
       await render(page, () => page.click('#flip'));
       await frame.locator('#answer').waitFor();
     }
-    for (const file of ['cards/note-types.json', 'cards/samples.json', 'cards/style.css',
+    for (const file of ['index.html', 'preview.html', 'tools.html', 'README.md',
+      'docs/usage.md', 'docs/authoring.md', 'docs/development.md', 'AUTHORING.md', 'LICENSE',
+      'cards/note-types.json', 'cards/samples.json', 'cards/style.css',
       'cards/media/_review.js', 'cards/media/_mindmap.js', 'cards/media/_rule-build.svg',
       'web/preview-cards.json', 'downloads/anki-template.apkg',
       'docs/images/preview-choice.png', 'docs/images/preview-content.png', 'docs/images/preview-mindmap.png']) {
@@ -91,7 +130,14 @@ async function check(engine, name, base) {
     await page.waitForFunction(() => document.getElementById('save-status').textContent.startsWith('已保存'));
     assert.deepEqual(failures, []);
     await context.close();
-    console.log(name + ': Pages project paths, preview, authoring, shared media, ZIP, download and README images passed (' + base + ')');
+    const plain = await browser.newContext({javaScriptEnabled:false});
+    const home = await plain.newPage();
+    await home.goto(new URL('index.html', base).href);
+    await home.getByRole('heading', {name:'Anki 模板', exact:true}).waitFor();
+    await home.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
+    assert.equal(home.url(), new URL('preview.html', base).href, 'home navigation must work without JavaScript');
+    await plain.close();
+    console.log(name + ': home navigation, responsive light/dark layout, no-JS entry, Pages project paths, preview, authoring, shared media, ZIP, download, documentation and images passed (' + base + ')');
   } finally {await browser.close();}
 }
 

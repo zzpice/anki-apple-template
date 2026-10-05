@@ -215,25 +215,26 @@ class PackageTests(unittest.TestCase):
         self.assertIn("题型", specs["choice"]["fields"])
         self.assertEqual(specs["basic"]["back"], specs["choice"]["back"])
 
-    def test_readme_field_examples_match_package_samples(self):
-        readme = (package.ROOT / "README.md").read_text()
+    def test_usage_field_examples_match_package_samples(self):
+        usage_path = package.ROOT / "docs/usage.md"
+        usage = usage_path.read_text()
         samples = {s["key"]: s for s in package.samples()}
-        blocks = re.findall(r"```text\n(.*?)\n```", readme, re.S)
+        blocks = re.findall(r"```text\n(.*?)\n```", usage, re.S)
         self.assertEqual(len(blocks), 4)
         for block, key in zip(blocks[:3], ("single", "multiple", "judgment")):
             fields = dict(line.split("：", 1) for line in block.splitlines())
             self.assertEqual(fields, {f: samples[key]["fields"][f] for f in ("问题", "选项", "答案", "题型")})
         self.assertEqual(blocks[3].replace("\n", ""), samples["cloze"]["fields"]["正文"])
-        mindmap_section = readme.split('### 思维导图', 1)[1]
+        mindmap_section = usage.split('### 思维导图', 1)[1]
         mindmap_html = re.search(r'```html\n(.*?)\n```', mindmap_section, re.S).group(1)
         # Editor-friendly line indentation is not content.
         mindmap_html = re.sub(r'\s*\n\s*', '', mindmap_html)
         self.assertEqual(mindmap_html, samples["mindmap"]["fields"]["内容"])
         recall = samples["recall"]["fields"]
-        self.assertIn("问题：" + recall["问题"], readme)
-        self.assertIn("答案：" + re.sub(r"<[^>]+>", "", recall["答案"]), readme)
-        for name in re.findall(r'^<img src="([^"]+)"', readme, re.M):
-            self.assertTrue((package.ROOT / name).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
+        self.assertIn("问题：" + recall["问题"], usage)
+        self.assertIn("答案：" + re.sub(r"<[^>]+>", "", recall["答案"]), usage)
+        for name in re.findall(r'^<img src="([^"]+)"', usage, re.M):
+            self.assertTrue((usage_path.parent / name).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
 
     def test_rich_fields_are_never_inserted_into_script(self):
         collection = self.collection()

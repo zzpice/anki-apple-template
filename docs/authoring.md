@@ -1,6 +1,6 @@
 # 网页制卡
 
-[打开制卡工具](https://zzpice.github.io/anki-template/tools.html) · [项目示例预览](https://zzpice.github.io/anki-template/preview.html) · [模板使用与字段教学](../README.md#填写卡片)
+[打开制卡工具](https://zzpice.github.io/anki-template/tools.html) · [项目示例预览](https://zzpice.github.io/anki-template/preview.html) · [模板使用与字段教学](usage.md#填写卡片)
 
 浏览器负责整理和编辑笔记，Anki 负责生成原生卡片与复习排程。工具直接读取 `cards/note-types.json` 的五个类型和字段；不需要账号、API Key 或服务端。本地使用时在仓库根目录运行 `python3 -m http.server 8000`，打开 <http://localhost:8000/tools.html>。请通过 HTTP / HTTPS 打开，双击 HTML 文件不能可靠加载模块与字段定义。
 
@@ -17,12 +17,12 @@ Anki 文本导入会跳过模型首字段为空的笔记；思维导图的原生
 
 ## 类型与字段
 
-字段用途和填写示例见 [README](../README.md#填写卡片)，字段名称与顺序以 [公共规格](../cards/note-types.json) 为准。网页录入时注意：
+字段用途和填写示例见 [Anki 使用说明](usage.md#填写卡片)，字段名称与顺序以 [公共规格](../cards/note-types.json) 为准。网页录入时注意：
 
 | 类型 | 录入要求 |
 | --- | --- |
 | 问答 | 问题与答案必填，其他可留空 |
-| 选择 | 按 [选择题规则](../README.md#选择) 填写，答案按录入顺序，与预览中的显示字母无关 |
+| 选择 | 按 [选择题规则](usage.md#选择) 填写，答案按录入顺序，与预览中的显示字母无关 |
 | 填空 | 正文中使用原生 `{{c1::答案::提示}}`，至少一个非空挖空 |
 | 图片遮挡 | 工具维护 `Occlusion`、`Image`；题干与补充按原模板填写 |
 | 思维导图 | 内容使用普通嵌套列表，挖空放在节点内容中；标题可留空 |
@@ -81,7 +81,7 @@ Anki 文本导入会跳过模型首字段为空的笔记；思维导图的原生
 
 官方文本导入说明见 [Anki 手册](https://docs.ankiweb.net/importing/text-files.html)。相同 GUID 更新现有笔记的行为已在本项目测试；导入设置、同名但不同结构的个人类型、用户修改模板等情况请先备份再核对。JSON 不含复习历史；排程保存在 Anki 集合中。
 
-工作空间与 Anki 之间通过导入文件交换内容，不会自动同步。保留 GUID 重新导出、导入可更新笔记；TSV 的目标牌组用于新增卡片，更新通常保留原牌组，迁移已有卡片请在 Anki「浏览」中更改牌组。网页删除笔记不会删除已经导入 Anki 的笔记；删掉挖空或遮挡分组后，应在 Anki「工具 → 空卡片」中检查旧卡片。Anki 中的导出与备份见 [README](../README.md#在-anki-导出与备份)。
+工作空间与 Anki 之间通过导入文件交换内容，不会自动同步。保留 GUID 重新导出、导入可更新笔记；TSV 的目标牌组用于新增卡片，更新通常保留原牌组，迁移已有卡片请在 Anki「浏览」中更改牌组。网页删除笔记不会删除已经导入 Anki 的笔记；删掉挖空或遮挡分组后，应在 Anki「工具 → 空卡片」中检查旧卡片。Anki 中的导出与备份见 [Anki 使用说明](usage.md#在-anki-导出与备份)。
 
 ## 生成 .apkg
 

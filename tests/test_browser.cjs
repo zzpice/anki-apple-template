@@ -428,10 +428,11 @@ async function run(browserType, name, base) {
     await frame.locator('dialog').waitFor({state:'detached'});
     assert.equal((await page.request.get(base + '/downloads/anki-template.apkg')).status(), 200);
     await page.goto(base + '/index.html');
+    await page.getByRole('link', {name:'在线预览', exact:false}).click();
     await page.waitForURL('**/preview.html');
     await frame.locator('.review-choice').first().waitFor();
     if (name === 'Chromium' && process.env.ANKI_SCREENSHOTS === '1') {
-      // README 截图直接取在线预览，随示例一起更新。
+      // 使用说明截图直接取在线预览，随示例一起更新。
       async function capture(filename) {
         await frame.locator('.review-meta a').waitFor();
         await page.locator('#preview').evaluate(el => {

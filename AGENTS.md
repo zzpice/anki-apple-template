@@ -1,6 +1,6 @@
 # 仓库协作约定
 
-- 文档分工：`README.md` 面向使用者，维护模板教学与 Anki 操作入口；`docs/authoring.md` 维护网页制卡、备份与数据交换；`docs/development.md` 维护源码、生成、测试、发布与验证边界。本文件只保留协作约束，具体流程链接到相应文档；字段结构以 `cards/note-types.json` 为准，依赖与 CI 版本以配置文件为准。
+- 文档分工：`README.md` 维护项目概览与起步入口，`index.html` 提供轻量网页导航；`docs/usage.md` 维护模板字段教学与 Anki 操作；`docs/authoring.md` 维护网页制卡、备份与数据交换；`docs/development.md` 维护源码、生成、测试、发布与验证边界。本文件只保留协作约束，具体流程链接到相应文档；字段结构以 `cards/note-types.json` 为准，依赖与 CI 版本以配置文件为准。
 - 默认在 `main` 修改、提交并推送；用户明确要求时才使用其他分支或 Pull Request。
 - 保持纯 HTML、CSS、JavaScript，卡片不依赖框架、打包器或第三方运行库。
 - 模板源码位于 `cards/note-types.json`、`cards/templates/`、`cards/style.css`、`cards/media/` 和 `cards/samples.json`。安装包与 `web/preview-cards.json` 由生成器产出，勿手动修改。
@@ -11,7 +11,7 @@
 - 选择状态只保存当前卡片的排序和已选项，翻面保留，下一张正面清除；存储不可用时保证两面答案映射一致。不添加长期答题记录或 localStorage 状态。
 - 填空和图片遮挡使用 Anki 原生机制。图片遮挡保留 `originalStockKind` 和字段 `tag`。
 - 项目示例预览读取 Anki 生成的 HTML，共用模板样式和媒体；视口切换只改变同一个 iframe 的宽度。浏览器缺少原生遮挡 API 时隐藏图片并提示导入。
-- 示例使用公开项目中的真实知识，在卡片或 README 标注来源，避开凭据、私人配置和实际持仓。修改示例时同步 README 的填写示例，有展示变化时更新截图；保留现有示例一致性测试。
+- 示例使用公开项目中的真实知识，在卡片或使用说明标注来源，避开凭据、私人配置和实际持仓。修改示例时同步 `docs/usage.md` 的填写示例，有展示变化时更新截图；保留现有示例一致性测试。
 - 以日常阅读和复习为准判断改动。文案简洁，交互保持简单；区分浏览器检查和客户端设备测试。
 - 开发依赖只用于生成和测试；这些操作只使用临时集合，不访问个人 Anki 数据。
 - 网页制卡入口为 `tools.html` / `web/tools/`，复用 `cards/note-types.json`，只保存原生字段、标签、GUID 与本地媒体。保持零前端运行依赖；AI 只生成外部提示词，不接 API。

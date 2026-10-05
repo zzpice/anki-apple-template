@@ -3,13 +3,80 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="Anki 模板在线预览">
-  <meta http-equiv="refresh" content="0;url=./preview.html">
-  <title>Anki 模板 · 在线预览</title>
-  <link rel="canonical" href="./preview.html">
+  <meta name="description" content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。">
+  <title>Anki 模板</title>
+  <style>
+    :root {
+      color-scheme:light dark;
+      --bg:#f3f3ef; --surface:#faf9f6; --text:#282b26;
+      --muted:#63685e; --border:#d4d7ce; --accent:#2b654a;
+    }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif; }
+    main { max-width:900px; margin:auto; padding:64px 24px 32px; }
+    h1 { margin:0; font-size:32px; font-weight:600; }
+    .intro { max-width:640px; margin:12px 0 28px; color:var(--muted); }
+    a { color:var(--accent); text-underline-offset:4px; }
+    a:focus-visible { outline:3px solid var(--accent); outline-offset:4px; }
+    .entries { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .entry { display:block; padding:20px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); text-decoration:none; }
+    .entry:hover { border-color:var(--accent); }
+    .entry h2 { margin:0 0 8px; font-size:19px; font-weight:600; color:var(--accent); text-decoration:underline; text-underline-offset:4px; }
+    .entry p { margin:0; color:var(--muted); font-size:15px; }
+    .docs { margin-top:32px; }
+    .docs h2 { margin:0 0 10px; font-size:20px; font-weight:600; }
+    .docs ul { margin:0; padding:0; list-style:none; }
+    .docs li { margin:8px 0; }
+    .docs a { display:inline-block; padding:5px 0; }
+    .docs span { color:var(--muted); }
+    .note { margin:20px 0 0; color:var(--muted); font-size:14px; }
+    footer { display:flex; flex-wrap:wrap; gap:4px 24px; margin-top:28px; padding-top:14px; border-top:1px solid var(--border); font-size:14px; }
+    footer a { padding:8px 0; }
+    @media (max-width:680px) {
+      main { padding:28px 20px 20px; }
+      .entries { grid-template-columns:1fr; gap:12px; }
+      .entry { padding:16px 18px; }
+      .docs { margin-top:26px; }
+      .docs span { display:block; }
+    }
+    @media (prefers-color-scheme:dark) {
+      :root { --bg:#191c18; --surface:#22261f; --text:#e3e5df; --muted:#adb2a7; --border:#44483f; --accent:#9bc5ac; }
+    }
+  </style>
 </head>
 <body>
-  <p>正在打开 <a href="./preview.html">Anki 模板在线预览</a>…</p>
-  <script>location.replace("./preview.html");</script>
+  <main>
+    <header>
+      <h1>Anki 模板</h1>
+      <p class="intro">用于日常回忆与复习，支持问答、选择、填空、原生图片遮挡和思维导图。</p>
+    </header>
+    <nav class="entries" aria-label="开始使用">
+      <a class="entry" href="./downloads/anki-template.apkg" download>
+        <h2>下载安装包</h2>
+        <p>下载 .apkg，在 Anki Desktop 导入五个笔记类型和示例牌组。</p>
+      </a>
+      <a class="entry" href="./tools.html">
+        <h2>网页制卡</h2>
+        <p>整理自己的笔记与图片，导出后导入 Anki。请定期下载草稿备份。</p>
+      </a>
+      <a class="entry" href="./preview.html">
+        <h2>在线预览</h2>
+        <p>浏览项目示例，查看正反面、手机宽度与浅深色效果。</p>
+      </a>
+    </nav>
+    <section class="docs" aria-labelledby="docs-title">
+      <h2 id="docs-title">使用说明</h2>
+      <ul>
+        <li><a href="https://github.com/zzpice/anki-template/blob/main/docs/usage.md">Anki 使用说明</a> <span>— 安装、字段填写、更新与导出备份</span></li>
+        <li><a href="https://github.com/zzpice/anki-template/blob/main/docs/authoring.md">网页制卡说明</a> <span>— 编辑、导入数据、保存与带到 Anki</span></li>
+      </ul>
+      <p class="note">图片遮挡的实际复习请在支持原生遮挡的 Anki 客户端中查看。</p>
+    </section>
+    <footer aria-label="项目资料">
+      <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
+      <a href="https://github.com/zzpice/anki-template/blob/main/docs/development.md">维护说明</a>
+      <a href="https://github.com/zzpice/anki-template/blob/main/LICENSE">MIT 许可</a>
+    </footer>
+  </main>
 </body>
 </html>
