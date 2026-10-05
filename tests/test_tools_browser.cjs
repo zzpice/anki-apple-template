@@ -68,7 +68,7 @@ async function run(engine,name,base,data) {
     await page.locator('[id="source-正文"]').evaluate(el=>el.setSelectionRange(4,6));
     await page.fill('#cloze-number','4');await page.fill('#cloze-hint','回忆');await page.click('#insert-cloze');
     assert.equal(await page.locator('[id="source-正文"]').inputValue(),'一段需要{{c4::挖空::回忆}}的内容');
-    await saved(page);await page.waitForFunction(()=>document.getElementById('preview').contentDocument?.body.textContent.includes('{{c4::'));
+    await saved(page);await page.waitForFunction(()=>document.getElementById('preview').contentDocument?.body?.textContent.includes('{{c4::'));
     assert.match(await frame.locator('.review-question').innerText(),/\{\{c4::/);assert.equal(await frame.locator('.cloze').count(),0);
     await page.selectOption('#type-filter','occlusion');await page.locator('.note-row button').click();
     await page.locator('#occlusion-picture').evaluate(el=>el.decode());assert.equal(await page.locator('.mask').count(),3);
