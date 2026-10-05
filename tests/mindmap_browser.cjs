@@ -103,6 +103,108 @@ module.exports = async function checkMindMap(page, showCard, cases, engine) {
   await showCard(page, cases.mixed[1].back);
   assert.equal(await revealed(), 1, 'c2 is a separately generated Anki card');
 
+  // Whole chapters: native text, image-only and mixed answers retain one tree.
+  for (const name of ['comparison_chapter', 'symmetry_chapter']) {
+    let chapterNodes;
+    for (const card of cases[name]) {
+      await showCard(page, card.front);
+      const count = await page.locator('.mm-node').count();
+      if (chapterNodes === undefined) chapterNodes = count;
+      assert.equal(count, chapterNodes, 'every native Cloze card retains the entire chapter');
+      assert.equal(await revealed(), 0);
+      assert.equal(await page.locator('.mm-answer img:visible').count(), 0, 'front masks image answers too');
+      await page.evaluate(() => {
+        window.mmImages = Array.from(document.querySelectorAll('.mm-tree img'));
+        window.mmImageAttributes = window.mmImages.map(el => el.outerHTML);
+      });
+      await action('expand').click();
+      const ordinary = page.locator('.mm-tree img').filter({visible:true});
+      assert.equal(await ordinary.count(), 1, 'ordinary chapter overview/illustration stays visible');
+      const imageAnswers = page.locator('.mm-cloze:has(img)');
+      for (let i = 0; i < await imageAnswers.count(); i++) {
+        const cloze = imageAnswers.nth(i);
+        await cloze.locator('.mm-reveal').tap();
+        assert.equal(await revealed(), 1, 'image and text answers reveal independently');
+        const img = cloze.locator('img');
+        assert.equal(await img.isVisible(), true);
+        await img.evaluate(el => el.decode());
+        assert.equal(await img.getAttribute('src'), '_rule-build.svg');
+        assert.ok(await img.getAttribute('alt'));
+        assert.equal(await img.getAttribute('width'), '960');
+        assert.equal(await img.getAttribute('height'), '360');
+        await img.tap();
+        assert.equal(await revealed(), 1, 'tapping the image does not toggle its answer');
+        assert.equal(await page.locator('dialog').count(), 0);
+        await cloze.locator('.mm-rehide').tap();
+        assert.equal(await img.isVisible(), false);
+        assert.equal(await revealed(), 0);
+      }
+      await action('show').click(); assert.equal(await revealed(), 4);
+      await action('hide').click(); assert.equal(await revealed(), 0);
+      await action('collapse').click();
+      for (let i = 0; i < 4; i++) {
+        await action('next').click();
+        assert.equal(await page.locator('.mm-located').isVisible(), true, 'navigation opens every answer path');
+      }
+      await action('locate').click();
+      assert.equal(await page.locator('.mm-located.mm-active').count(), 1);
+      assert.equal(await revealed(), 0, 'navigation never reveals images');
+      const query = name === 'comparison_chapter' ? '解析示意' : '图片说明';
+      await search(query);
+      assert.equal(await page.locator('.mm-search-status').innerText(), '1/1');
+      assert.equal(await page.locator('.mm-search-current').isVisible(), false, 'hidden text/image answer remains masked');
+      assert.equal(await page.locator('.mm-answer img:visible').count(), 0);
+      await action('next-result').click(); await action('prev-result').click();
+      assert.equal(await page.evaluate(() => {
+        const images = Array.from(document.querySelectorAll('.mm-tree img'));
+        return images.length === window.mmImages.length && images.every((el, i) =>
+          el === window.mmImages[i] && el.outerHTML === window.mmImageAttributes[i]);
+      }), true, 'search leaves both ordinary and Cloze image elements intact');
+      await showCard(page, card.back);
+      assert.equal(await page.getByRole('searchbox').inputValue(), query, 'image answers keep the front/back state fingerprint');
+      assert.equal(await revealed(), await page.locator('.mm-active').count());
+      await action('expand').click();
+      assert.equal(await page.locator('.mm-answer img:visible').count(), await page.locator('.mm-active img').count(),
+        'back restores this card image group, other image answers stay hidden');
+      await action('hide').click();
+      await showCard(page, card.back);
+      assert.equal(await revealed(), 0, 'repeated back respects deliberate image masking');
+    }
+  }
+
+  await showCard(page, cases.comparison_chapter[2].front);
+  const imageCloze = page.locator('.mm-active:has(img)');
+  const imageNode = imageCloze.locator('xpath=ancestor::li[1]');
+  await page.evaluate(() => {
+    window.mmImage = document.querySelector('.mm-active img');
+    window.mmImageHTML = window.mmImage.outerHTML;
+    window.mmElementCount = document.querySelectorAll('.mm-tree *').length;
+  });
+  for (let i = 0; i < 12; i++) {
+    await imageCloze.locator('.mm-reveal').tap();
+    await imageCloze.locator('.mm-rehide').tap();
+    await action('show').click(); await action('hide').click();
+  }
+  await imageCloze.locator('.mm-reveal').tap();
+  const toggle = imageNode.locator(':scope > .mm-row > .mm-toggle');
+  await toggle.click(); assert.equal(await imageNode.locator(':scope > ul').isVisible(), true);
+  await toggle.click(); assert.equal(await imageNode.locator(':scope > ul').isVisible(), false);
+  assert.equal(await imageCloze.locator('img').isVisible(), true, 'folding children leaves the parent image intact');
+  await action('hide').click();
+  for (let i = 0; i < 4; i++) { await search('解析示意'); await action('clear').click(); }
+  await search('例题 & Example');
+  assert.equal(await page.locator('.mm-search-status').innerText(), '0/0', 'image alt text is not an OCR/text search index');
+  await action('clear').click();
+  assert.equal(await page.evaluate(() => window.mmImage === document.querySelector('.mm-active img') &&
+    window.mmImageHTML === window.mmImage.outerHTML &&
+    window.mmElementCount === document.querySelectorAll('.mm-tree *').length), true,
+    'repeated reveal/hide/search preserves the actual image, its attributes and DOM size');
+  for (const night of ['nightMode', 'night_mode']) {
+    await page.locator('body').evaluate((el, value) => el.classList.add(value), night);
+    assert.equal(await imageCloze.locator('img').evaluate(el => getComputedStyle(el).filter), 'none');
+    await page.locator('body').evaluate((el, value) => el.classList.remove(value), night);
+  }
+
   // Storage can fail in WebViews: native answers, paths and all controls still work.
   await page.evaluate(() => {
     window.mmGet = Storage.prototype.getItem; window.mmSet = Storage.prototype.setItem;
@@ -111,6 +213,11 @@ module.exports = async function checkMindMap(page, showCard, cases, engine) {
   await showCard(page, cases.mixed[0].front);
   await action('show').click(); assert.equal(await revealed(), 3);
   await showCard(page, cases.mixed[0].back); assert.equal(await revealed(), 2);
+  await showCard(page, cases.comparison_chapter[2].front);
+  assert.equal(await page.locator('.mm-answer img:visible').count(), 0);
+  await showCard(page, cases.comparison_chapter[2].back);
+  assert.equal(await revealed(), 2);
+  assert.equal(await page.locator('.mm-answer img:visible').count(), 1, 'image back also works without storage');
   await page.evaluate(() => { Storage.prototype.getItem = window.mmGet; Storage.prototype.setItem = window.mmSet; });
   await showCard(page, cases.single[0].front.replace(/data-cloze="[^"]*"/g, ''));
   assert.equal(await page.locator('.mm-tools').isVisible(), false, 'unsupported renderer uses native fallback');
@@ -120,17 +227,22 @@ module.exports = async function checkMindMap(page, showCard, cases, engine) {
     await page.setViewportSize({width,height:width === 844 ? 390 : 844});
     for (const scheme of ['light', 'dark']) {
       await page.emulateMedia({colorScheme:scheme});
-      for (const name of ['mixed', 'deep', 'formatting']) {
-        await showCard(page, cases[name][0].front);
-        assert.ok(await page.getByRole('searchbox').evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 16),
-          'search input avoids small-font focus zoom on iOS');
-        await action('expand').click();
-        await action('show').click();
-        assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
-          engine + ': Mind Map overflow ' + name + ' ' + width);
-        if (name === 'mixed') {
-          await page.locator('.mm-tree img').evaluate(el => el.decode());
-          assert.ok((await page.locator('.mm-tree img').boundingBox()).width <= width);
+      for (const name of ['mixed', 'deep', 'formatting', 'comparison_chapter', 'symmetry_chapter']) {
+        const card = cases[name][name === 'comparison_chapter' ? 2 : 0];
+        for (const side of name.endsWith('_chapter') ? ['front', 'back'] : ['front']) {
+          await showCard(page, card[side]);
+          assert.ok(await page.getByRole('searchbox').evaluate(el => parseFloat(getComputedStyle(el).fontSize) >= 16),
+            'search input avoids small-font focus zoom on iOS');
+          await action('expand').click();
+          await action('show').click();
+          assert.equal(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), true,
+            engine + ': Mind Map overflow ' + name + ' ' + width + ' ' + side);
+          for (const img of await page.locator('.mm-tree img').all()) {
+            await img.evaluate(el => el.decode());
+            const box = await img.boundingBox();
+            assert.ok(box.width <= width && Math.abs(box.width / box.height - 960 / 360) < .01);
+            assert.equal(await img.evaluate(el => getComputedStyle(el).filter), 'none', 'night mode preserves original image colors');
+          }
         }
       }
     }

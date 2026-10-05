@@ -232,7 +232,7 @@ class PackageTests(unittest.TestCase):
         recall = samples["recall"]["fields"]
         self.assertIn("问题：" + recall["问题"], readme)
         self.assertIn("答案：" + re.sub(r"<[^>]+>", "", recall["答案"]), readme)
-        for name in re.findall(r'<img src="([^"]+)"', readme):
+        for name in re.findall(r'^<img src="([^"]+)"', readme, re.M):
             self.assertTrue((package.ROOT / name).read_bytes().startswith(b"\x89PNG\r\n\x1a\n"))
 
     def test_rich_fields_are_never_inserted_into_script(self):
