@@ -81,6 +81,8 @@ async function check(engine, name, base) {
     assert.equal(page.url(), base);
     await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     assert.equal(page.url(), new URL('preview.html', base).href);
+    // Let the preview's fetches finish before leaving through its navigation.
+    await page.frameLocator('#preview').locator('.review-choice').first().waitFor();
     await page.getByRole('link', {name:'项目首页', exact:true}).click();
     assert.equal(page.url(), base);
     await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
