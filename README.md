@@ -2,7 +2,7 @@
 
 个人日常复习用的 Anki 模板，支持问答、选择、填空、原生图片遮挡和思维导图。
 
-[下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [在线预览](https://zzpice.github.io/anki-template/)
+[下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [在线预览](https://zzpice.github.io/anki-template/) · [网页制卡](https://zzpice.github.io/anki-template/tools.html)
 
 在线预览可切换到 390px 手机视口，查看同一张卡片在窄屏下的效果；更窄的屏幕会自动适应。
 
@@ -14,6 +14,12 @@
 2. 点击「添加」，选择自己的牌组，再选择下面介绍的笔记类型，填写字段并添加。
 
 可以先在「浏览」中查看示例的字段，或直接复习示例牌组。示例可删除；使用手机或 AnkiWeb 时，先在客户端导入，再同步。建议使用当前稳定版客户端，图片遮挡需要原生遮挡支持。
+
+## 网页制卡
+
+[制卡工具](https://zzpice.github.io/anki-template/tools.html) 可以编辑五种类型的原生字段、插入图片、绘制原生矩形遮挡，并导入同名字段 CSV / TSV 或 JSON。支持本地自动保存、搜索筛选、批量标签、导入预检和 JSON 备份。外部 AI 辅助只生成提示词，不调用 API。
+
+完成后导出各类型 TSV 与图片，在 Anki 导入；也可用现有官方生成器从 JSON 构建自己的 `.apkg`。问答 / 选择复用模板预览，原生 Cloze、导图与遮挡的实际分卡和复习以 Anki 为准。完整步骤和保存边界见 [网页制卡说明](AUTHORING.md)。
 
 ## 填写卡片
 

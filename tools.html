@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Anki 模板配套制卡工具。在浏览器中编辑原生字段，检查并导出笔记与图片。">
+  <title>Anki 模板 · 制卡工具</title>
+  <link rel="stylesheet" href="./tools/style.css">
+</head>
+<body>
+  <header class="page-header">
+    <div><a class="brand" href="./preview.html">Anki 模板</a><span class="muted"> / 制卡工具</span></div>
+    <nav aria-label="项目导航"><a href="./preview.html">示例预览</a><a href="./downloads/anki-template.apkg" download>安装笔记类型</a><a href="https://github.com/zzpice/anki-template/blob/main/AUTHORING.md">使用说明</a></nav>
+  </header>
+  <main>
+    <section class="workspace-bar" aria-label="工作空间">
+      <label>目标牌组 <input id="deck" value="我的制卡" maxlength="180"></label>
+      <div class="actions"><button id="reset-open">新工作空间</button><button id="import-open">导入</button><button id="ai-open">外部 AI 辅助</button><button id="export-open" class="primary">导出</button></div>
+      <p id="save-status" class="muted" role="status">正在读取本地草稿…</p>
+    </section>
+    <div id="app" class="workspace" hidden>
+      <aside class="note-panel" aria-label="笔记列表">
+        <div class="new-note"><label class="sr-only" for="new-type">新笔记类型</label><select id="new-type"></select><button id="new-note" class="primary">新建</button></div>
+        <label class="sr-only" for="search">搜索笔记</label><input id="search" type="search" placeholder="搜索正文、章节、标签">
+        <div class="filters"><label class="sr-only" for="type-filter">筛选类型</label><select id="type-filter"><option value="">全部类型</option></select><label><input id="error-filter" type="checkbox">待修正</label></div>
+        <div class="list-meta"><span id="count"></span><button id="select-all">选择筛选结果</button></div>
+        <div id="note-list"></div>
+        <p id="list-empty" class="muted">从新建一条笔记开始，也可以导入现有数据。</p>
+        <div id="batch" hidden><p id="selected-count"></p><label>批量添加标签 <input id="batch-tags" placeholder="用空格分隔"></label><div class="actions"><button id="apply-tags">添加标签</button><button id="delete-selected">删除选中</button></div></div>
+        <button id="undo" hidden>撤销上次批量操作 / 更换图片</button>
+      </aside>
+      <section class="editor-panel" aria-label="笔记编辑">
+        <div id="welcome"><h1>把材料整理成可回忆的笔记</h1><p>选好笔记类型，编辑与 Anki 同名的字段，检查后导出。所有草稿和图片保存在当前浏览器。</p><p class="muted">请定期导出 JSON 备份。浏览器清理数据或隐私模式关闭后，草稿可能丢失。</p><button id="load-samples">载入项目示例副本</button></div>
+        <div id="editor" hidden>
+          <div class="editor-heading"><h1 id="note-title"></h1><div class="actions"><button id="previous">上一条</button><button id="next">下一条</button><button id="duplicate">复制笔记</button></div></div>
+          <p id="type-help" class="muted"></p>
+          <div id="validation" role="status"></div>
+          <div class="toolbar" aria-label="字段格式工具">
+            <button data-command="bold" title="加粗选中文字">加粗</button><button data-command="italic">斜体</button><button data-command="insertUnorderedList">列表</button><button data-command="insertOrderedList">编号列表</button><button data-command="indent">缩进</button><button data-command="outdent">减少缩进</button><button id="insert-image">插入图片</button>
+          </div>
+          <div id="cloze-tools" class="toolbar" hidden><label>挖空编号 <input id="cloze-number" type="number" value="1" min="1" max="999"></label><label>提示 <input id="cloze-hint" placeholder="可选"></label><button id="insert-cloze">选中文字挖空</button></div>
+          <div id="occlusion-tools" hidden>
+            <div class="toolbar"><button id="occlusion-image">选择遮挡图片</button><label>本次分组 <input id="occlusion-group" type="number" min="1" max="999" value="1"></label><button id="delete-rect" disabled>删除选中框</button></div>
+            <p id="occlusion-help" class="muted">拖动画框；点选已有框后可调整分组。相同编号一起遮住，其余区域保持遮挡。复杂形状请在 Anki 内置编辑器中编辑。</p>
+            <div id="occlusion-stage"><img id="occlusion-picture" alt="待遮挡的图片"><div id="occlusion-overlay"></div></div>
+            <div id="rect-list" class="toolbar"></div>
+          </div>
+          <div id="fields"></div>
+          <label class="tags-label">标签 <input id="tags" placeholder="多个标签用空格分隔；支持 :: 层级"></label>
+          <details><summary>图片文件 · <span id="media-count">0</span></summary><p class="muted">导出时会带上本地图片。文件名由内容生成，替换图片会保留原文件供其他笔记使用。</p><div id="media-list"></div></details>
+          <details id="preview-panel" open>
+            <summary>编辑预览</summary>
+            <div class="toolbar"><label>视口 <select id="viewport"><option value="auto">自适应</option><option value="phone">手机 · 390px</option></select></label><label>外观 <select id="theme"><option value="system">跟随系统</option><option value="light">浅色</option><option value="dark">深色</option></select></label><button id="flip">显示答案</button></div>
+            <p id="preview-help" class="muted"></p>
+            <iframe id="preview" title="当前笔记编辑预览" sandbox="allow-scripts allow-same-origin"></iframe>
+          </details>
+        </div>
+      </section>
+    </div>
+    <noscript>此工具需要 JavaScript。也可以直接在 Anki 编辑器中使用本项目笔记类型。</noscript>
+  </main>
+  <dialog id="import-dialog" aria-labelledby="import-title"><form method="dialog" class="dialog-header"><h2 id="import-title">导入笔记</h2><button aria-label="关闭导入">关闭</button></form><p>支持完整 JSON 备份、同名字段的 CSV / TSV，以及外部 AI 返回的 JSON 数组。先检查，再加入当前草稿。</p><label>读取文件 <input id="import-file" type="file" accept=".json,.csv,.tsv,.txt"></label><div class="toolbar"><label>分隔文件类型 <select id="import-type"></select></label><label>分隔符 <select id="delimiter"><option value="tab">Tab / TSV</option><option value="comma">逗号 / CSV</option></select></label><button id="download-header">下载字段表头</button></div><label>导入内容 <textarea id="import-text" rows="9" spellcheck="false" placeholder="粘贴 JSON，或包含字段表头的 CSV / TSV"></textarea></label><div class="actions"><button id="check-import" class="primary">检查导入</button><button id="apply-import" disabled>合并到草稿</button></div><p id="import-status" role="status"></p><p class="muted">相同 GUID 更新原笔记；类型不能改变。没有 GUID 的笔记作为新笔记。检查不通过的内容可先作为草稿修正；字段结构或媒体格式错误会阻止导入。导入可撤销。</p></dialog>
+  <dialog id="export-dialog" aria-labelledby="export-title"><form method="dialog" class="dialog-header"><h2 id="export-title">带到 Anki，或备份草稿</h2><button aria-label="关闭导出">关闭</button></form><p id="export-status" role="status"></p><div class="export-option"><h3>JSON 完整备份</h3><p>包含字段、标签、GUID、牌组和全部本地图片，可再次导入继续编辑。</p><button id="export-json">下载 JSON</button></div><div class="export-option"><h3>Anki 导入文件与图片</h3><p>ZIP 内每种笔记类型一份 TSV，附带媒体和备份。先导入项目安装包，再把媒体复制到 collection.media，导入 TSV。无需安装开发环境。</p><label><input id="valid-only" type="checkbox">仅导出通过检查的笔记（全部草稿仍留在 JSON）</label><p><button id="export-zip" class="primary">下载 Anki 导入 ZIP</button></p></div><div class="export-option"><h3>生成 .apkg</h3><p>在本地运行项目现有生成器，读取刚导出的 JSON。官方 Anki 后端会生成原生卡片、媒体和预览，操作临时集合。</p><pre><code>python scripts/build_package.py --input 我的制卡.json --output build/我的制卡.apkg --preview build/我的制卡预览.json</code></pre><a href="./AUTHORING.md#生成-apkg">依赖与完整步骤</a></div></dialog>
+  <dialog id="ai-dialog" aria-labelledby="ai-title"><form method="dialog" class="dialog-header"><h2 id="ai-title">在外部 AI 整理材料</h2><button aria-label="关闭 AI 辅助">关闭</button></form><p>生成提示词后复制到你选择的 AI 对话。返回的 JSON 使用本项目原生字段；回到「导入」检查、修正并预览。</p><div class="toolbar"><label>笔记类型 <select id="ai-type"></select></label><label>预计笔记数 <input id="ai-count" type="number" min="1" max="100" value="5"></label></div><label>材料 <textarea id="ai-content" rows="5"></textarea></label><button id="build-prompt">生成提示词</button><label>提示词 <textarea id="ai-prompt" rows="10" readonly></textarea></label><div class="actions"><button id="copy-prompt">复制提示词</button><button id="return-import">粘贴 AI 结果</button></div><p id="ai-status" role="status"></p><p class="muted">提示词只在本页生成。发送给外部 AI 前自行确认材料，导入后核对事实、答案与来源。</p></dialog>
+  <dialog id="reset-dialog" aria-labelledby="reset-title"><form method="dialog" class="dialog-header"><h2 id="reset-title">开始新的工作空间</h2><button aria-label="取消新工作空间">取消</button></form><p id="reset-status"></p><p>请先下载 JSON 备份，再开始下一批。当前笔记和图片会从浏览器草稿中移除；重新编辑或导入前可撤销一次。</p><div class="actions"><button id="reset-backup">下载当前 JSON 备份</button><button id="reset-workspace" class="primary">开始新的工作空间</button></div></dialog>
+  <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
+  <p id="notice" role="status" aria-live="polite"></p>
+  <script type="module" src="./tools/app.mjs"></script>
+</body>
+</html>

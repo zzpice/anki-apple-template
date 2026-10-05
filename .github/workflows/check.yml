@@ -33,4 +33,7 @@ jobs:
           ANKI_RENDER_OUTPUT: build/cards.json
         run: python -m unittest discover -s tests -v
       - name: Check browser layout, interactions and native occlusion
-        run: node tests/test_browser.cjs
+        run: |
+          node --test tests/test_tools.mjs
+          node tests/test_tools_browser.cjs
+          node tests/test_browser.cjs

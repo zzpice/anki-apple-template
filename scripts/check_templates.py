@@ -46,6 +46,14 @@ def check():
     assert 'preview-cards.json' in preview and 'style.css' in preview
     for file in ("index.html", "preview.html", "downloads/anki-template.apkg", ".nojekyll"):
         assert (ROOT / file).is_file(), file
+    tools = (ROOT / "tools.html").read_text()
+    assert './tools/app.mjs' in tools and './tools/style.css' in tools
+    assert './tools.html' in preview
+    assert 'note-types.json' in (ROOT / "tools/app.mjs").read_text()
+    for path in (ROOT / "tools").glob("*.mjs"):
+        subprocess.run(["node", "--check", str(path)], check=True)
+    for file in ("AUTHORING.md", "tools.html", "tools/style.css"):
+        assert (ROOT / file).is_file(), file
     css = (ROOT / "style.css").read_text()
     assert "@import" not in css and "url(" not in css
     print("Template Check passed")

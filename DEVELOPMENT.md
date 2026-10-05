@@ -40,11 +40,13 @@ ANKI_RENDER_OUTPUT=build/cards.json .venv/bin/python -m unittest discover -s tes
 npm install --no-save --package-lock=false playwright@1.62.1
 npx playwright install chromium webkit
 node tests/test_browser.cjs
+node --test tests/test_tools.mjs
+ANKI_PYTHON=.venv/bin/python node tests/test_tools_browser.cjs
 ```
 
 检查需要 Node.js，CI 使用 Node.js 22。`aqt` 仅提供测试用的官方 reviewer 资源，使用 `--no-deps` 安装。依赖只用于生成和测试。
 
-Windows 将 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`；PowerShell 先设置 `$env:ANKI_RENDER_OUTPUT = "build/cards.json"`，再运行测试命令。
+Windows 将 `.venv/bin/python` 换成 `.venv\Scripts\python.exe`；PowerShell 先设置 `$env:ANKI_RENDER_OUTPUT = "build/cards.json"` 和 `$env:ANKI_PYTHON = ".venv\Scripts\python.exe"`，再运行测试命令。
 
 检查包含源码与安装包、预览的一致性，重复导入，五个类型的内容及排程更新，随机排序与答案映射，以及浏览器布局和交互。浏览器检查覆盖移动屏幕尺寸与浅深色，不能代替 AnkiMobile、AnkiDroid 的设备测试。
 
@@ -79,3 +81,19 @@ GitHub Pages 从 `main` 根目录发布。保留 `.nojekyll`，使以下划线�
 章节场景另外覆盖总览图片、个人备注节点、纯图片 / 文字与图片混合 Cloze、同节点多个挖空和图片节点的子节点，只使用项目自己的测试图。官方后端导出再导入验证媒体、原始字段、三张独立卡片与完整知识树；浏览器验证 `src` / `alt` / 尺寸属性、实际图片节点身份、反复显隐后的 DOM 数量、搜索不改图片或揭示答案，以及翻面、小屏、夜间模式不改变原图颜色。正面的图片答案来自 Anki 编码后的 `data-cloze`，背面来自原生 `<img>`；初始化包装一次，显隐只切换 `hidden`。搜索索引仅包含文字节点，不包含图片 `alt`，不提供 OCR。
 
 自动验证边界：官方 Anki Python 后端导入与真实 HTML，Chromium / WebKit 浏览器以及触摸事件合成。尚未在 Anki Desktop GUI、AnkiMobile 或 AnkiDroid 真机执行。设备复核应确认同步媒体、翻面定位（客户端可能再次自动滚动）、WebView 状态共享、滚动手势不触发按钮及客户端夜间类。浏览器性能测量不能代表手机帧率。导图图片使用内嵌自适应显示，不附加独立图片查看器。
+
+## 网页制卡工具
+
+入口 `tools.html`，界面样式 `tools/style.css`，行为 `tools/app.mjs`。`data.mjs` 读取同一份 `note-types.json`，负责原生字段、工作空间版本、GUID、静态内容检查、CSV / TSV 与外部 AI 提示词；`storage.mjs` 用单条 IndexedDB 记录与事务内版本检查避免多页静默覆盖；`zip.mjs` 只写标准无压缩 ZIP，不读集合或维护 SQLite。没有新增前端运行依赖。
+
+`preview.mjs` 对字段做静态视图清理，问答 / 选择替换原模板字段并加载原 `_review.js`；Cloze / 遮挡 / 导图只显示字段，不另写原生答案渲染器。原字段仅在编辑时变化，HTML 与富文本之间切换不丢原文。检查规则不判断知识正确性。新增类型或字段应改公共规格并同步规则、文档和测试，不新建网页专属映射。
+
+工作空间 `format=anki-template-workspace, version=1` 包含 `deck / notes / media`。笔记 `type` 使用公共规格 key，`fields` 严格同名同序，`tags` 为原生数组；GUID 创建后保持不变，复制另建身份。媒体用内容 SHA-256 前 32 个十六进制字符命名，base64 保留在 JSON，字段只引用平铺文件名。安全检查拒绝活动 HTML、远程图片、媒体路径及哈希冲突。受支持媒体格式和大小限制见 AUTHORING。
+
+`--input` 复用 `build_package.py` 的模型、临时集合、媒体和官方导出路径；`scripts/authoring.py` 独立校验网页 JSON。自制笔记不能覆盖公共下载、预览或输入备份；默认无参数构包行为不变。原生遮挡保留 stock 标记与字段 tag，原生 Cloze 分卡完全由后端生成。包内笔记时间戳与构包时间一致，用于相同 GUID 更新；测试用明确时间戳，正常构包用当前秒。
+
+`tests/authoring_fixture.mjs` 直接调用网页数据与 ZIP 函数，Python `test_authoring.py` 用真实后端导入五类 TSV、验证媒体 / GUID / 字段、11 张原生卡片、官方预览、重复导入和排程更新，并拒绝无效输入和危险输出路径。`test_tools.mjs` 检查边界及文本往返；`test_tools_browser.cjs` 在 Chromium / WebKit 检查实际编辑、格式切换、选择预览状态、Cloze 插入、矩形分组、导入预检、下载、存储禁用 / 冲突 / 草稿恢复、静态预览与浅深色 320 / 390 / 430px 布局。实际浏览器 ZIP 还经 `tests/test_authoring.py` 的命令入口导入官方引擎，核对每条下载笔记的字段、GUID、标签、目标牌组和空卡。通过 `ANKI_PYTHON` 指定测试 Python；CI 使用环境默认 Python。CI 沿用两个 Anki 版本矩阵与已有开发依赖。
+
+如需截取制卡界面，设置 `AUTHORING_SCREENSHOT=/绝对路径/authoring.png` 后运行该浏览器测试；截图来自实际工具。不要用单独的展示页面代替。真机 / GUI、触摸绘制和输入法复核边界见 AUTHORING；不用浏览器检查宣称设备测试通过。
+
+Anki 文本导入器拒绝空的模型首字段，即使调换列映射也一样。因此 `ankiTSV` 拒绝空首字段，不自动补标题或丢笔记；导图空标题仍可通过 JSON 构包，原生语义由测试确认。
