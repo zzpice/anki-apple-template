@@ -38,7 +38,7 @@ async function run(engine,name,base,data) {
     await page.locator('[id="source-答案"]').locator('..').getByRole('button',{name:'富文本',exact:true}).click();
     assert.equal(await page.locator('[id="field-答案"] b').innerText(),'强化记忆');
     await saved(page);
-    await page.click('#reset-open');await page.click('#reset-workspace');assert.equal(await page.locator('#count').innerText(),'0 / 0 条');await page.click('#undo');assert.equal(await page.locator('#count').innerText(),'1 / 1 条');await saved(page);
+    await page.getByLabel('更多工作空间操作').click();await page.click('#reset-open');await page.click('#reset-workspace');assert.equal(await page.locator('#count').innerText(),'0 / 0 条');await page.click('#undo');assert.equal(await page.locator('#count').innerText(),'1 / 1 条');await saved(page);
     await page.click('#export-open');const draft=JSON.parse(await downloaded(page,'#export-json'));
     assert.equal(draft.notes[0].fields.答案,'<b>强化记忆</b>');assert.match(draft.notes[0].guid,/^[a-f0-9]{20}$/);
     await page.getByRole('button',{name:'关闭导出'}).click();
@@ -93,7 +93,10 @@ async function run(engine,name,base,data) {
         assert.ok(preview.x>=fields.x+fields.width,'wide layout places preview beside editing fields');
       }
     }
-    await page.setViewportSize({width:1280,height:900});await page.click('#ai-open');await page.selectOption('#ai-type','mindmap');await page.fill('#ai-content','整理知识与回忆练习');await page.click('#build-prompt');
+    await page.setViewportSize({width:1280,height:900});await page.getByLabel('更多工作空间操作').click();await page.click('#ai-open');
+    await page.keyboard.press('Escape');
+    await page.waitForFunction(()=>document.activeElement?.getAttribute('aria-label')==='更多工作空间操作');
+    await page.getByLabel('更多工作空间操作').click();await page.click('#ai-open');await page.selectOption('#ai-type','mindmap');await page.fill('#ai-content','整理知识与回忆练习');await page.click('#build-prompt');
     assert.match(await page.locator('#ai-prompt').inputValue(),/"内容"/);assert.match(await page.locator('#ai-prompt').inputValue(),/\{\{c1::答案/);await page.click('#return-import');await page.getByRole('button',{name:'关闭导入'}).click();
     await page.click('#export-open');await page.click('#export-zip');
     assert.match(await page.locator('#export-status').innerText(),/无法导出/);await page.check('#valid-only');await page.click('#export-zip');assert.match(await page.locator('#export-status').innerText(),/首字段/);

@@ -48,6 +48,8 @@ function renderList() {
   if (!resources) return;
   const visible=visibleNotes();
   $('count').textContent=visible.length + ' / ' + data.notes.length + ' 条';
+  $('total-count').textContent=data.notes.length+' 条';
+  $('list-samples').hidden=!!data.notes.length;
   $('list-empty').hidden=!!visible.length;
   $('list-empty').textContent=data.notes.length ? '没有符合筛选条件的笔记。' : '从新建一条笔记开始，也可以导入现有数据。';
   $('note-list').replaceChildren(...visible.map(note => {
@@ -58,23 +60,27 @@ function renderList() {
     const title=document.createElement('span'); title.className='note-summary'; title.textContent=labelFor(note);
     const meta=document.createElement('span'); const errors=errorsFor(note); meta.className='note-kind' + (errors.length ? ' error' : '');
     meta.textContent=specFor(note).name + (errors.length ? ' · 待修正 ' + errors.length : ' · 可导出');
-    button.append(title,meta); button.onclick=() => openNote(note.guid); row.append(check,button); return row;
+    button.append(title,meta); button.onclick=() => openNote(note.guid);
+    button.onkeydown=event=>{if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;event.preventDefault();const i=visible.indexOf(note),next=event.key==='Home'?0:event.key==='End'?visible.length-1:Math.max(0,Math.min(visible.length-1,i+(event.key==='ArrowDown'?1:-1)));openNote(visible[next].guid,'notes');$('note-list').querySelector('[aria-current=true]')?.focus();}; row.append(check,button); return row;
   }));
   renderBatch();
 }
 function renderBatch() { $('batch').hidden=!chosen.size; $('selected-count').textContent='已选择 ' + chosen.size + ' 条'; $('undo').hidden=!undo; }
 function stashUndo() { undo=structuredClone(data); $('undo').hidden=false; }
-function openNote(guid) {
+function openNote(guid, view = "edit") {
   clearTimeout(previewTimer);
   current=guid; back=false; activeField=null; selection=null; selectedRect=-1;
   const note=noteFor(); $('welcome').hidden=!!note; $('editor').hidden=!note;
-  if (!note) { renderList(); return; }
+  if (!note) { renderList(); if(window.innerWidth<=760)setToolView('notes'); return; }
+  $('note-position').textContent=(data.notes.indexOf(note)+1)+' / '+data.notes.length;
+  setToolView(view);
   const spec=specFor(note); $('note-title').textContent=spec.name;
   $('type-help').textContent={basic:'问题放正面，答案放背面。可选字段按原模板显示。', choice:'答案始终按录入顺序填写。选项用 || 分隔，显示字母由模板随机排序。', cloze:'正文使用原生 {{c1::答案::提示}}。不同编号由 Anki 分卡，同号一起遮住。', mindmap:'内容用普通嵌套列表建立层级；挖空放在节点内容中。标题可留空。',occlusion:'Image 与 Occlusion 对应同一图片。矩形以原生字段保存，导入后仍可用 Anki 内置编辑器调整。'}[note.type];
   $('cloze-tools').hidden=spec.kind!=='cloze'; $('occlusion-tools').hidden=spec.kind!=='occlusion';
   $('cloze-number').value=Math.max(0,...clozeNumbers(Object.values(note.fields).join(''))) + 1;
   $('tags').value=note.tags.join(' ');
   $('fields').replaceChildren(...spec.fields.map(name => fieldElement(note,name)));
+  $('new-type').value=note.type;
   $('previous').disabled=data.notes.indexOf(note)===0; $('next').disabled=data.notes.indexOf(note)===data.notes.length-1;
   renderList(); renderValidation(); renderMedia(); renderOcclusion(); renderPreview();
 }
@@ -93,6 +99,7 @@ function fieldElement(note,name) {
   const copy=document.createElement('button'); copy.textContent='复制 HTML'; copy.onclick=() => copyText(note.fields[name]);
   const source=document.createElement('textarea'); source.id='source-'+name; source.setAttribute('aria-label',name+' HTML'); source.spellcheck=false; source.value=note.fields[name]; source.hidden=mode!=='html'; source.readOnly=special;
   const rich=document.createElement('div'); rich.id='field-'+name; rich.className='field-edit'; rich.contentEditable='true'; rich.setAttribute('role','textbox'); rich.setAttribute('aria-label',name); rich.setAttribute('aria-multiline','true'); rich.hidden=mode!=='rich';
+  rich.dataset.placeholder=({问题:'写下你要回忆的问题…',答案:'写下准确、简短的答案…',正文:'输入正文，选中文字后挖空…',内容:'用嵌套列表整理知识层级…',标题:'可选标题',解析:'解释原因或补充推导…',补充:'可选的延伸信息',来源:'书名、网址或资料出处',章节:'所属章节'}[name] || '输入'+name+'…');
   rich.innerHTML=safeHTML(note.fields[name]);
   // Local images use original file names in fields; only editor DOM has data URLs.
   for(const image of rich.querySelectorAll('img')) { if(mediaMap().has(image.getAttribute('src'))) { image.dataset.media=image.getAttribute('src'); image.src=mediaMap().get(image.dataset.media); } }
@@ -235,7 +242,7 @@ $('image-file').onchange=async event=>{
 };
 $('new-note').onclick=()=>{if(data.notes.length>=MAX_NOTES){notice('最多 '+MAX_NOTES+' 条，请分批制卡。');return;}const note=newNote(resources.specs.find(s=>s.key===$('new-type').value));data.notes.push(note);changed();openNote(note.guid);};
 $('duplicate').onclick=()=>{if(data.notes.length>=MAX_NOTES)return;const note=structuredClone(noteFor());note.guid=freshGuid();data.notes.push(note);changed();openNote(note.guid);};
-$('previous').onclick=()=>openNote(data.notes[data.notes.indexOf(noteFor())-1].guid);$('next').onclick=()=>openNote(data.notes[data.notes.indexOf(noteFor())+1].guid);
+$('previous').onclick=()=>openNote(data.notes[data.notes.indexOf(noteFor())-1].guid,document.body.dataset.toolView);$('next').onclick=()=>openNote(data.notes[data.notes.indexOf(noteFor())+1].guid,document.body.dataset.toolView);
 $('search').oninput=$('type-filter').onchange=$('error-filter').onchange=renderList;
 $('tags').oninput=()=>{noteFor().tags=tagsFrom($('tags').value);changed();};$('deck').oninput=()=>{data.deck=$('deck').value;changed();};
 $('select-all').onclick=()=>{const visible=visibleNotes();const all=visible.every(n=>chosen.has(n.guid));for(const n of visible){if(all)chosen.delete(n.guid);else chosen.add(n.guid);}renderList();};
@@ -252,7 +259,9 @@ function resetImport() {importRevision++;incoming=null;importSource=null;$('appl
 const dialogOpeners = new WeakMap();
 function openDialog(id, opener = document.activeElement) {
   const dialog = $(id);
-  dialogOpeners.set(dialog, opener);
+  const menu=document.querySelector('.workspace-menu');
+  dialogOpeners.set(dialog, menu.contains(opener) ? menu.querySelector('summary') : opener);
+  menu.open=false;
   dialog.showModal();
 }
 document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('close', () => {
@@ -302,15 +311,37 @@ $('copy-prompt').onclick=()=>copyText($('ai-prompt').value);$('return-import').o
 const cardsURL = new URL('../../cards/',import.meta.url);
 async function loadText(name) {const response=await fetch(new URL(name,cardsURL));if(!response.ok)throw new Error(name+'：'+response.status);return response.text();}
 async function start() {
+  $('retry-load').hidden=true; $('load-message').textContent='正在准备制卡工作区…';$('main').setAttribute('aria-busy','true');
   try {
     const [specs,css,samples]=await Promise.all(['note-types.json','style.css','samples.json'].map(loadText));
     resources={specs:JSON.parse(specs),css,samples:JSON.parse(samples),templates:{}};
     for(const name of [...new Set(resources.specs.filter(s=>s.kind==='basic').flatMap(s=>[s.front,s.back]))])resources.templates[name]=await loadText(name);
     for(const sample of resources.samples)for(const value of Object.values(sample.fields)){const doc=new DOMParser().parseFromString(value,'text/html');for(const img of doc.querySelectorAll('img')){const src=img.getAttribute('src');if(/^_[\w.-]+\.(svg|png|jpg|gif|webp)$/.test(src))reservedMedia.set(src,new URL('media/'+src,cardsURL).href);}}
+    for(const id of ['new-type','type-filter','import-type','ai-type'])$(id).querySelectorAll('option[value]:not([value=""])').forEach(option=>option.remove());
     for(const id of ['new-type','type-filter','import-type','ai-type'])for(const spec of resources.specs){if(id==='ai-type'&&spec.kind==='occlusion')continue;const option=document.createElement('option');option.value=spec.key;option.textContent=spec.name;$(id).append(option);}
     try{store=await openWorkspaceStore();const record=await store.read();revision=record.revision;if(record.data)data=normalizeWorkspace(record.data,resources.specs,true);saveStatus('已读取本地草稿 · 请定期下载 JSON 备份');}
     catch(error){store=null;saveStatus('无法读取本地草稿：'+error.message+'。当前页面可编辑和导出，请勿依赖缓存。',true);}
-    $('deck').value=data.deck;$('app').hidden=false;openNote(data.notes[0]?.guid);
-  }catch(error){saveStatus('工具加载失败：'+error.message+'。本地使用请通过 HTTP 打开，方法见使用说明。',true);}
+    $('deck').value=data.deck;$('app').hidden=false;$('load-state').hidden=true;$('main').setAttribute('aria-busy','false');document.querySelectorAll('[data-ready]').forEach(button=>button.disabled=false);openNote(data.notes[0]?.guid);
+  }catch(error){$('main').setAttribute('aria-busy','false');$('load-message').textContent='暂时无法加载制卡工具，请检查网络后重试。';$('retry-load').hidden=false;saveStatus('工具加载失败，本地草稿未被修改。',true);}
 }
+function setToolView(view) {
+  if (view==='preview' && !noteFor()) {notice('先新建或选择一条笔记，再查看预览。');return;}
+  if (view==='edit' && !noteFor() && window.innerWidth<=760) {view='notes';}
+  document.body.dataset.toolView=view;
+  document.querySelectorAll('[data-tool-view]').forEach(button=>{if(button.tagName==='BUTTON')button.setAttribute('aria-pressed',String(button.dataset.toolView===view));});
+  if(view==='preview')$('preview-panel').open=true;
+}
+document.querySelectorAll('button[data-tool-view]').forEach(button=>button.onclick=()=>setToolView(button.dataset.toolView));
+$('welcome-new').onclick=()=>$('new-note').click();
+$('list-samples').onclick=()=>$('load-samples').click();
+$('retry-load').onclick=start;
+const workspaceMenu=document.querySelector('.workspace-menu');
+document.addEventListener('pointerdown',event=>{if(workspaceMenu.open&&!workspaceMenu.contains(event.target))workspaceMenu.open=false;});
+document.addEventListener('keydown',event=>{
+  if(event.key==='Escape'&&workspaceMenu.open){event.preventDefault();workspaceMenu.open=false;workspaceMenu.querySelector('summary').focus();return;}
+  if(event.isComposing || document.querySelector('dialog[open]'))return;
+  if((event.metaKey||event.ctrlKey)&&event.shiftKey&&event.key.toLowerCase()==='e'&&resources){event.preventDefault();$('export-open').click();}
+  if((event.metaKey||event.ctrlKey)&&event.altKey&&event.key.toLowerCase()==='n'&&resources){event.preventDefault();$('new-note').click();}
+  if(event.key==='/'&&!event.target.closest('input,textarea,[contenteditable=true]')){event.preventDefault();setToolView('notes');$('search').focus();}
+});
 start();

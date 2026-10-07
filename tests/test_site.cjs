@@ -33,15 +33,17 @@ async function render(page, action) {
 }
 
 async function checkReturnNavigation(page, base) {
-  const links = page.locator('header nav').getByRole('link');
-  assert.equal(await links.first().innerText(), '项目首页');
-  assert.equal(new URL(await links.first().getAttribute('href'), page.url()).href, base);
+  const home = page.locator('header a[href="./"]').first();
+  assert.equal(new URL(await home.getAttribute('href'), page.url()).href, base);
+  const links = page.locator('header').getByRole('link');
   for (const colorScheme of ['light', 'dark']) {
     await page.emulateMedia({colorScheme});
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({width, height:844});
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'page overflow');
+      assert.ok(await home.isVisible(), 'return to project must remain visible');
       for (const link of await links.all()) {
+        if (!await link.isVisible()) continue;
         const box = await link.boundingBox();
         assert.ok(box.x >= 0 && box.x + box.width <= width && box.y >= 0 && box.y + box.height <= 844, 'navigation is clipped or below the fold');
       }
@@ -67,9 +69,9 @@ async function check(engine, name, base) {
     });
     await page.goto(base);
     assert.equal(page.url(), base, 'home must stay at the project root');
-    await page.getByRole('heading', {name:'Anki 模板', exact:true}).waitFor();
+    await page.getByRole('heading', {name:'把知识，留在记忆里。', exact:true}).waitFor();
     const entries = page.getByRole('navigation', {name:'开始使用'});
-    const downloadLink = entries.getByRole('link', {name:/下载安装包/});
+    const downloadLink = entries.getByRole('link', {name:/安装笔记类型/});
     assert.equal(new URL(await downloadLink.getAttribute('href'), base).href,
       new URL('downloads/anki-template.apkg', base).href);
     const downloadPending = page.waitForEvent('download');
@@ -98,18 +100,18 @@ async function check(engine, name, base) {
     await page.locator('#app').waitFor();
     assert.equal(page.url(), new URL('tools.html', base).href);
     await checkReturnNavigation(page, base);
-    await page.getByRole('link', {name:'项目首页', exact:true}).click();
+    await page.locator('header a[href="./"]').first().click();
     assert.equal(page.url(), base);
     await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/网页制卡/}).click();
     await page.locator('#app').waitFor();
-    await page.getByRole('link', {name:'Anki 模板', exact:true}).click();
+    await page.locator('header a[href="./"]').first().click();
     assert.equal(page.url(), base);
     await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     assert.equal(page.url(), new URL('preview.html', base).href);
     // Let the preview's fetches finish before leaving through its navigation.
     await page.frameLocator('#preview').locator('.review-choice').first().waitFor();
     await checkReturnNavigation(page, base);
-    await page.getByRole('link', {name:'项目首页', exact:true}).click();
+    await page.locator('header a[href="./"]').first().click();
     assert.equal(page.url(), base);
     await page.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     const frame = page.frameLocator('#preview');
@@ -161,7 +163,7 @@ async function check(engine, name, base) {
     const plain = await browser.newContext({javaScriptEnabled:false});
     const home = await plain.newPage();
     await home.goto(new URL('index.html', base).href);
-    await home.getByRole('heading', {name:'Anki 模板', exact:true}).waitFor();
+    await home.getByRole('heading', {name:'把知识，留在记忆里。', exact:true}).waitFor();
     await home.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     assert.equal(home.url(), new URL('preview.html', base).href, 'home navigation must work without JavaScript');
     await plain.close();

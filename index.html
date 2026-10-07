@@ -1,68 +1,172 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#15191f" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。">
-  <link rel="stylesheet" href="./web/site.css">
-  <link rel="icon" href="./web/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./web/icon-180.png">
-  <title>Anki 模板 · ZZP</title>
-  <link rel="stylesheet" href="./web/home.css">
-  <link rel="canonical" href="https://zzpice.github.io/anki-template/">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="zh_CN">
-  <meta property="og:site_name" content="ZZP 工具与资源">
-  <meta property="og:title" content="Anki 模板 · ZZP">
-  <meta property="og:description" content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。">
-  <meta property="og:url" content="https://zzpice.github.io/anki-template/">
-  <meta property="og:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Anki 模板 · ZZP">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Anki 模板 · ZZP">
-  <meta name="twitter:description" content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。">
-  <meta name="twitter:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
-</head>
-<body>
-  <a class="skip-link" href="#main">跳到项目内容</a>
-  <main id="main" tabindex="-1">
-    <a class="ecosystem-link" href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="ZZP · 所有项目（新标签页）">ZZP / 工具与资源</a>
-    <header>
-      <h1>Anki 模板</h1>
-      <p class="intro">用于日常回忆与复习，支持问答、选择、填空、原生图片遮挡和思维导图。</p>
-    </header>
-    <nav class="entries" aria-label="开始使用">
-      <a class="entry" href="./downloads/anki-template.apkg" download>
-        <h2>下载安装包</h2>
-        <p>下载 .apkg，在 Anki Desktop 导入五个笔记类型和示例牌组。</p>
-      </a>
-      <a class="entry" href="./tools.html">
-        <h2>网页制卡</h2>
-        <p>整理自己的笔记与图片，导出后导入 Anki。请定期下载草稿备份。</p>
-      </a>
-      <a class="entry" href="./preview.html">
-        <h2>在线预览</h2>
-        <p>浏览项目示例，查看正反面、手机宽度与浅深色效果。</p>
-      </a>
-    </nav>
-    <section class="docs" aria-labelledby="docs-title">
-      <h2 id="docs-title">使用说明</h2>
-      <ul>
-        <li><a href="https://github.com/zzpice/anki-template/blob/main/docs/usage.md">Anki 使用说明</a> <span>— 安装、字段填写、更新与导出备份</span></li>
-        <li><a href="https://github.com/zzpice/anki-template/blob/main/docs/authoring.md">网页制卡说明</a> <span>— 编辑、导入数据、保存与带到 Anki</span></li>
-      </ul>
-      <p class="note">图片遮挡的实际复习请在支持原生遮挡的 Anki 客户端中查看。</p>
-    </section>
-    <footer aria-label="项目资料">
-      <a href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="所有项目（新标签页）">所有项目 ↗</a>
-      <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
-      <a href="https://github.com/zzpice/anki-template/blob/main/docs/development.md">维护说明</a>
-      <a href="https://github.com/zzpice/anki-template/blob/main/LICENSE">MIT 许可</a>
-    </footer>
-  </main>
-</body>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      content="#f7f8fa"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#15191f"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="description"
+      content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。"
+    />
+    <link rel="stylesheet" href="./web/site.css?v=20261008" />
+    <link rel="icon" href="./web/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./web/icon-180.png" />
+    <title>Anki 模板 · ZZP</title>
+    <link rel="stylesheet" href="./web/home.css?v=20261008" />
+    <link rel="canonical" href="https://zzpice.github.io/anki-template/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="ZZP 工具与资源" />
+    <meta property="og:title" content="Anki 模板 · ZZP" />
+    <meta
+      property="og:description"
+      content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。"
+    />
+    <meta property="og:url" content="https://zzpice.github.io/anki-template/" />
+    <meta
+      property="og:image"
+      content="https://zzpice.github.io/anki-template/web/social-preview.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Anki 模板 · ZZP" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Anki 模板 · ZZP" />
+    <meta
+      name="twitter:description"
+      content="Anki 模板：下载问答、选择、填空、图片遮挡与思维导图模板，打开网页制卡、在线预览和使用说明。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://zzpice.github.io/anki-template/web/social-preview.png"
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到项目内容</a>
+    <main id="main" tabindex="-1">
+      <div class="home-top">
+        <a class="home-brand" href="./"
+          ><img src="./web/icon.svg" width="30" height="30" alt="" />Anki
+          模板</a
+        ><a
+          class="ecosystem-link"
+          href="https://zzp.moe/"
+          target="_blank"
+          rel="noopener noreferrer"
+          >ZZP / 所有项目 ↗</a
+        >
+      </div>
+      <header class="home-hero">
+        <div>
+          <p class="eyebrow">从整理，到记住</p>
+          <h1>把知识，留在记忆里。</h1>
+          <p class="intro">
+            五种笔记类型，一套日常复习流程。<br />在网页整理材料，带到 Anki
+            开始回忆。
+          </p>
+          <div class="hero-actions">
+            <a class="primary-link" href="./tools.html"
+              >打开制卡工作区 <span aria-hidden="true">→</span></a
+            ><a href="./downloads/anki-template.apkg" download>下载安装包 ↓</a>
+          </div>
+          <p class="hero-hint">无需登录 · 草稿保存在当前浏览器</p>
+        </div>
+        <a
+          class="sample-card"
+          href="./preview.html#basic"
+          aria-label="预览问答示例"
+          ><span class="sample-label">问答 · 正面 <span>示例预览 ↗</span></span>
+          <p>
+            sing-box 中，<code>domain</code> 和
+            <code>domain_suffix</code> 的匹配范围有什么区别？
+          </p>
+          <span class="sample-divider"></span
+          ><span class="sample-caption">先回忆，再查看答案。</span
+          ><span class="sample-chapter">sing-box · 域名匹配</span></a
+        >
+      </header>
+      <section class="type-section" aria-labelledby="types-title">
+        <div class="section-heading">
+          <h2 id="types-title">为不同的知识，选择合适的卡片。</h2>
+          <a href="./preview.html">浏览全部示例 ↗</a>
+        </div>
+        <div class="type-list">
+          <a href="./preview.html#basic"
+            ><span>01</span>
+            <h3>问答</h3>
+            <p>主动回忆，再核对答案与解析。</p></a
+          ><a href="./preview.html#choice"
+            ><span>02</span>
+            <h3>选择</h3>
+            <p>单选、多选与判断，保留原始答案。</p></a
+          ><a href="./preview.html#cloze"
+            ><span>03</span>
+            <h3>填空</h3>
+            <p>在上下文里记住关键知识点。</p></a
+          ><a href="./preview.html#occlusion"
+            ><span>04</span>
+            <h3>图片遮挡</h3>
+            <p>遮住图片局部，逐处回忆。</p></a
+          ><a href="./preview.html#mindmap"
+            ><span>05</span>
+            <h3>思维导图</h3>
+            <p>保留知识层级，分支复习。</p></a
+          >
+        </div>
+      </section>
+      <nav class="entries" aria-label="开始使用">
+        <a class="entry" href="./downloads/anki-template.apkg" download
+          ><span>第一次使用</span>
+          <h2>安装笔记类型 <span aria-hidden="true">↓</span></h2>
+          <p>在 Anki Desktop 导入 .apkg，安装五个笔记类型和示例牌组。</p></a
+        ><a class="entry" href="./tools.html"
+          ><span>继续整理</span>
+          <h2>网页制卡 <span aria-hidden="true">→</span></h2>
+          <p>编辑字段、图片与遮挡。导入现有材料，随时备份和导出。</p></a
+        ><a class="entry" href="./preview.html"
+          ><span>先看效果</span>
+          <h2>在线预览 <span aria-hidden="true">↗</span></h2>
+          <p>查看真实示例的正反面、手机宽度和浅深色效果。</p></a
+        >
+      </nav>
+      <section class="docs" aria-labelledby="docs-title">
+        <h2 id="docs-title">需要一点指引？</h2>
+        <div>
+          <a
+            href="https://github.com/zzpice/anki-template/blob/main/docs/usage.md"
+            >Anki 使用说明 <span>安装、字段填写与更新 ↗</span></a
+          ><a
+            href="https://github.com/zzpice/anki-template/blob/main/docs/authoring.md"
+            >网页制卡说明 <span>编辑、导入、备份与导出 ↗</span></a
+          >
+        </div>
+        <p class="note">
+          图片遮挡的实际复习请在支持原生遮挡的 Anki 客户端中查看。
+        </p>
+      </section>
+      <footer aria-label="项目资料">
+        <a href="https://zzp.moe/" target="_blank" rel="noopener noreferrer"
+          >所有项目 ↗</a
+        ><a href="https://github.com/zzpice/anki-template">GitHub 仓库</a
+        ><a
+          href="https://github.com/zzpice/anki-template/blob/main/docs/development.md"
+          >维护说明</a
+        ><a href="https://github.com/zzpice/anki-template/blob/main/LICENSE"
+          >MIT 许可</a
+        >
+      </footer>
+    </main>
+  </body>
 </html>

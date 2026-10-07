@@ -1,73 +1,143 @@
 <!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="theme-color" content="#f7f8fa" media="(prefers-color-scheme: light)">
-  <meta name="theme-color" content="#15191f" media="(prefers-color-scheme: dark)">
-  <meta name="description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
-  <link rel="stylesheet" href="./web/site.css">
-  <link rel="icon" href="./web/icon.svg" type="image/svg+xml">
-  <link rel="apple-touch-icon" href="./web/icon-180.png">
-  <title>Anki 示例预览 · ZZP</title>
-  <link rel="stylesheet" href="./web/preview.css">
-  <link rel="canonical" href="https://zzpice.github.io/anki-template/preview.html">
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="zh_CN">
-  <meta property="og:site_name" content="ZZP 工具与资源">
-  <meta property="og:title" content="Anki 示例预览 · ZZP">
-  <meta property="og:description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
-  <meta property="og:url" content="https://zzpice.github.io/anki-template/preview.html">
-  <meta property="og:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-  <meta property="og:image:alt" content="Anki 模板 · ZZP">
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Anki 示例预览 · ZZP">
-  <meta name="twitter:description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
-  <meta name="twitter:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
-</head>
-<body data-theme="system" data-viewport="auto">
-  <a class="skip-link" href="#main">跳到预览控制</a>
-  <main id="main" tabindex="-1" class="preview-shell">
-    <a class="ecosystem-link" href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="ZZP · 所有项目（新标签页）">ZZP / 工具与资源</a>
-    <header>
-      <h1>Anki 模板</h1>
-      <nav aria-label="项目链接">
-        <a href="./">项目首页</a>
-        <a href="./downloads/anki-template.apkg" download>下载安装包</a>
-        <a href="./tools.html">网页制卡</a>
-        <a href="https://github.com/zzpice/anki-template/blob/main/docs/usage.md">使用说明</a>
-      </nav>
-    </header>
-    <p class="intro">选择示例，查看卡片的正面和背面。</p>
-    <div class="controls">
-      <label>题型 <select id="sample" disabled></select></label>
-      <label id="card-label" hidden>卡片 <select id="card"></select></label>
-      <label>视口
-        <select id="viewport">
-          <option value="auto">自适应</option>
-          <option value="phone">手机 · 390px</option>
-        </select>
-      </label>
-      <label>外观
-        <select id="theme">
-          <option value="system">跟随系统</option>
-          <option value="light">浅色</option>
-          <option value="dark">深色</option>
-        </select>
-      </label>
-      <button id="flip" type="button" disabled>显示答案</button>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,viewport-fit=cover"
+    />
+    <meta
+      name="theme-color"
+      content="#f7f8fa"
+      media="(prefers-color-scheme: light)"
+    />
+    <meta
+      name="theme-color"
+      content="#15191f"
+      media="(prefers-color-scheme: dark)"
+    />
+    <meta
+      name="description"
+      content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。"
+    />
+    <link rel="stylesheet" href="./web/site.css?v=20261008" />
+    <link rel="icon" href="./web/icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="./web/icon-180.png" />
+    <title>Anki 示例预览 · ZZP</title>
+    <link rel="stylesheet" href="./web/preview.css?v=20261008" />
+    <link
+      rel="canonical"
+      href="https://zzpice.github.io/anki-template/preview.html"
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="zh_CN" />
+    <meta property="og:site_name" content="ZZP 工具与资源" />
+    <meta property="og:title" content="Anki 示例预览 · ZZP" />
+    <meta
+      property="og:description"
+      content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。"
+    />
+    <meta
+      property="og:url"
+      content="https://zzpice.github.io/anki-template/preview.html"
+    />
+    <meta
+      property="og:image"
+      content="https://zzpice.github.io/anki-template/web/social-preview.png"
+    />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Anki 模板 · ZZP" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Anki 示例预览 · ZZP" />
+    <meta
+      name="twitter:description"
+      content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。"
+    />
+    <meta
+      name="twitter:image"
+      content="https://zzpice.github.io/anki-template/web/social-preview.png"
+    />
+  </head>
+  <body data-theme="system" data-viewport="auto">
+    <a class="skip-link" href="#main">跳到预览控制</a>
+    <main id="main" tabindex="-1" class="preview-shell">
+      <a
+        class="ecosystem-link"
+        href="https://zzp.moe/"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="ZZP · 所有项目（新标签页）"
+        >ZZP / 工具与资源</a
+      >
+      <header>
+        <h1>
+          <a class="preview-brand" href="./"
+            ><img src="./web/icon.svg" width="26" height="26" alt="" />Anki
+            模板</a
+          ><span>示例预览</span>
+        </h1>
+        <nav aria-label="项目链接">
+          <a href="./">项目首页</a>
+          <a href="./downloads/anki-template.apkg" download>下载安装包</a>
+          <a href="./tools.html">网页制卡</a>
+          <a
+            href="https://github.com/zzpice/anki-template/blob/main/docs/usage.md"
+            >使用说明</a
+          >
+        </nav>
+      </header>
+      <p class="intro">选择示例，查看卡片的正面和背面。</p>
+      <div class="controls">
+        <label
+          >题型
+          <select id="sample" disabled></select
+        ></label>
+        <label id="card-label" hidden
+          >卡片
+          <select id="card"></select
+        ></label>
+        <label
+          >视口
+          <select id="viewport">
+            <option value="auto">自适应</option>
+            <option value="phone">手机 · 390px</option>
+          </select>
+        </label>
+        <label
+          >外观
+          <select id="theme">
+            <option value="system">跟随系统</option>
+            <option value="light">浅色</option>
+            <option value="dark">深色</option>
+          </select>
+        </label>
+        <button id="flip" type="button" disabled>显示答案</button>
+      </div>
+    </main>
+    <div class="preview-stage">
+      <div id="preview-loading" class="preview-loading" role="status">
+        <div class="loading-card" aria-hidden="true"><i></i><i></i><i></i></div>
+        <p id="load-message">正在读取卡片…</p>
+        <button id="retry" type="button" hidden>重新加载预览</button>
+      </div>
+      <iframe id="preview" title="Anki 卡片预览" hidden></iframe>
     </div>
-  </main>
-  <iframe id="preview" title="Anki 卡片预览"></iframe>
-  <div class="preview-shell"><p id="status" role="status">正在读取卡片…</p></div>
-  <div class="preview-shell">
-  <footer class="ecosystem-footer" aria-label="项目资料">
-    <a href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="所有项目（新标签页）">所有项目 ↗</a>
-    <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
-  </footer>
-  </div>
-  <script src="./web/preview.js" defer></script>
-</body>
+    <div class="preview-shell">
+      <p id="status" role="status">正在读取卡片…</p>
+    </div>
+    <div class="preview-shell">
+      <footer class="ecosystem-footer" aria-label="项目资料">
+        <a
+          href="https://zzp.moe/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="所有项目（新标签页）"
+          >所有项目 ↗</a
+        >
+        <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
+      </footer>
+    </div>
+    <script src="./web/preview.js?v=20261008" defer></script>
+  </body>
 </html>

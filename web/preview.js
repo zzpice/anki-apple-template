@@ -60,6 +60,8 @@
           event.preventDefault(); flip.click();
         }
       });
+      function load() {
+      document.getElementById('retry').hidden=true;document.getElementById('preview-loading').hidden=false;document.getElementById('load-message').textContent='正在读取卡片…';frame.hidden=true;sample.disabled=flip.disabled=true;sample.textContent='';
       Promise.all(['web/preview-cards.json', 'cards/style.css'].map(function (name) {
         return fetch(name).then(function (response) {
           if (!response.ok) throw new Error(name + ': ' + response.status);
@@ -71,10 +73,16 @@
           var option = document.createElement('option');
           option.value = index; option.textContent = example.label; sample.appendChild(option);
         });
-        sample.value = examples.findIndex(function (example) { return example.key === 'single'; });
+        var requested=location.hash.slice(1);
+        var index=examples.findIndex(function(example){return example.type===requested;});
+        sample.value=index>=0?index:examples.findIndex(function (example) { return example.key === 'single'; });
         sample.disabled = flip.disabled = false;
+        frame.hidden=false;document.getElementById('preview-loading').hidden=true;
         chooseSample();
       }).catch(function (error) {
-        status.textContent = '无法加载预览：' + error.message + '。本地预览方法见使用说明。';
+        status.textContent = '';document.getElementById('load-message').textContent='暂时无法加载卡片预览，请检查网络后重试。';document.getElementById('retry').hidden=false;
       });
+      }
+      document.getElementById('retry').onclick=load;
+      load();
     })();
