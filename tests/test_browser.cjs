@@ -74,16 +74,19 @@ async function choiceOrder(page) {
   })));
 }
 
-async function checkPreviewViewport(page, width) {
+async function checkPreviewViewport(page, requestedWidth) {
   const view = await page.locator('#preview').evaluate(el => ({
     width:el.contentWindow.innerWidth,
     left:el.getBoundingClientRect().left,
     outerWidth:innerWidth,
+    availableWidth:(()=>{const stage=el.closest('.preview-stage'),style=getComputedStyle(stage);return stage.clientWidth-parseFloat(style.paddingLeft)-parseFloat(style.paddingRight);})(),
     mobile:el.contentWindow.matchMedia('(max-width:480px)').matches,
     cardOverflow:el.contentDocument.documentElement.scrollWidth > el.contentWindow.innerWidth,
     pageOverflow:document.documentElement.scrollWidth > innerWidth,
   }));
-  assert.equal(view.width, width, 'card viewport width');
+  // Fill the preview stage; phone mode stays capped within its available width.
+  const width=Math.min(requestedWidth,view.availableWidth);
+  assert.equal(view.width, width, 'card viewport fits the preview stage');
   assert.ok(Math.abs(view.left - (view.outerWidth - width) / 2) < 1, 'viewport centering');
   assert.equal(view.mobile, width <= 480, 'card media queries use iframe width');
   assert.equal(view.cardOverflow, false, 'card overflows viewport');
