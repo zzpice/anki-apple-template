@@ -78,9 +78,11 @@ def check():
     assert not re.search(r'\b(?:fetch|XMLHttpRequest|MutationObserver|setInterval|localStorage)\b', mindmap)
     assert "https://" not in mindmap and "console." not in mindmap
     preview = (ROOT / "preview.html").read_text()
-    for script in re.findall(r"<script>(.*?)</script>", preview, re.S):
-        subprocess.run(["node", "--check"], input=script, text=True, check=True)
-    assert 'web/preview-cards.json' in preview and 'cards/style.css' in preview
+    assert './web/preview.js' in preview
+    preview_script = (ROOT / "web/preview.js").read_text()
+    assert 'web/preview-cards.json' in preview_script and 'cards/style.css' in preview_script
+    for path in (ROOT / "web").glob("*.js"):
+        subprocess.run(["node", "--check", str(path)], check=True)
     for file in ("index.html", "preview.html", "downloads/anki-template.apkg", ".nojekyll"):
         assert (ROOT / file).is_file(), file
     tools = (ROOT / "tools.html").read_text()
