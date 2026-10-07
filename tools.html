@@ -2,17 +2,38 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151c19" media="(prefers-color-scheme: dark)">
   <meta name="description" content="Anki 模板配套制卡工具。在浏览器中编辑原生字段，检查并导出笔记与图片。">
-  <title>Anki 模板 · 制卡工具</title>
+  <link rel="stylesheet" href="./web/design.css">
+  <link rel="icon" href="./web/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./web/icon-180.png">
+  <title>Anki 网页制卡 · ZZP</title>
   <link rel="stylesheet" href="./web/tools/style.css">
+  <link rel="canonical" href="https://zzpice.github.io/anki-template/tools.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="ZZP 工具与资源">
+  <meta property="og:title" content="Anki 网页制卡 · ZZP">
+  <meta property="og:description" content="Anki 模板配套制卡工具。在浏览器中编辑原生字段，检查并导出笔记与图片。">
+  <meta property="og:url" content="https://zzpice.github.io/anki-template/tools.html">
+  <meta property="og:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Anki 模板 · ZZP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Anki 网页制卡 · ZZP">
+  <meta name="twitter:description" content="Anki 模板配套制卡工具。在浏览器中编辑原生字段，检查并导出笔记与图片。">
+  <meta name="twitter:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
 </head>
 <body>
+  <a class="skip-link" href="#main">跳到制卡工具</a>
   <header class="page-header">
-    <div><a class="brand" href="./">Anki 模板</a><span class="muted"> / 制卡工具</span></div>
+    <div><a class="ecosystem-link" href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="ZZP · 所有项目（新标签页）">ZZP / 工具与资源</a><a class="brand" href="./">Anki 模板</a><span class="muted"> / 制卡工具</span></div>
     <nav aria-label="项目导航"><a href="./">项目首页</a><a href="./preview.html">示例预览</a><a href="./downloads/anki-template.apkg" download>安装笔记类型</a><a href="https://github.com/zzpice/anki-template/blob/main/docs/authoring.md">使用说明</a></nav>
   </header>
-  <main>
+  <main id="main" tabindex="-1">
     <section class="workspace-bar" aria-label="工作空间">
       <label>目标牌组 <input id="deck" value="我的制卡" maxlength="180"></label>
       <div class="actions"><button id="reset-open">新工作空间</button><button id="import-open">导入</button><button id="ai-open">外部 AI 辅助</button><button id="export-open" class="primary">导出</button></div>
@@ -66,5 +87,9 @@
   <input id="image-file" type="file" accept="image/png,image/jpeg,image/webp,image/gif" hidden>
   <p id="notice" role="status" aria-live="polite"></p>
   <script type="module" src="./web/tools/app.mjs"></script>
+  <footer class="ecosystem-footer" aria-label="项目资料">
+    <a href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="所有项目（新标签页）">所有项目 ↗</a>
+    <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
+  </footer>
 </body>
 </html>

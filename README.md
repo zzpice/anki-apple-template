@@ -2,9 +2,9 @@
 
 个人日常复习用的 Anki 模板，支持问答、选择、填空、原生图片遮挡和思维导图。配套网页工具可整理自己的笔记，导入 Anki 后复习。
 
-[**项目首页**](https://zzpice.github.io/anki-template/) · [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [网页制卡](https://zzpice.github.io/anki-template/tools.html) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [使用说明](docs/usage.md)
+[**项目首页**](https://zzpice.github.io/anki-template/) · [下载安装包](https://zzpice.github.io/anki-template/downloads/anki-template.apkg) · [网页制卡](https://zzpice.github.io/anki-template/tools.html) · [在线预览](https://zzpice.github.io/anki-template/preview.html) · [使用说明](docs/usage.md) · [ZZP · 所有项目](https://zzp.moe/)
 
-[![Template Check](https://github.com/zzpice/anki-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-template/actions/workflows/check.yml)
+[![检查](https://github.com/zzpice/anki-template/actions/workflows/check.yml/badge.svg)](https://github.com/zzpice/anki-template/actions/workflows/check.yml)
 
 ## 开始使用
 
@@ -35,3 +35,7 @@
 ## 许可
 
 [MIT](LICENSE)
+
+## 项目体系
+
+属于 [ZZP 工具与资源](https://zzp.moe/)。共同的[设计与仓库规范](https://github.com/zzpice/zzp-home/blob/main/docs/design.md)由入口仓库维护；使用步骤、生成产物和验证方式仍以本仓库为准。

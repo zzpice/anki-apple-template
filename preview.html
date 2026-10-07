@@ -2,49 +2,61 @@
 <html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f5ef" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#151c19" media="(prefers-color-scheme: dark)">
   <meta name="description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
-  <title>Anki 模板 · 在线预览</title>
+  <link rel="stylesheet" href="./web/design.css">
+  <link rel="icon" href="./web/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="./web/icon-180.png">
+  <title>Anki 示例预览 · ZZP</title>
   <style>
-    :root { color-scheme:light dark; }
     * { box-sizing:border-box; }
-    body { margin:0; background:#f3f3ef; color:#282b26; font:15px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC",sans-serif; }
-    .preview-shell { max-width:1000px; margin:auto; padding:26px 24px 18px; }
+    body { margin:0; background:var(--zzp-bg); color:var(--zzp-text); font:16px/1.65 var(--zzp-font); }
+    .preview-shell { max-width:1080px; margin:auto; padding:16px 24px; }
     header { display:flex; align-items:baseline; justify-content:space-between; flex-wrap:wrap; gap:8px 20px; }
-    h1 { font-size:19px; font-weight:600; margin:0; }
-    nav { display:flex; flex-wrap:wrap; gap:18px; }
+    h1 { font-size:20px; font-weight:600; margin:0; }
+    nav { display:flex; flex-wrap:wrap; gap:0 18px; }
     a { color:inherit; text-underline-offset:4px; }
-    .intro { color:#63685e; margin:8px 0 24px; }
-    .controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px 20px; padding:14px 0; border-top:1px solid #d4d7ce; }
+    nav a { display:inline-flex; align-items:center; min-height:44px; }
+    :focus-visible { outline:3px solid var(--zzp-accent); outline-offset:3px; }
+    .intro { color:var(--zzp-muted); margin:8px 0 20px; }
+    .controls { display:flex; align-items:center; flex-wrap:wrap; gap:12px 20px; padding:16px 0; border-top:1px solid var(--zzp-line); }
     label { display:flex; align-items:center; gap:8px; }
-    select, button { font:inherit; color:inherit; background:transparent; border:1px solid #a7ada0; border-radius:3px; padding:5px 8px; }
+    select,button { font:inherit; color:inherit; background:var(--zzp-surface); border:1px solid var(--zzp-line-strong); border-radius:var(--zzp-radius-sm); padding:8px 10px; min-height:44px; max-width:100%; }
     button { cursor:pointer; }
     button:disabled { cursor:default; opacity:.5; }
-    iframe { display:block; width:100%; max-width:100%; margin-inline:auto; border:0; min-height:570px; height:calc(100vh - 230px); background:#faf9f6; }
-    body[data-viewport="phone"] iframe { width:390px; }
-    #status { margin:10px 0 0; color:#63685e; font-size:13px; }
+    #preview { display:block; width:100%; max-width:100%; margin-inline:auto; border:0; min-height:570px; height:calc(100vh - 280px); background:var(--zzp-surface); }
+    body[data-viewport="phone"] #preview { width:390px; }
+    #status { margin:0; color:var(--zzp-muted); font-size:14px; }
     [hidden] { display:none !important; }
-    @media (prefers-color-scheme:dark) {
-      body { background:#191c18; color:#e3e5df; }
-      .intro, #status { color:#adb2a7; }
-      .controls { border-color:#44483f; }
-    }
-    body[data-theme="light"] { background:#f3f3ef; color:#282b26; color-scheme:light; }
-    body[data-theme="light"] .intro, body[data-theme="light"] #status { color:#63685e; }
-    body[data-theme="light"] .controls { border-color:#d4d7ce; }
-    body[data-theme="dark"] { background:#191c18; color:#e3e5df; color-scheme:dark; }
-    body[data-theme="dark"] .intro, body[data-theme="dark"] #status { color:#adb2a7; }
-    body[data-theme="dark"] .controls { border-color:#44483f; }
     @media (max-width:480px) {
-      .preview-shell { padding:18px 16px 12px; }
-      .intro { margin-bottom:14px; }
+      .preview-shell { padding:12px 16px; }
+      .intro { margin-bottom:12px; }
       .controls { gap:12px; }
-      iframe { min-height:560px; height:calc(100vh - 280px); }
+      #preview { min-height:560px; }
     }
   </style>
+  <link rel="canonical" href="https://zzpice.github.io/anki-template/preview.html">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="zh_CN">
+  <meta property="og:site_name" content="ZZP 工具与资源">
+  <meta property="og:title" content="Anki 示例预览 · ZZP">
+  <meta property="og:description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
+  <meta property="og:url" content="https://zzpice.github.io/anki-template/preview.html">
+  <meta property="og:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Anki 模板 · ZZP">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Anki 示例预览 · ZZP">
+  <meta name="twitter:description" content="个人 Anki 模板，支持问答、选择、填空、图片遮挡和思维导图。">
+  <meta name="twitter:image" content="https://zzpice.github.io/anki-template/web/social-preview.png">
 </head>
 <body data-theme="system" data-viewport="auto">
-  <div class="preview-shell">
+  <a class="skip-link" href="#main">跳到预览控制</a>
+  <main id="main" tabindex="-1" class="preview-shell">
+    <a class="ecosystem-link" href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="ZZP · 所有项目（新标签页）">ZZP / 工具与资源</a>
     <header>
       <h1>Anki 模板</h1>
       <nav aria-label="项目链接">
@@ -73,9 +85,15 @@
       </label>
       <button id="flip" type="button" disabled>显示答案</button>
     </div>
-  </div>
+  </main>
   <iframe id="preview" title="Anki 卡片预览"></iframe>
   <div class="preview-shell"><p id="status" role="status">正在读取卡片…</p></div>
+  <div class="preview-shell">
+  <footer class="ecosystem-footer" aria-label="项目资料">
+    <a href="https://zzp.moe/" target="_blank" rel="noopener noreferrer" aria-label="所有项目（新标签页）">所有项目 ↗</a>
+    <a href="https://github.com/zzpice/anki-template">GitHub 仓库</a>
+  </footer>
+  </div>
   <script>
     (function () {
       var frame = document.getElementById('preview');
