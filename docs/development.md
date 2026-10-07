@@ -155,7 +155,7 @@ python3 -m http.server 8000
 
 视口选项在自适应宽度与 390px 手机宽度之间切换，小屏仍限制在页面宽度内。切换只改变同一个 iframe 的宽度，不重新渲染卡片，当前选择和正反面保持不变。浏览器检查覆盖桌面及 320、360、375、390、430px 手机宽度。
 
-GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.yml` 的两个 Anki 版本都通过后，发布入口 HTML、`web/`、`cards/`、`downloads/` 与 `docs/`；保留 `.nojekyll`。发布目录不包含 `build/`、测试、构包脚本和开发依赖。失败保留上次成功页面；撤销问题提交并重新运行检查和部署即可恢复。安装包仍由生成命令维护，部署不会自动重建二进制或提交文件。
+GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.yml` 的两个 Anki 版本都通过后，发布入口 HTML、README / AUTHORING / LICENSE、`web/`、`cards/`、`downloads/` 与 `docs/`；保留 `.nojekyll`。CI 在基准 Anki 版本组装 `build/pages`，用 `SITE_ROOT=build/pages node tests/test_site.cjs` 验证实际发布目录，避免只测源码而漏发布文件。发布目录不包含测试数据、构包脚本和开发依赖。失败保留上次成功页面；撤销问题提交并重新运行检查和部署即可恢复。安装包仍由生成命令维护，部署不会自动重建二进制或提交文件。
 
 发布模板或示例改动时，一起提交源码、重新生成的 `downloads/anki-template.apkg` 和 `web/preview-cards.json`，有外观变化再附带截图。推送后分别确认 Template Check 和 Pages 部署成功，并打开在线预览、制卡工具及下载链接检查；当前发布不依赖 GitHub Release 或额外前端打包步骤。
 

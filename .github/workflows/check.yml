@@ -42,12 +42,14 @@ jobs:
           node --test tests/test_tools.mjs
           node tests/test_tools_browser.cjs
           node tests/test_browser.cjs
-          node tests/test_site.cjs
       - name: Assemble public site
-        if: matrix.anki-version == '25.9.2' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        if: matrix.anki-version == '25.9.2'
         run: |
           mkdir -p build/pages
-          cp -R index.html preview.html tools.html .nojekyll web cards downloads docs build/pages/
+          cp -R index.html preview.html tools.html README.md AUTHORING.md LICENSE .nojekyll web cards downloads docs build/pages/
+      - name: Check the public site artifact
+        if: matrix.anki-version == '25.9.2'
+        run: SITE_ROOT=build/pages node tests/test_site.cjs
       - uses: actions/upload-pages-artifact@v5
         if: matrix.anki-version == '25.9.2' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         with:

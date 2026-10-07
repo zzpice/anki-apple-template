@@ -6,14 +6,15 @@ const http = require('node:http');
 const path = require('node:path');
 const {chromium, webkit} = require('playwright');
 const root = path.resolve(__dirname, '..');
+const servedRoot = path.resolve(process.env.SITE_ROOT || root);
 const prefix = '/anki-template/';
 const mime = {'.html':'text/html', '.css':'text/css', '.json':'application/json',
   '.js':'text/javascript', '.mjs':'text/javascript', '.svg':'image/svg+xml', '.png':'image/png'};
 const server = http.createServer((request, response) => {
   const url = new URL(request.url, 'http://localhost');
   if (!url.pathname.startsWith(prefix)) {response.writeHead(404).end(); return;}
-  const file = path.resolve(root, decodeURIComponent(url.pathname.slice(prefix.length)) || 'index.html');
-  if (!file.startsWith(root + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
+  const file = path.resolve(servedRoot, decodeURIComponent(url.pathname.slice(prefix.length)) || 'index.html');
+  if (!file.startsWith(servedRoot + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
     response.writeHead(404).end(); return;
   }
   response.setHeader('Content-Type', mime[path.extname(file)] || 'application/octet-stream');
