@@ -48,6 +48,19 @@ textarea {
   background: var(--surface);
   padding: 6px 10px;
 }
+select {
+  -webkit-appearance: none;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position:
+    calc(100% - 14px) 50%,
+    calc(100% - 10px) 50%;
+  background-size: 4px 4px;
+  background-repeat: no-repeat;
+  padding-inline-end: 28px;
+}
 button {
   cursor: pointer;
   min-height: 32px;
@@ -599,7 +612,7 @@ summary::-webkit-details-marker {
 .toolbar select {
   font-size: 10px;
   min-height: 30px;
-  padding: 4px 7px;
+  padding: 4px 28px 4px 7px;
 }
 .toolbar input[type="number"] {
   width: 55px;
@@ -785,7 +798,7 @@ summary {
 #preview-panel .toolbar select {
   width: 100%;
   font-size: 10px;
-  background: var(--surface);
+  background-color: var(--surface);
   border-color: var(--line);
   min-height: 30px;
 }
@@ -1516,8 +1529,8 @@ pre {
   }
   #preview-panel .toolbar select {
     font-size: 12px;
-    min-height: 36px;
-    padding: 5px 8px;
+    min-height: 40px;
+    padding: 5px 28px 5px 8px;
   }
   #preview-panel .toolbar label {
     font-size: 10px;
@@ -1685,7 +1698,7 @@ pre {
   }
   #preview-panel .toolbar select {
     font-size: 11px;
-    padding: 5px 4px;
+    padding: 5px 28px 5px 4px;
   }
   .tool-view-nav {
     padding-inline: 10px;
