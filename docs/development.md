@@ -4,7 +4,7 @@
 
 ## 仓库结构
 
-仓库按运行职责组织，根目录保留项目说明、配置和稳定网页入口。Pages 仍直接发布 `main` 的根目录；子目录里的源码和资源原样提供给网页，不需要复制站点、打包前端或维护另一套内容。
+仓库按运行职责组织，根目录保留项目说明、配置和稳定网页入口。网页仍直接使用这些源码和资源，不需要前端打包。Pages 在检查通过后按白名单组装同一目录结构，测试、脚本与本地构包产物不会进入公开站点。
 
 ```text
 anki-template/
@@ -17,6 +17,7 @@ anki-template/
 │   ├── templates/                       按类型组织的正背面与附加样式
 │   └── media/                           平铺的 Anki 运行脚本与示例图
 ├── web/                                 网页资源
+│   ├── site.css / home.css / preview.css / preview.js  网页主题、布局与预览控制
 │   ├── preview-cards.json               官方 Anki 生成的项目预览
 │   └── tools/                           制卡模块与界面样式
 ├── downloads/anki-template.apkg          官方 Anki 生成的公开安装包
@@ -25,7 +26,7 @@ anki-template/
 │   └── images/                          使用说明截图
 ├── scripts/                             Python 维护工具与依赖清单
 ├── tests/                               后端、数据、浏览器与 Pages 路径检查
-└── .github/workflows/check.yml           检查矩阵；其他根配置见下表
+└── .github/workflows/check.yml           检查矩阵与 Pages 发布；其他根配置见下表
 ```
 
 | 位置 | 职责与维护方式 |
@@ -67,7 +68,7 @@ Python 测试在临时目录重建包并核对语义；`ANKI_RENDER_OUTPUT=build
 - 站内 JSON、CSS、JS、模板、媒体与文档图片属于随项目同步的资源路径，迁移后全部消费方一起更新，不为旧内部位置保留副本或代理。`DEVELOPMENT.md` 的旧 GitHub 文件路径也不保留兼容文件。
 - Anki 包内媒体文件名、规格内模板相对路径、类型 / 字段 / 模板 ID、示例 GUID 和交换格式均不改变。
 
-根 HTML 包含各自页面的样式或控制代码，是保留稳定入口与直接静态运行的取舍。公开生成产物仍随源码提交，避免额外部署系统；`cards/samples.json` 和媒体示例图留在卡片源单元内，便于一起构包，无需再分一层小目录。
+根 HTML 保留稳定页面入口；首页样式、预览样式和预览控制已移入 `web/`。公开安装包和预览仍随源码提交，部署只复制已验证的文件；`cards/samples.json` 和媒体示例图留在卡片源单元内，便于一起构包，无需再分一层小目录。
 
 ## 源码与标识
 
@@ -154,7 +155,7 @@ python3 -m http.server 8000
 
 视口选项在自适应宽度与 390px 手机宽度之间切换，小屏仍限制在页面宽度内。切换只改变同一个 iframe 的宽度，不重新渲染卡片，当前选择和正反面保持不变。浏览器检查覆盖桌面及 320、360、375、390、430px 手机宽度。
 
-GitHub Pages 使用仓库 Settings → Pages 中的「Deploy from a branch」，来源为 `main` / 根目录；保留 `.nojekyll`，使以下划线开头的媒体正常发布。推送即触发 Pages 发布；`.github/workflows/check.yml` 只做检查，不构建或提交发布产物，也不阻止 Pages 先行部署，因此应在推送前完成相关验证。
+GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.yml` 的两个 Anki 版本都通过后，发布入口 HTML、`web/`、`cards/`、`downloads/` 与 `docs/`；保留 `.nojekyll`。发布目录不包含 `build/`、测试、构包脚本和开发依赖。失败保留上次成功页面；撤销问题提交并重新运行检查和部署即可恢复。安装包仍由生成命令维护，部署不会自动重建二进制或提交文件。
 
 发布模板或示例改动时，一起提交源码、重新生成的 `downloads/anki-template.apkg` 和 `web/preview-cards.json`，有外观变化再附带截图。推送后分别确认 Template Check 和 Pages 部署成功，并打开在线预览、制卡工具及下载链接检查；当前发布不依赖 GitHub Release 或额外前端打包步骤。
 
@@ -194,6 +195,8 @@ Anki 文本导入器拒绝空的模型首字段，即使调换列映射也一样
 
 客户端复核应确认安装与更新选项、原生遮挡编辑器、媒体同步、实际复习、导图翻面定位（客户端可能再次自动滚动）、两面 WebView 状态共享、滚动手势不触发按钮及夜间类。制卡页面还需人工检查触屏画框、富文本粘贴 / 缩进和输入法。大工作空间、浏览器存储配额与异常图片未穷尽；浏览器性能测量不能代表手机帧率。
 
-## 网页共同视觉
+## 网页布局
 
-`web/design.css` 保存 ZZP 公共视觉变量的本地副本，来源为入口仓库的 `design.css`；`index.html`、`tools.html`、`preview.html` 共享它。网页样式与 `cards/style.css` 的 Anki 客户端样式分别维护，修改网页身份和布局无需重建笔记类型或安装包。网页图标及社交图位于 `web/`，共同约定见入口仓库的设计规范。
+`web/site.css` 只共享本项目的字体、基础颜色、返回入口和焦点样式；首页与示例预览分别使用 `home.css`、`preview.css`，预览行为在 `preview.js`。制卡工具保持笔记列表、编辑和预览三种职责，宽屏并排查看编辑与预览，窄屏按阅读顺序排列。原生 dialog 处理模态交互，关闭时恢复触发控件的焦点。
+
+网页外观与 `cards/style.css` 的 Anki 客户端样式分别维护，修改网页布局无需重建笔记类型或安装包，也不需要同步其他项目的主题。

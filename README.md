@@ -38,4 +38,4 @@
 
 ## 项目体系
 
-属于 [ZZP 工具与资源](https://zzp.moe/)。共同的[设计与仓库规范](https://github.com/zzpice/zzp-home/blob/main/docs/design.md)由入口仓库维护；使用步骤、生成产物和验证方式仍以本仓库为准。
+属于 [ZZP 工具与资源](https://zzp.moe/)。使用、验证与维护方式以本仓库为准。

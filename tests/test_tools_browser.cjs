@@ -42,6 +42,7 @@ async function run(engine,name,base,data) {
     await page.click('#export-open');const draft=JSON.parse(await downloaded(page,'#export-json'));
     assert.equal(draft.notes[0].fields.答案,'<b>强化记忆</b>');assert.match(draft.notes[0].guid,/^[a-f0-9]{20}$/);
     await page.getByRole('button',{name:'关闭导出'}).click();
+    await page.waitForFunction(()=>document.activeElement?.id==='export-open');
     await page.click('#duplicate');await saved(page);assert.equal(await page.locator('#count').innerText(),'2 / 2 条');
     await page.reload();await page.locator('#app').waitFor();assert.equal(await page.locator('#count').innerText(),'2 / 2 条');
     await page.click('#select-all');await page.fill('#batch-tags','测试::批量 固定顺序');await page.click('#apply-tags');
@@ -82,10 +83,15 @@ async function run(engine,name,base,data) {
     await page.selectOption('#type-filter','');await page.selectOption('#new-type','mindmap');await page.click('#new-note');
     await htmlField(page,'内容','<ul><li>章节<ul><li>{{c1::答案}} 与 {{c2::第二点}}<ul><li>上下文</li></ul></li></ul></li></ul>');
     await saved(page);assert.equal(await page.locator('#validation').getAttribute('data-error'),'false');
-    for(const scheme of ['light','dark'])for(const width of [320,390,430,1280]) {
+    for(const scheme of ['light','dark'])for(const width of [320,390,430,1280,1440]) {
       await page.emulateMedia({colorScheme:scheme});await page.setViewportSize({width,height:900});
       assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,scheme+' '+width+' overflow');
       assert.equal(await page.locator('#fields textarea:visible').count(),1);
+      if(width===1440) {
+        const fields=await page.locator('.editing-fields').boundingBox();
+        const preview=await page.locator('#preview-panel').boundingBox();
+        assert.ok(preview.x>=fields.x+fields.width,'wide layout places preview beside editing fields');
+      }
     }
     await page.setViewportSize({width:1280,height:900});await page.click('#ai-open');await page.selectOption('#ai-type','mindmap');await page.fill('#ai-content','整理知识与回忆练习');await page.click('#build-prompt');
     assert.match(await page.locator('#ai-prompt').inputValue(),/"内容"/);assert.match(await page.locator('#ai-prompt').inputValue(),/\{\{c1::答案/);await page.click('#return-import');await page.getByRole('button',{name:'关闭导入'}).click();

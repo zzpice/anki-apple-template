@@ -249,7 +249,17 @@ $('load-samples').onclick=async()=>{
 $('flip').onclick=()=>{clearTimeout(previewTimer);back=!back;renderPreview(!back);};$('viewport').onchange=()=>{$('preview').dataset.viewport=$('viewport').value;};
 $('theme').onchange=()=>applyPreviewTheme($('preview'),$('theme').value);$('preview').onload=()=>applyPreviewTheme($('preview'),$('theme').value);
 function resetImport() {importRevision++;incoming=null;importSource=null;$('apply-import').disabled=true;$('import-status').textContent='';}
-$('import-open').onclick=()=>{resetImport();$('import-dialog').showModal();};
+const dialogOpeners = new WeakMap();
+function openDialog(id, opener = document.activeElement) {
+  const dialog = $(id);
+  dialogOpeners.set(dialog, opener);
+  dialog.showModal();
+}
+document.querySelectorAll('dialog').forEach(dialog => dialog.addEventListener('close', () => {
+  const opener = dialogOpeners.get(dialog);
+  if (opener?.isConnected && !document.querySelector('dialog[open]')) opener.focus({preventScroll:true});
+}));
+$('import-open').onclick=()=>{resetImport();openDialog('import-dialog',$('import-open'));};
 $('import-text').oninput=$('import-type').onchange=$('delimiter').onchange=resetImport;
 $('import-file').onchange=async event=>{try{const file=event.target.files[0];if(!file)return;if(file.size>MAX_BYTES)throw new Error('文件超过 40 MiB');$('import-text').value=await file.text();if(file.name.endsWith('.csv'))$('delimiter').value='comma';resetImport();}catch(error){$('import-status').textContent=error.message;}event.target.value='';};
 $('check-import').onclick=async()=>{
@@ -270,9 +280,9 @@ $('check-import').onclick=async()=>{
 $('apply-import').onclick=()=>{if(!incoming||importSource!==$('import-text').value)return;try{stashUndo();data=mergeWorkspace(data,incoming);$('deck').value=data.deck;chosen.clear();changed(true);openNote(incoming.notes[0].guid);$('import-dialog').close();resetImport();notice('已合并，可在笔记列表逐条核对。');}catch(error){$('import-status').textContent=error.message;}};
 $('download-header').onclick=()=>{const spec=resources.specs.find(s=>s.key===$('import-type').value),sep=$('delimiter').value==='comma'?',':'\t';download(spec.name+(sep===','?'.csv':'.tsv'),[...spec.fields,'标签'].join(sep)+'\n','text/plain;charset=utf-8');};
 function exportProblems() {let global;try{normalizeWorkspace(data,resources.specs);}catch(error){global=error.message;}return {global,invalid:data.notes.filter(n=>errorsFor(n).length),valid:data.notes.filter(n=>!errorsFor(n).length)};}
-$('export-open').onclick=()=>{const {global,invalid,valid}=exportProblems();$('export-status').textContent=global?'工作空间需要修正：'+global:'共 '+data.notes.length+' 条，其中 '+valid.length+' 条可导入，'+invalid.length+' 条待修正。';$('valid-only').checked=false;$('export-dialog').showModal();};
+$('export-open').onclick=()=>{const {global,invalid,valid}=exportProblems();$('export-status').textContent=global?'工作空间需要修正：'+global:'共 '+data.notes.length+' 条，其中 '+valid.length+' 条可导入，'+invalid.length+' 条待修正。';$('valid-only').checked=false;openDialog('export-dialog',$('export-open'));};
 const jsonName=()=>data.deck.replace(/[\\/:*?"<>|]/g,'-').trim() || '我的制卡';
-$('reset-open').onclick=()=>{$('reset-status').textContent='当前有 '+data.notes.length+' 条笔记、'+data.media.length+' 张本地图片。';$('reset-dialog').showModal();};
+$('reset-open').onclick=()=>{$('reset-status').textContent='当前有 '+data.notes.length+' 条笔记、'+data.media.length+' 张本地图片。';openDialog('reset-dialog',$('reset-open'));};
 $('reset-backup').onclick=()=>download(jsonName()+'.json',JSON.stringify(data,null,2)+'\n','application/json');
 $('reset-workspace').onclick=()=>{stashUndo();data=workspace();current=null;chosen.clear();modes.clear();$('deck').value=data.deck;$('search').value='';$('type-filter').value='';$('error-filter').checked=false;changed(true);openNote();$('reset-dialog').close();notice('已开始新的工作空间，可撤销一次。');};
 $('export-json').onclick=()=>{download(jsonName()+'.json',JSON.stringify(data,null,2)+'\n','application/json');notice('JSON 已导出，包含全部草稿和图片。');};
@@ -287,8 +297,8 @@ $('export-zip').onclick=async()=>{
     download(jsonName()+'.zip',zipFiles(files),'application/zip');notice('已导出 '+valid.length+' 条笔记；JSON 备份保留全部草稿。');
   }catch(error){$('export-status').textContent='无法导出：'+error.message;}
 };
-$('ai-open').onclick=()=>$('ai-dialog').showModal();$('build-prompt').onclick=()=>{const spec=resources.specs.find(s=>s.key===$('ai-type').value),count=Number($('ai-count').value);if(!Number.isInteger(count)||count<1||count>100){$('ai-status').textContent='预计笔记数为 1～100。';return;}$('ai-prompt').value=promptFor(spec,$('ai-content').value,count);$('ai-status').textContent='提示词已生成。复制到外部 AI，回填后逐条核对。';};
-$('copy-prompt').onclick=()=>copyText($('ai-prompt').value);$('return-import').onclick=()=>{$('ai-dialog').close();resetImport();$('import-dialog').showModal();};
+$('ai-open').onclick=()=>openDialog('ai-dialog',$('ai-open'));$('build-prompt').onclick=()=>{const spec=resources.specs.find(s=>s.key===$('ai-type').value),count=Number($('ai-count').value);if(!Number.isInteger(count)||count<1||count>100){$('ai-status').textContent='预计笔记数为 1～100。';return;}$('ai-prompt').value=promptFor(spec,$('ai-content').value,count);$('ai-status').textContent='提示词已生成。复制到外部 AI，回填后逐条核对。';};
+$('copy-prompt').onclick=()=>copyText($('ai-prompt').value);$('return-import').onclick=()=>{$('ai-dialog').close();resetImport();openDialog('import-dialog',$('import-open'));};
 const cardsURL = new URL('../../cards/',import.meta.url);
 async function loadText(name) {const response=await fetch(new URL(name,cardsURL));if(!response.ok)throw new Error(name+'：'+response.status);return response.text();}
 async function start() {
