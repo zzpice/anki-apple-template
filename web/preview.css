@@ -5,7 +5,7 @@ body {
   margin: 0;
   background: var(--site-bg);
   color: var(--site-text);
-  font: 13px/1.7 var(--site-font);
+  font: 0.875rem/1.7 var(--site-font);
   -webkit-font-smoothing: antialiased;
 }
 .preview-shell {
@@ -25,7 +25,7 @@ header {
   padding-bottom: 18px;
 }
 h1 {
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -33,7 +33,7 @@ h1 {
   margin: 0;
 }
 h1 > span {
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--site-muted);
   border-left: 1px solid var(--site-line);
   padding-left: 14px;
@@ -48,7 +48,7 @@ h1 > span {
 nav {
   display: flex;
   gap: 22px;
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 a {
   color: inherit;
@@ -71,7 +71,7 @@ a:hover {
 .intro {
   color: var(--site-muted);
   margin: 24px 0 18px;
-  font-size: 13px;
+  font-size: 1rem;
 }
 .controls {
   display: flex;
@@ -84,16 +84,16 @@ label {
   flex-direction: column;
   align-items: start;
   gap: 5px;
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--site-muted);
 }
 select,
 button {
   font: inherit;
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--site-text);
   background: var(--site-surface);
-  border: 1px solid var(--site-line);
+  border: 1px solid var(--site-line-strong);
   border-radius: 5px;
   padding: 7px 10px;
   min-height: 36px;
@@ -117,13 +117,15 @@ button {
 }
 button:disabled {
   cursor: default;
-  opacity: 0.4;
+  opacity: 1;
+  background: var(--site-disabled-bg);
+  color: var(--site-disabled-text);
 }
 #sample {
   min-width: 190px;
 }
 #flip {
-  background: var(--site-accent);
+  background: var(--site-accent-solid);
   color: var(--site-on-accent);
   padding-inline: 20px;
   margin-left: auto;
@@ -133,7 +135,7 @@ button:disabled {
   max-width: 1144px;
   background: var(--site-soft);
   border: 1px solid var(--site-line);
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 24px;
   min-width: 0;
 }
@@ -153,7 +155,7 @@ body[data-viewport="phone"] #preview {
   width: 390px;
 }
 #status {
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--site-muted);
   margin: 0;
 }
@@ -161,7 +163,7 @@ body[data-viewport="phone"] #preview {
   margin-top: 12px;
 }
 .ecosystem-footer {
-  font-size: 10px;
+  font-size: 0.75rem;
   padding: 12px 0;
 }
 .ecosystem-footer a {
@@ -180,7 +182,7 @@ body[data-viewport="phone"] #preview {
   justify-content: center;
   gap: 16px;
   color: var(--site-muted);
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 .loading-card {
   width: 220px;
@@ -208,6 +210,11 @@ body[data-viewport="phone"] #preview {
     opacity: 0.4;
   }
 }
+#flip:disabled {
+  background: var(--site-disabled-bg);
+  color: var(--site-disabled-text);
+  border-color: var(--site-line);
+}
 @media (max-width: 760px) {
   .preview-shell {
     padding: 14px 18px;
@@ -218,20 +225,20 @@ body[data-viewport="phone"] #preview {
     padding-bottom: 14px;
   }
   h1 {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   h1 > span {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   nav {
     gap: 16px;
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   nav a {
     min-height: 32px;
   }
   .intro {
-    font-size: 12px;
+    font-size: 1rem;
     margin: 18px 0;
   }
   .controls {
@@ -240,11 +247,11 @@ body[data-viewport="phone"] #preview {
     gap: 14px 12px;
   }
   .controls label {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .controls select {
     width: 100%;
-    font-size: 13px;
+    font-size: 0.8125rem;
     min-height: 40px;
   }
   #sample {
@@ -254,14 +261,17 @@ body[data-viewport="phone"] #preview {
     margin: 0;
     min-height: 40px;
     width: 100%;
-    font-size: 12px;
+    font-size: 0.875rem;
     grid-column: 1/-1;
+    background: var(--site-accent-solid);
+    color: var(--site-on-accent);
   }
   .preview-stage {
     margin: 6px 0 0;
     padding: 14px;
     border-inline: 0;
-    border-radius: 0;
+    border-radius: 10px;
+    background: var(--site-soft);
   }
   #preview {
     min-height: 480px;
@@ -271,7 +281,7 @@ body[data-viewport="phone"] #preview {
     gap: 20px;
   }
   .ecosystem-footer a {
-    font-size: 10px;
+    font-size: 0.75rem;
     min-height: 40px;
   }
 }
@@ -289,9 +299,11 @@ body[data-viewport="phone"] #preview {
     gap: 12px 10px;
   }
   .controls select {
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   .preview-stage {
     padding: 10px;
+    background: var(--site-soft);
+    border-radius: 10px;
   }
 }

@@ -6,7 +6,7 @@
   --muted: var(--site-muted);
   --line: var(--site-line);
   --accent: var(--site-accent);
-  --error: #b14d47;
+  --error: var(--site-error);
 }
 * {
   box-sizing: border-box;
@@ -15,7 +15,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font: 13px/1.65 var(--site-font);
+  font: 0.875rem/1.65 var(--site-font);
   -webkit-font-smoothing: antialiased;
 }
 body.authoring-app {
@@ -43,7 +43,7 @@ button,
 select,
 input,
 textarea {
-  border: 1px solid var(--line);
+  border: 1px solid var(--site-line-strong);
   border-radius: 5px;
   background: var(--surface);
   padding: 6px 10px;
@@ -64,23 +64,28 @@ select {
 button {
   cursor: pointer;
   min-height: 32px;
-  font-size: 12px;
+  font-size: 0.875rem;
   transition: background 0.15s;
 }
-button:hover {
+button:hover:not(:disabled) {
   background: var(--site-soft);
 }
 button:disabled {
-  opacity: 0.4;
+  opacity: 1;
   cursor: default;
+  background: var(--site-disabled-bg);
+  color: var(--site-disabled-text);
+  border-color: var(--line);
+  box-shadow: none;
 }
-button.primary {
-  background: var(--accent);
-  border-color: var(--accent);
+button.primary:not(:disabled) {
+  background: var(--site-accent-solid);
+  border-color: var(--site-accent-solid);
   color: var(--site-on-accent);
 }
-button.primary:hover {
-  filter: brightness(1.08);
+button.primary:hover:not(:disabled) {
+  filter: none;
+  background: var(--site-accent-hover);
 }
 a {
   color: inherit;
@@ -93,16 +98,16 @@ p {
   margin-top: 0;
 }
 h1 {
-  font-size: 20px;
+  font-size: 1.25rem;
   font-weight: 600;
   letter-spacing: -0.025em;
 }
 h2 {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
 }
 h3 {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 550;
   margin-bottom: 6px;
 }
@@ -125,7 +130,7 @@ input[type="checkbox"] {
 textarea {
   resize: vertical;
   font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.8;
 }
 [hidden] {
@@ -137,7 +142,7 @@ textarea {
 }
 .muted {
   color: var(--muted);
-  font-size: 11px;
+  font-size: 0.75rem;
   line-height: 1.9;
 }
 .sr-only {
@@ -168,7 +173,7 @@ textarea {
   white-space: nowrap;
 }
 .brand strong {
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 650;
 }
 .brand > span {
@@ -176,12 +181,12 @@ textarea {
   padding-left: 13px;
   margin-left: 4px;
   color: var(--muted);
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .page-header nav {
   display: flex;
   gap: 22px;
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .page-header nav a {
   display: inline-flex;
@@ -222,12 +227,12 @@ main:focus {
   max-width: 450px;
 }
 .deck-field > span {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
   white-space: nowrap;
 }
 .deck-field > input {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 550;
   min-height: 34px;
   background: transparent;
@@ -255,7 +260,7 @@ main:focus {
 .workspace-actions > button {
   padding-inline: 16px;
   min-height: 32px;
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .workspace-menu {
   position: relative;
@@ -266,7 +271,7 @@ main:focus {
 }
 .workspace-menu > summary {
   list-style: none;
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--muted);
   padding: 5px 8px;
   min-height: 32px;
@@ -283,7 +288,9 @@ main:focus {
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: 7px;
-  box-shadow: 0 12px 35px #0002;
+  box-shadow:
+    0 4px 10px #11182712,
+    0 16px 40px #1118271a;
 }
 .workspace-menu > div button {
   display: block;
@@ -292,10 +299,10 @@ main:focus {
   text-align: left;
   width: 100%;
   padding: 8px 12px;
-  font-size: 12px;
+  font-size: 0.875rem;
   min-height: 38px;
 }
-.workspace-menu > div button:hover {
+.workspace-menu > div button:hover:not(:disabled) {
   background: var(--site-soft);
 }
 summary::-webkit-details-marker {
@@ -328,12 +335,12 @@ summary::-webkit-details-marker {
   gap: 12px;
 }
 .panel-label h2 {
-  font-size: 12px;
+  font-size: 0.875rem;
   margin: 0;
   font-weight: 600;
 }
 .panel-label span {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 .new-note {
@@ -344,15 +351,15 @@ summary::-webkit-details-marker {
 .new-note select {
   flex: 1;
   min-height: 34px;
-  font-size: 11px;
+  font-size: 0.875rem;
 }
 .new-note button {
-  font-size: 11px;
+  font-size: 0.875rem;
   min-width: 55px;
 }
 .note-panel #search {
   width: 100%;
-  font-size: 11px;
+  font-size: 0.875rem;
   min-height: 34px;
   margin-bottom: 10px;
   background: var(--surface);
@@ -366,12 +373,12 @@ summary::-webkit-details-marker {
   margin-bottom: 12px;
 }
 .filters select {
-  font-size: 10px;
+  font-size: 0.75rem;
   max-width: 126px;
   min-height: 30px;
 }
 .filters > label {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
   display: flex;
   align-items: center;
@@ -379,14 +386,14 @@ summary::-webkit-details-marker {
   white-space: nowrap;
 }
 .list-meta {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
   margin-bottom: 8px;
 }
 .list-meta button {
   border: 0;
   background: transparent;
-  font-size: 10px;
+  font-size: 0.75rem;
   padding: 0 2px;
   min-height: 28px;
 }
@@ -401,7 +408,7 @@ summary::-webkit-details-marker {
 }
 #list-empty {
   padding: 18px 6px;
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.9;
   margin: 0;
   color: var(--muted);
@@ -416,7 +423,8 @@ summary::-webkit-details-marker {
   margin-bottom: 3px;
 }
 .note-row:has([aria-current="true"]) {
-  background: var(--site-soft);
+  background: var(--site-selected);
+  box-shadow: inset 3px 0 var(--accent);
 }
 .note-row > input {
   flex-shrink: 0;
@@ -450,13 +458,13 @@ summary::-webkit-details-marker {
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.7;
 }
 .note-kind {
   display: block;
   color: var(--muted);
-  font-size: 9px;
+  font-size: 0.75rem;
   margin-top: 3px;
   line-height: 1.8;
 }
@@ -465,7 +473,7 @@ summary::-webkit-details-marker {
 }
 #batch {
   padding: 12px 3px 0;
-  font-size: 11px;
+  font-size: 0.75rem;
   border-top: 1px solid var(--line);
 }
 #batch p {
@@ -475,14 +483,14 @@ summary::-webkit-details-marker {
   margin: 5px 0 8px;
 }
 #batch button {
-  font-size: 10px;
+  font-size: 0.75rem;
 }
 #undo {
-  font-size: 10px;
+  font-size: 0.75rem;
   margin-top: 12px;
 }
 #list-samples {
-  font-size: 11px;
+  font-size: 0.75rem;
   margin: 0 6px 16px;
 }
 .editor-panel {
@@ -508,26 +516,26 @@ summary::-webkit-details-marker {
   min-height: 70px;
 }
 .editor-heading .eyebrow {
-  font-size: 9px;
+  font-size: 0.75rem;
   letter-spacing: 0.05em;
   color: var(--muted);
   margin: 0 0 2px;
 }
 .editor-heading h1 {
   margin: 0;
-  font-size: 16px;
+  font-size: 1rem;
 }
 .editor-heading .actions {
   gap: 5px;
 }
 .editor-heading button {
-  font-size: 10px;
+  font-size: 0.75rem;
   min-height: 30px;
   background: transparent;
 }
 .editor-heading #previous,
 .editor-heading #next {
-  font-size: 18px;
+  font-size: 1.125rem;
   line-height: 1;
   width: 30px;
   min-height: 30px;
@@ -548,16 +556,16 @@ summary::-webkit-details-marker {
   scrollbar-width: thin;
 }
 #type-help {
-  font-size: 11px;
+  font-size: 0.75rem;
   line-height: 1.85;
   margin-bottom: 14px;
 }
 #validation {
-  font-size: 10px;
+  font-size: 0.75rem;
   line-height: 1.8;
-  color: var(--accent);
+  color: var(--site-success);
   padding: 8px 10px;
-  background: var(--site-soft);
+  background: var(--site-success-bg);
   border-radius: 4px;
   margin-bottom: 14px;
   overflow-wrap: anywhere;
@@ -586,23 +594,23 @@ summary::-webkit-details-marker {
   z-index: 2;
 }
 .toolbar button {
-  font-size: 10px;
+  font-size: 0.75rem;
   min-height: 30px;
   padding: 5px 8px;
   background: transparent;
   border-color: transparent;
 }
-.toolbar button:hover {
+.toolbar button:hover:not(:disabled) {
   background: var(--site-soft);
 }
 .toolbar button[data-command="bold"],
 .toolbar button[data-command="italic"] {
   width: 30px;
   padding: 0;
-  font-size: 14px;
+  font-size: 0.875rem;
 }
 .toolbar label {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
   display: flex;
   align-items: center;
@@ -610,13 +618,13 @@ summary::-webkit-details-marker {
   flex-wrap: wrap;
 }
 .toolbar select {
-  font-size: 10px;
+  font-size: 0.75rem;
   min-height: 30px;
   padding: 4px 28px 4px 7px;
 }
 .toolbar input[type="number"] {
   width: 55px;
-  font-size: 11px;
+  font-size: 0.75rem;
   min-height: 30px;
 }
 #cloze-hint {
@@ -633,27 +641,27 @@ summary::-webkit-details-marker {
   margin-bottom: 8px;
 }
 .field-heading label {
-  font-size: 12px;
+  font-size: 0.875rem;
   font-weight: 550;
 }
 .field-heading button {
   border: 0;
   background: transparent;
-  font-size: 9px;
+  font-size: 0.75rem;
   padding: 3px 6px;
   min-height: 24px;
   color: var(--muted);
 }
-.field-heading button:hover {
+.field-heading button:hover:not(:disabled) {
   background: var(--site-soft);
   color: var(--accent);
 }
 .field-edit {
   min-height: 100px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--site-line-strong);
   border-radius: 5px;
   padding: 14px;
-  font-size: 14px;
+  font-size: 1rem;
   line-height: 1.85;
   overflow-wrap: anywhere;
   background: var(--surface);
@@ -661,7 +669,7 @@ summary::-webkit-details-marker {
 }
 .field-edit:empty::before {
   content: attr(data-placeholder);
-  color: var(--site-line-strong);
+  color: var(--muted);
   pointer-events: none;
 }
 .field:nth-child(n + 3) .field-edit {
@@ -669,7 +677,7 @@ summary::-webkit-details-marker {
 }
 .field-edit:focus {
   border-color: var(--accent);
-  outline: 2px solid color-mix(in srgb, var(--accent) 15%, transparent);
+  outline: 2px solid var(--accent);
   outline-offset: 1px;
 }
 .field-edit img {
@@ -698,22 +706,22 @@ summary::-webkit-details-marker {
 .field textarea {
   width: 100%;
   min-height: 100px;
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.9;
 }
 .field .muted {
-  font-size: 10px;
+  font-size: 0.75rem;
   margin: 6px 0;
 }
 .tags-label {
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--muted);
   margin-top: 22px;
 }
 .tags-label input {
   margin-top: 6px;
   min-height: 34px;
-  font-size: 12px;
+  font-size: 0.875rem;
 }
 details {
   border-top: 1px solid var(--line);
@@ -723,7 +731,7 @@ details {
 summary {
   cursor: pointer;
   min-height: 32px;
-  font-size: 11px;
+  font-size: 0.75rem;
   align-content: center;
   color: var(--muted);
 }
@@ -732,7 +740,7 @@ summary {
   align-items: center;
   gap: 10px;
   margin: 9px 0;
-  font-size: 10px;
+  font-size: 0.75rem;
   overflow-wrap: anywhere;
 }
 .media-item img {
@@ -745,7 +753,7 @@ summary {
   min-width: 0;
 }
 .media-item button {
-  font-size: 10px;
+  font-size: 0.75rem;
   min-height: 28px;
   padding: 4px 7px;
 }
@@ -771,13 +779,13 @@ summary {
   padding: 0 18px;
   background: var(--surface);
   border-bottom: 1px solid var(--line);
-  font-size: 11px;
+  font-size: 0.75rem;
   flex-shrink: 0;
   color: var(--ink);
   list-style: none;
 }
 #preview-panel > summary > span {
-  font-size: 9px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 #preview-panel > .toolbar {
@@ -792,19 +800,19 @@ summary {
   flex-direction: column;
   align-items: start;
   gap: 5px;
-  font-size: 9px;
+  font-size: 0.75rem;
   flex: 1;
 }
 #preview-panel .toolbar select {
   width: 100%;
-  font-size: 10px;
+  font-size: 0.75rem;
   background-color: var(--surface);
-  border-color: var(--line);
+  border-color: var(--site-line-strong);
   min-height: 30px;
 }
 #preview-panel #flip {
-  font-size: 10px;
-  background: var(--accent);
+  font-size: 0.75rem;
+  background: var(--site-accent-solid);
   color: var(--site-on-accent);
   border-color: var(--accent);
   min-height: 30px;
@@ -812,7 +820,7 @@ summary {
 }
 #preview-help {
   padding: 4px 14px 10px;
-  font-size: 10px;
+  font-size: 0.75rem;
   margin: 0;
   flex-shrink: 0;
   color: var(--muted);
@@ -880,7 +888,7 @@ summary {
   padding: 50px 48px;
 }
 #welcome .welcome-glyph {
-  font-size: 24px;
+  font-size: 1.5rem;
   color: var(--accent);
   border: 1px solid var(--line);
   background: var(--paper);
@@ -893,25 +901,25 @@ summary {
   transform: rotate(-5deg);
 }
 #welcome .eyebrow {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--accent);
   letter-spacing: 0.05em;
   margin: 0 0 12px;
 }
 #welcome h1 {
-  font-size: 26px;
+  font-size: 1.625rem;
   line-height: 1.6;
   margin-bottom: 16px;
   letter-spacing: -0.035em;
 }
 #welcome > p {
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.9;
   max-width: 490px;
   color: var(--muted);
 }
 #welcome > p.muted {
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 #welcome .welcome-actions {
   display: flex;
@@ -920,11 +928,11 @@ summary {
   margin: 16px 0 18px;
 }
 #welcome button {
-  font-size: 11px;
+  font-size: 0.75rem;
   min-height: 36px;
 }
 #welcome .welcome-types {
-  font-size: 10px;
+  font-size: 0.75rem;
   color: var(--muted);
 }
 dialog {
@@ -939,7 +947,7 @@ dialog {
   overscroll-behavior: contain;
 }
 dialog::backdrop {
-  background: #1b203a88;
+  background: var(--site-overlay);
   backdrop-filter: blur(3px);
 }
 .dialog-header {
@@ -956,25 +964,25 @@ dialog::backdrop {
 }
 .dialog-header h2 {
   margin: 0;
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 .dialog-header button {
-  font-size: 11px;
+  font-size: 0.75rem;
   min-height: 32px;
 }
 dialog > p {
-  font-size: 12px;
+  font-size: 0.875rem;
   line-height: 1.9;
   color: var(--muted);
 }
 dialog label {
-  font-size: 11px;
+  font-size: 0.75rem;
   margin-bottom: 14px;
 }
 dialog input:not([type="checkbox"]),
 dialog textarea {
   margin-top: 6px;
-  font-size: 13px;
+  font-size: 0.8125rem;
   min-height: 36px;
   background: var(--paper);
 }
@@ -988,7 +996,7 @@ dialog .toolbar label {
   margin: 0;
 }
 dialog input[type="file"] {
-  font-size: 12px;
+  font-size: 0.875rem;
   min-height: 40px;
   padding: 8px;
 }
@@ -996,7 +1004,7 @@ dialog .actions button {
   min-height: 36px;
 }
 dialog a {
-  font-size: 11px;
+  font-size: 0.75rem;
   color: var(--accent);
 }
 .export-option {
@@ -1005,16 +1013,16 @@ dialog a {
   padding-top: 18px;
 }
 .export-option p {
-  font-size: 12px;
+  font-size: 0.875rem;
   color: var(--muted);
   line-height: 1.9;
 }
 .export-option button {
   min-height: 36px;
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .export-option label {
-  font-size: 11px;
+  font-size: 0.75rem;
 }
 .export-option input[type="checkbox"] {
   margin-right: 5px;
@@ -1022,7 +1030,7 @@ dialog a {
 pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  font-size: 11px;
+  font-size: 0.75rem;
   background: var(--paper);
   padding: 14px;
   border-radius: 5px;
@@ -1042,7 +1050,7 @@ pre {
   padding: 10px 16px;
   margin: 0;
   box-shadow: 0 6px 20px #0002;
-  font-size: 12px;
+  font-size: 0.875rem;
 }
 #notice:empty {
   display: none;
@@ -1055,12 +1063,12 @@ pre {
   padding: 0 20px;
   gap: 20px;
   background: var(--paper);
-  font-size: 9px;
+  font-size: 0.75rem;
   overflow: visible;
 }
 .ecosystem-footer #save-status {
   margin: 0 auto 0 0;
-  font-size: 9px;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 .ecosystem-footer #save-status[data-error="true"] {
@@ -1072,7 +1080,7 @@ pre {
   max-width: calc(100vw - 40px);
 }
 .ecosystem-footer a {
-  font-size: 9px;
+  font-size: 0.75rem;
   white-space: nowrap;
   text-decoration: none;
 }
@@ -1081,7 +1089,7 @@ pre {
   max-width: 700px;
   margin: auto;
   width: 100%;
-  font-size: 13px;
+  font-size: 0.8125rem;
   color: var(--muted);
   text-align: center;
 }
@@ -1109,9 +1117,14 @@ pre {
     opacity: 0.3;
   }
 }
+#preview-panel #flip:disabled {
+  background: var(--site-disabled-bg);
+  color: var(--site-disabled-text);
+  border-color: var(--site-line);
+}
 @media (prefers-color-scheme: dark) {
   :root {
-    --error: #e59e99;
+    --error: var(--site-error);
   }
 }
 @media (max-width: 1270px) {
@@ -1126,13 +1139,14 @@ pre {
   }
   .field-edit {
     padding: 12px;
-    font-size: 13px;
+    font-size: 1rem;
+    border: 1px solid var(--site-line-strong);
   }
   .editor-heading {
     padding: 13px 18px;
   }
   .toolbar button {
-    font-size: 10px;
+    font-size: 0.75rem;
     padding: 5px 6px;
   }
   .page-header nav {
@@ -1176,11 +1190,11 @@ pre {
     border: 0;
     min-height: 28px;
     min-width: 50px;
-    font-size: 10px;
+    font-size: 0.75rem;
     padding: 4px 10px;
   }
   .tool-view-nav button[aria-pressed="true"] {
-    background: var(--surface);
+    background: var(--site-selected);
     color: var(--accent);
     box-shadow: 0 1px 3px #0001;
   }
@@ -1195,7 +1209,7 @@ pre {
     gap: 4px;
   }
   .editor-heading #duplicate {
-    font-size: 9px;
+    font-size: 0.75rem;
     padding: 4px 7px;
   }
   .editor-heading #previous,
@@ -1204,10 +1218,10 @@ pre {
     min-height: 28px;
   }
   .editor-heading h1 {
-    font-size: 15px;
+    font-size: 0.9375rem;
   }
   .editor-heading .eyebrow {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   #preview-panel > .toolbar {
     max-width: 650px;
@@ -1228,7 +1242,7 @@ pre {
     padding: 40px 36px;
   }
   #welcome h1 {
-    font-size: 23px;
+    font-size: 1.4375rem;
   }
 }
 @media (max-width: 760px) {
@@ -1248,20 +1262,20 @@ pre {
     height: 24px;
   }
   .brand strong {
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
   .brand > span {
-    font-size: 9px;
+    font-size: 0.75rem;
     padding-left: 8px;
     margin-left: 0;
   }
   .page-header nav {
-    font-size: 10px;
+    font-size: 0.75rem;
     gap: 0;
   }
   .page-header nav a {
     min-height: 40px;
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .page-header nav a:not(:first-child) {
     display: none;
@@ -1276,10 +1290,10 @@ pre {
     max-width: none;
   }
   .deck-field > span {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   .deck-field > input {
-    font-size: 13px;
+    font-size: 0.8125rem;
     min-height: 36px;
     padding: 5px 6px;
     max-width: 150px;
@@ -1288,17 +1302,20 @@ pre {
     gap: 6px;
   }
   .workspace-actions > button {
-    font-size: 11px;
+    font-size: 0.75rem;
     padding: 6px 12px;
     min-height: 36px;
   }
   .workspace-menu > summary {
-    font-size: 10px;
+    font-size: 0.75rem;
     padding: 6px 3px;
     min-height: 36px;
   }
   .workspace-menu > div {
     min-width: 180px;
+    box-shadow:
+      0 4px 10px #11182712,
+      0 16px 40px #1118271a;
   }
   .workspace-menu > div button {
     min-height: 44px;
@@ -1322,7 +1339,7 @@ pre {
     z-index: 20;
   }
   .tool-view-nav button {
-    font-size: 12px;
+    font-size: 0.875rem;
     min-height: 44px;
     padding: 6px 10px;
     border-radius: 5px;
@@ -1331,9 +1348,10 @@ pre {
     display: block;
   }
   .tool-view-nav button[aria-pressed="true"] {
-    background: var(--site-soft);
+    background: var(--site-selected);
     box-shadow: none;
     font-weight: 550;
+    color: var(--accent);
   }
   .workspace {
     display: block;
@@ -1353,46 +1371,46 @@ pre {
     height: 100%;
   }
   .panel-label h2 {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   .panel-label span {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .new-note {
     margin-bottom: 16px;
   }
   .new-note select {
     min-height: 42px;
-    font-size: 16px;
+    font-size: 0.875rem;
   }
   .new-note button {
     min-height: 42px;
     padding-inline: 20px;
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   .note-panel #search {
     min-height: 42px;
-    font-size: 16px;
+    font-size: 0.875rem;
     margin-bottom: 12px;
   }
   .filters select {
-    font-size: 13px;
+    font-size: 0.8125rem;
     min-height: 38px;
     max-width: 160px;
   }
   .filters label {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .filters input {
     width: 16px;
     height: 16px;
   }
   .list-meta {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .list-meta button {
     min-height: 36px;
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .note-row {
     padding: 8px 5px;
@@ -1406,10 +1424,10 @@ pre {
     margin-top: 13px;
   }
   .note-summary {
-    font-size: 14px;
+    font-size: 0.875rem;
   }
   .note-kind {
-    font-size: 10px;
+    font-size: 0.75rem;
     margin-top: 4px;
   }
   .note-row button {
@@ -1422,10 +1440,10 @@ pre {
     gap: 8px;
   }
   .editor-heading h1 {
-    font-size: 16px;
+    font-size: 1rem;
   }
   .editor-heading .eyebrow {
-    font-size: 9px;
+    font-size: 0.75rem;
   }
   .editor-heading .actions {
     gap: 5px;
@@ -1437,7 +1455,7 @@ pre {
   }
   .editor-heading #duplicate {
     min-height: 36px;
-    font-size: 10px;
+    font-size: 0.75rem;
     padding: 5px 8px;
   }
   .editing-fields {
@@ -1445,13 +1463,15 @@ pre {
     overscroll-behavior: contain;
   }
   #type-help {
-    font-size: 11px;
+    font-size: 0.75rem;
     margin-bottom: 14px;
   }
   #validation {
-    font-size: 11px;
+    font-size: 0.75rem;
     padding: 10px;
     margin-bottom: 12px;
+    color: var(--site-success);
+    background: var(--site-success-bg);
   }
   .editing-fields > .toolbar[aria-label] {
     top: -16px;
@@ -1461,7 +1481,7 @@ pre {
     gap: 4px;
   }
   .toolbar button {
-    font-size: 11px;
+    font-size: 0.75rem;
     min-height: 36px;
     padding: 5px 7px;
   }
@@ -1472,14 +1492,14 @@ pre {
   }
   .toolbar input,
   .toolbar select {
-    font-size: 16px;
+    font-size: 1rem;
     min-height: 36px;
   }
   .toolbar label {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   .toolbar input[type="number"] {
-    font-size: 16px;
+    font-size: 1rem;
     min-height: 36px;
     width: 54px;
   }
@@ -1490,33 +1510,34 @@ pre {
     margin: 18px 0;
   }
   .field-heading label {
-    font-size: 13px;
+    font-size: 0.875rem;
   }
   .field-heading button {
     min-height: 32px;
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .field-edit {
-    font-size: 16px;
+    font-size: 1rem;
     line-height: 1.9;
     min-height: 114px;
     padding: 13px;
+    border: 1px solid var(--site-line-strong);
   }
   .field:nth-child(n + 3) .field-edit {
     min-height: 82px;
   }
   .field textarea {
-    font-size: 16px;
+    font-size: 1rem;
     min-height: 110px;
   }
   .field .muted {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .tags-label {
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   .tags-label input {
-    font-size: 16px;
+    font-size: 1rem;
     min-height: 42px;
   }
   #preview-panel > .toolbar {
@@ -1528,20 +1549,23 @@ pre {
     min-height: 40px;
   }
   #preview-panel .toolbar select {
-    font-size: 12px;
+    font-size: 0.875rem;
     min-height: 40px;
     padding: 5px 28px 5px 8px;
+    border-color: var(--site-line-strong);
   }
   #preview-panel .toolbar label {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   #preview-panel #flip {
     min-height: 36px;
-    font-size: 10px;
+    font-size: 0.75rem;
+    background: var(--site-accent-solid);
+    color: var(--site-on-accent);
   }
   #preview-help {
     padding: 4px 16px 12px;
-    font-size: 10px;
+    font-size: 0.75rem;
     line-height: 1.85;
   }
   .ecosystem-footer {
@@ -1551,7 +1575,7 @@ pre {
     gap: 8px;
   }
   .ecosystem-footer #save-status {
-    font-size: 9px;
+    font-size: 0.75rem;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
@@ -1578,70 +1602,70 @@ pre {
     top: -18px;
   }
   .dialog-header h2 {
-    font-size: 16px;
+    font-size: 1rem;
   }
   .dialog-header button {
     min-height: 40px;
   }
   dialog > p {
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   dialog label {
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   dialog input:not([type="checkbox"]),
   dialog textarea {
-    font-size: 16px;
+    font-size: 1rem;
   }
   dialog button {
     min-height: 40px;
   }
   dialog .toolbar label {
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   dialog .toolbar select {
-    font-size: 14px;
+    font-size: 0.875rem;
     min-height: 40px;
   }
   dialog .actions button {
-    font-size: 12px;
+    font-size: 0.875rem;
     min-height: 40px;
   }
   .export-option p {
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   .export-option button {
-    font-size: 12px;
+    font-size: 0.875rem;
     min-height: 40px;
   }
   #notice {
     bottom: 95px;
-    font-size: 12px;
+    font-size: 0.875rem;
     max-width: calc(100% - 32px);
     width: max-content;
   }
   #batch {
-    font-size: 12px;
+    font-size: 0.875rem;
     padding-top: 14px;
   }
   #batch input {
-    font-size: 16px;
+    font-size: 1rem;
     min-height: 40px;
   }
   #batch button {
     min-height: 38px;
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   #undo {
     min-height: 40px;
-    font-size: 11px;
+    font-size: 0.75rem;
   }
   #list-samples {
     min-height: 40px;
-    font-size: 12px;
+    font-size: 0.875rem;
   }
   #list-empty {
-    font-size: 13px;
+    font-size: 0.8125rem;
     max-width: 300px;
     margin: auto;
     padding: 30px 12px;
@@ -1650,7 +1674,7 @@ pre {
     padding: 50px 24px;
   }
   .media-item {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .media-item button {
     min-height: 40px;
@@ -1672,7 +1696,7 @@ pre {
   }
   .deck-field > input {
     max-width: 125px;
-    font-size: 13px;
+    font-size: 0.8125rem;
   }
   .workspace-actions {
     gap: 4px;
@@ -1681,7 +1705,7 @@ pre {
     padding: 6px 10px;
   }
   .workspace-menu > summary {
-    font-size: 10px;
+    font-size: 0.75rem;
   }
   .editor-heading {
     padding: 10px 12px;
@@ -1697,8 +1721,9 @@ pre {
     gap: 5px;
   }
   #preview-panel .toolbar select {
-    font-size: 11px;
+    font-size: 0.75rem;
     padding: 5px 28px 5px 4px;
+    border-color: var(--site-line-strong);
   }
   .tool-view-nav {
     padding-inline: 10px;
@@ -1707,7 +1732,7 @@ pre {
     padding: 3px 5px;
   }
   .toolbar button {
-    font-size: 10px;
+    font-size: 0.75rem;
     padding-inline: 6px;
   }
 }
