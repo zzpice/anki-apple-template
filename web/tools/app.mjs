@@ -2,7 +2,7 @@
 import {workspace, newNote, freshGuid, escapeHTML, textOnly, tagsFrom, normalizeWorkspace, normalizeNotes, importText, mergeWorkspace, validateNote, clozeNumbers, rectangles, rectangleHTML, ankiTSV, mediaBytes, checkMedia, verifyMediaNames, MIME, MAX_BYTES, MAX_NOTES, promptFor} from './data.mjs';
 import {openWorkspaceStore} from './storage.mjs';
 import {zipFiles} from './zip.mjs';
-import {safeHTML, makePreview, applyPreviewTheme} from './preview.mjs';
+import {safeHTML, makePreview, applyPreviewTheme} from './preview.mjs?v=20261008theme';
 const $ = id => document.getElementById(id);
 let resources, data = workspace(), current, store, revision=0, dirty=0, saved=0, timer, saving=false, failed=false, undo;
 let chosen = new Set(), modes = new Map(), activeField, selection, incoming, importSource, importRevision=0, back=false, previewTimer, imagePurpose='field', selectedRect=-1;
