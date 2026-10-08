@@ -2,33 +2,21 @@
       var frame = document.getElementById('preview');
       var sample = document.getElementById('sample');
       var card = document.getElementById('card');
-      var theme = document.getElementById('theme');
       var flip = document.getElementById('flip');
       var status = document.getElementById('status');
       var examples, css, back = false;
 
       function applyTheme() {
-        document.body.dataset.theme = theme.value;
-        var doc = frame.contentDocument;
-        if (!doc || !doc.styleSheets.length) return;
-        doc.documentElement.className = theme.value === 'dark' ? 'nightMode' : '';
-        Array.from(doc.styleSheets[0].cssRules).forEach(function (rule) {
-          if (rule.conditionText && rule.conditionText.indexOf('prefers-color-scheme') !== -1) {
-            rule.reviewThemeMedia = true;
-          }
-          if (rule.reviewThemeMedia) {
-            rule.media.mediaText = theme.value === 'system' ? '(prefers-color-scheme:dark)' : 'not all';
-          }
-        });
+        window.ankiTheme.applyToFrame(frame);
       }
       function render(resume) {
         var example = examples[Number(sample.value)];
         var content = example.cards[Number(card.value) || 0][back ? 'back' : 'front'];
         // 卡片 HTML 由 Anki 生成，与安装包共用样式和媒体。
         var base = new URL('./cards/media/', location.href).href;
-        frame.srcdoc = '<!doctype html><html lang="zh-CN"><head>' +
+        frame.srcdoc = '<!doctype html><html lang="zh-CN" class="' + (document.documentElement.dataset.theme === 'dark' ? 'nightMode' : '') + '"><head>' +
           '<meta name="viewport" content="width=device-width,initial-scale=1">' +
-          '<base href="' + base + '"><style>' + css + (example.css || '') + '</style></head>' +
+          '<base href="' + base + '"><style>' + window.ankiTheme.cardCSS(css + (example.css || '')) + '</style></head>' +
           '<body class="card"' + (resume ? ' data-review-resume' : '') + '>' + content + '</body></html>';
         flip.textContent = back ? '返回正面' : '显示答案';
         status.textContent = example.type === 'occlusion' ?
@@ -51,7 +39,7 @@
       }
       frame.onload = applyTheme;
       document.getElementById('viewport').onchange = function () { document.body.dataset.viewport = this.value; };
-      theme.onchange = applyTheme;
+      window.addEventListener('themechange', applyTheme);
       sample.onchange = chooseSample;
       card.onchange = function () { back = false; render(); };
       flip.onclick = function () { back = !back; render(!back); };

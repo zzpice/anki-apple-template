@@ -57,14 +57,8 @@ export function makePreview(resources, note, media, back = false, resume = false
   const script = new URL('../../cards/media/_review.js',import.meta.url).href;
   const base = new URL('../../cards/media/',import.meta.url).href;
   const policy = "default-src 'none'; script-src " + script + "; style-src 'unsafe-inline'; img-src data: blob: " + base + "; form-action 'none'; base-uri " + base;
-  return '<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + policy + '"><base href="' + base + '"><style>' + resources.css + '</style></head><body class="card"' + (resume ? ' data-review-resume' : '') + '>' + content + '</body></html>';
+  return '<!doctype html><html lang="zh-CN" class="' + (document.documentElement.dataset.theme === 'dark' ? 'nightMode' : '') + '"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="' + policy + '"><base href="' + base + '"><style>' + window.ankiTheme.cardCSS(resources.css) + '</style></head><body class="card"' + (resume ? ' data-review-resume' : '') + '>' + content + '</body></html>';
 }
-export function applyPreviewTheme(frame, theme) {
-  const doc = frame.contentDocument;
-  if (!doc?.styleSheets.length) return;
-  doc.documentElement.className = theme === 'dark' ? 'nightMode' : '';
-  for (const rule of Array.from(doc.styleSheets[0].cssRules)) {
-    if (rule.conditionText?.includes('prefers-color-scheme')) rule.authoringTheme = true;
-    if (rule.authoringTheme) rule.media.mediaText = theme === 'system' ? '(prefers-color-scheme:dark)' : 'not all';
-  }
+export function applyPreviewTheme(frame) {
+  window.ankiTheme.applyToFrame(frame);
 }

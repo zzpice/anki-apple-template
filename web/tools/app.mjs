@@ -254,7 +254,7 @@ $('load-samples').onclick=async()=>{
   const copies=normalizeNotes(resources.samples.map(s=>({...s,guid:freshGuid()})),resources.specs);stashUndo();data.notes.push(...copies);changed(true);openNote(copies[0].guid);
 };
 $('flip').onclick=()=>{clearTimeout(previewTimer);back=!back;renderPreview(!back);};$('viewport').onchange=()=>{$('preview').dataset.viewport=$('viewport').value;};
-$('theme').onchange=()=>applyPreviewTheme($('preview'),$('theme').value);$('preview').onload=()=>applyPreviewTheme($('preview'),$('theme').value);
+window.addEventListener('themechange',()=>applyPreviewTheme($('preview')));$('preview').onload=()=>applyPreviewTheme($('preview'));
 function resetImport() {importRevision++;incoming=null;importSource=null;$('apply-import').disabled=true;$('import-status').textContent='';}
 const dialogOpeners = new WeakMap();
 function openDialog(id, opener = document.activeElement) {

@@ -38,6 +38,7 @@ async function checkReturnNavigation(page, base) {
   const links = page.locator('header').getByRole('link');
   for (const colorScheme of ['light', 'dark']) {
     await page.emulateMedia({colorScheme});
+    await page.waitForFunction(scheme => document.documentElement.dataset.theme === scheme, colorScheme);
     for (const width of [1280, 390, 320]) {
       await page.setViewportSize({width, height:844});
       assert.ok(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), 'page overflow');
@@ -51,6 +52,40 @@ async function checkReturnNavigation(page, base) {
   }
   await page.setViewportSize({width:1280, height:900});
   await page.emulateMedia({colorScheme:'light'});
+  await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
+}
+
+async function checkAppearance(browser, base) {
+  const context = await browser.newContext({colorScheme:'light'});
+  const page = await context.newPage();
+  const expectTheme = async (target, mode, theme) => {
+    await target.waitForFunction(({mode,theme}) => document.documentElement.dataset.themeMode === mode && document.documentElement.dataset.theme === theme, {mode,theme});
+    assert.equal(await target.locator('meta[name="theme-color"]').getAttribute('content'), theme === 'dark' ? '#16171b' : '#f6f6f8');
+    assert.equal(await target.locator('html').evaluate(el => getComputedStyle(el).colorScheme), theme);
+  };
+  await page.goto(base);
+  for (const colorScheme of ['dark','light']) {
+    await page.emulateMedia({colorScheme}); await expectTheme(page,'system',colorScheme);
+  }
+  await page.selectOption('#theme','dark'); await page.reload(); await expectTheme(page,'dark','dark');
+  await page.goto(new URL('tools.html',base).href); await page.locator('#app').waitFor();
+  await expectTheme(page,'dark','dark');
+  const tab = await context.newPage(); await tab.goto(new URL('preview.html',base).href);
+  await tab.frameLocator('#preview').locator('.review-choice').first().waitFor();
+  await expectTheme(tab,'dark','dark');
+  const frame = tab.frameLocator('#preview');
+  await frame.locator('input:enabled').first().check();
+  const order = await frame.locator('.review-choice').evaluateAll(rows=>rows.map(row=>row.dataset.key));
+  await tab.emulateMedia({colorScheme:'dark'}); await tab.selectOption('#theme','light');
+  await expectTheme(page,'light','light'); await expectTheme(tab,'light','light');
+  assert.equal(await frame.locator('body').evaluate(el=>getComputedStyle(el).backgroundColor),'rgb(250, 249, 246)');
+  assert.deepEqual(await frame.locator('.review-choice').evaluateAll(rows=>rows.map(row=>row.dataset.key)),order);
+  assert.equal(await frame.locator('input:checked').count(),1);
+  await tab.selectOption('#theme','system'); await expectTheme(tab,'system','dark');
+  await expectTheme(page,'system','light');
+  await tab.emulateMedia({colorScheme:'light'}); await expectTheme(tab,'system','light');
+  assert.equal(await page.evaluate(()=>localStorage.getItem('anki-template-theme')),null);
+  await context.close();
 }
 
 async function check(engine, name, base) {
@@ -83,6 +118,7 @@ async function check(engine, name, base) {
     const backgrounds = [];
     for (const colorScheme of ['light', 'dark']) {
       await page.emulateMedia({colorScheme});
+      await page.waitForFunction(scheme => document.documentElement.dataset.theme === scheme, colorScheme);
       backgrounds.push(await page.locator('body').evaluate(el => getComputedStyle(el).backgroundColor));
       for (const width of [1280, 390, 320]) {
         await page.setViewportSize({width, height:844});
@@ -167,6 +203,7 @@ async function check(engine, name, base) {
     await home.getByRole('navigation', {name:'开始使用'}).getByRole('link', {name:/在线预览/}).click();
     assert.equal(home.url(), new URL('preview.html', base).href, 'home navigation must work without JavaScript');
     await plain.close();
+    await checkAppearance(browser, base);
     console.log(name + ': home navigation, responsive light/dark layout, no-JS entry, Pages project paths, preview, authoring, shared media, ZIP, download, documentation and images passed (' + base + ')');
   } finally {await browser.close();}
 }

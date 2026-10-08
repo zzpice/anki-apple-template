@@ -362,8 +362,10 @@ async function run(browserType, name, base) {
     await page.selectOption('#theme', 'light');
     assert.equal(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
     await page.selectOption('#theme', 'system');
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'dark');
     assert.notEqual(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
     await page.emulateMedia({colorScheme:'light'});
+    await page.waitForFunction(() => document.documentElement.dataset.theme === 'light');
     assert.equal(await frame.locator('body').evaluate(el => getComputedStyle(el).color), light);
     await page.click('#flip');
     await frame.locator('#answer').waitFor();
