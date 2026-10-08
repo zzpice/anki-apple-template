@@ -94,7 +94,7 @@ button {
   color: var(--site-text);
   background: var(--site-surface);
   border: 1px solid var(--site-line-strong);
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   padding: 7px 10px;
   min-height: 36px;
   max-width: 100%;
@@ -134,8 +134,7 @@ button:disabled {
   margin: 14px auto 0;
   max-width: 1144px;
   background: var(--site-soft);
-  border: 1px solid var(--site-line);
-  border-radius: 10px;
+  border-radius: var(--site-radius);
   padding: 24px;
   min-width: 0;
 }
@@ -145,11 +144,10 @@ button:disabled {
   max-width: 100%;
   margin: auto;
   border: 0;
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   min-height: 530px;
   height: calc(100dvh - 320px);
   background: var(--site-surface);
-  box-shadow: 0 4px 18px #00000005;
 }
 body[data-viewport="phone"] #preview {
   width: 390px;
@@ -189,7 +187,7 @@ body[data-viewport="phone"] #preview {
   height: 130px;
   background: var(--site-surface);
   border: 1px solid var(--site-line);
-  border-radius: 6px;
+  border-radius: var(--site-radius);
   padding: 30px 24px;
   display: flex;
   flex-direction: column;
@@ -269,9 +267,6 @@ body[data-viewport="phone"] #preview {
   .preview-stage {
     margin: 6px 0 0;
     padding: 14px;
-    border-inline: 0;
-    border-radius: 10px;
-    background: var(--site-soft);
   }
   #preview {
     min-height: 480px;
@@ -303,7 +298,5 @@ body[data-viewport="phone"] #preview {
   }
   .preview-stage {
     padding: 10px;
-    background: var(--site-soft);
-    border-radius: 10px;
   }
 }

@@ -32,11 +32,6 @@ textarea {
   color: inherit;
   max-width: 100%;
   min-width: 0;
-}
-button,
-input,
-select,
-textarea {
   -webkit-tap-highlight-color: transparent;
 }
 button,
@@ -44,7 +39,7 @@ select,
 input,
 textarea {
   border: 1px solid var(--site-line-strong);
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   background: var(--surface);
   padding: 6px 10px;
 }
@@ -89,7 +84,6 @@ button.primary:not(:disabled) {
   color: var(--site-on-accent);
 }
 button.primary:hover:not(:disabled) {
-  filter: none;
   background: var(--site-accent-hover);
 }
 a {
@@ -293,7 +287,7 @@ main:focus {
   padding: 5px;
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--site-radius);
   box-shadow:
     0 4px 10px #11182712,
     0 16px 40px #1118271a;
@@ -423,7 +417,7 @@ summary::-webkit-details-marker {
   display: flex;
   align-items: start;
   gap: 5px;
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   position: relative;
   padding: 5px 4px;
   margin-bottom: 3px;
@@ -665,7 +659,7 @@ summary::-webkit-details-marker {
 .field-edit {
   min-height: 100px;
   border: 1px solid var(--site-line-strong);
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   padding: 14px;
   font-size: 1rem;
   line-height: 1.85;
@@ -795,7 +789,7 @@ summary {
   color: var(--muted);
 }
 #preview-panel > .toolbar {
-  padding: 12px 14px 6px;
+  padding: 10px 14px 6px;
   gap: 8px;
   margin: 0;
   flex-shrink: 0;
@@ -803,14 +797,14 @@ summary {
 }
 #preview-panel .toolbar label {
   display: flex;
-  flex-direction: column;
-  align-items: start;
-  gap: 5px;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
   font-size: 0.75rem;
   flex: 1;
 }
 #preview-panel .toolbar select {
-  width: 100%;
+  flex: 1;
   font-size: 0.75rem;
   background-color: var(--surface);
   border-color: var(--site-line-strong);
@@ -898,7 +892,7 @@ summary {
   color: var(--accent);
   border: 1px solid var(--line);
   background: var(--paper);
-  border-radius: 9px;
+  border-radius: var(--site-radius);
   width: 50px;
   height: 50px;
   display: grid;
@@ -945,12 +939,19 @@ dialog {
   background: var(--surface);
   color: var(--ink);
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--site-radius-dialog);
   padding: 24px;
   width: 720px;
   max-width: calc(100vw - 24px);
   max-height: 90dvh;
   overscroll-behavior: contain;
+}
+dialog[open] {
+  animation: dialog-enter 0.12s ease-out;
+}
+@keyframes dialog-enter {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 dialog::backdrop {
   background: var(--site-overlay);
@@ -1039,7 +1040,7 @@ pre {
   font-size: 0.75rem;
   background: var(--paper);
   padding: 14px;
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   line-height: 1.9;
 }
 #notice {
@@ -1052,7 +1053,7 @@ pre {
   width: max-content;
   background: var(--ink);
   color: var(--surface);
-  border-radius: 6px;
+  border-radius: var(--site-radius);
   padding: 10px 16px;
   margin: 0;
   box-shadow: 0 6px 20px #0002;
@@ -1141,7 +1142,6 @@ pre {
   .field-edit {
     padding: 12px;
     font-size: 1rem;
-    border: 1px solid var(--site-line-strong);
   }
   .editor-heading {
     padding: 13px 18px;
@@ -1184,7 +1184,7 @@ pre {
     padding: 3px;
     background: var(--paper);
     border: 1px solid var(--line);
-    border-radius: 5px;
+    border-radius: var(--site-radius-sm);
   }
   .tool-view-nav button {
     background: transparent;
@@ -1346,7 +1346,7 @@ pre {
     font-size: 0.875rem;
     min-height: 44px;
     padding: 6px 10px;
-    border-radius: 5px;
+    border-radius: var(--site-radius-sm);
   }
   .tool-view-nav button[data-tool-view="notes"] {
     display: block;

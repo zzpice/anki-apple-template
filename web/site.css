@@ -7,6 +7,7 @@
     "Microsoft YaHei", sans-serif;
   --site-radius-sm: 5px;
   --site-radius: 8px;
+  --site-radius-dialog: 10px;
   --site-bg: #f6f6f8;
   --site-surface: #fff;
   --site-soft: #eff0f4;
@@ -114,8 +115,8 @@
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation: none !important;
+    transition: none !important;
   }
 }
 
@@ -125,7 +126,7 @@ select[data-site-theme] {
   color: var(--site-text);
   background-color: var(--site-surface);
   border: 1px solid var(--site-line-strong);
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   min-height: 44px;
   max-width: 120px;
   padding: 6px 28px 6px 10px;

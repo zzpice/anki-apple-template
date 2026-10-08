@@ -84,15 +84,15 @@ p {
 .hero-actions .primary-link {
   background: var(--site-accent-solid);
   color: var(--site-on-accent);
-  border-radius: 5px;
+  border-radius: var(--site-radius-sm);
   padding: 11px 18px;
   display: inline-flex;
   gap: 25px;
   align-items: center;
   font-size: 0.875rem;
+  transition: background-color 0.14s;
 }
 .hero-actions .primary-link:hover {
-  filter: none;
   background: var(--site-accent-hover);
 }
 .hero-hint {
@@ -105,12 +105,13 @@ p {
   padding: 26px 30px;
   background: var(--site-surface);
   border: 1px solid var(--site-line);
-  border-radius: 9px;
+  border-radius: var(--site-radius);
   box-shadow:
     0 2px 5px #2023360a,
     0 14px 34px #20233609;
   transform: rotate(2deg);
   color: var(--site-text);
+  transition: border-color 0.14s;
 }
 .sample-card:hover {
   color: var(--site-text);
@@ -206,9 +207,10 @@ p {
 .entry {
   display: block;
   border: 1px solid var(--site-line);
-  border-radius: 7px;
+  border-radius: var(--site-radius);
   padding: 20px;
   background: var(--site-surface);
+  transition: border-color 0.14s;
 }
 .entry:hover {
   border-color: var(--site-accent);
@@ -421,10 +423,5 @@ footer a {
   footer {
     gap: 16px;
     font-size: 0.75rem;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
   }
 }
