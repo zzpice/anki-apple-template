@@ -1,4 +1,4 @@
-# 网页制卡
+# Anki 网页制卡说明
 
 [项目首页](https://zzpice.github.io/anki-template/) · [打开制卡工具](https://zzpice.github.io/anki-template/tools.html) · [项目示例预览](https://zzpice.github.io/anki-template/preview.html) · [模板使用与字段教学](usage.md#填写卡片)
 

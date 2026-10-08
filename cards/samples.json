@@ -10,7 +10,7 @@
       "解析": "<ul><li><code>domain: www.example.cn</code> 只匹配这个完整域名。</li><li><code>domain_suffix: example.cn</code> 同时覆盖 <code>example.cn</code> 和 <code>www.example.cn</code> 等子域名。</li></ul>",
       "补充": "<p>如果只需要覆盖一个完整域名，使用 <code>domain</code>；需要连同子域名一起覆盖时，使用 <code>domain_suffix</code>。</p><table><tr><th>规则</th><th>example.cn</th><th>www.example.cn</th></tr><tr><td>domain: www.example.cn</td><td>不匹配</td><td>匹配</td></tr><tr><td>domain_suffix: example.cn</td><td>匹配</td><td>匹配</td></tr></table>",
       "章节": "sing-box · 域名匹配",
-      "来源": "<a href=\"https://github.com/zzpice/sing-box-rules#如何添加域名\">sing-box-rules · 域名规则</a>"
+      "来源": "<a href=\"https://github.com/zzpice/sing-box-rules#如何添加域名\">sing-box 例外分流 · 域名规则</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -22,14 +22,14 @@
     "label": "单选",
     "type": "choice",
     "fields": {
-      "问题": "sing-box-adblock 中，域名被误拦截时应修改哪个文件？",
+      "问题": "sing-box 广告过滤中，域名被误拦截时应修改哪个文件？",
       "答案": "C",
       "选项": "adblock.srs||upstream-revision.txt||allowlist.txt||README.md",
       "题型": "单选",
       "解析": "在 <code>allowlist.txt</code> 中每行填写一个域名，推送后由 GitHub Actions 重新生成规则。",
       "补充": "<p>白名单也放行该域名的子域名；空行和以 <code>#</code> 开头的注释会被忽略。</p>",
       "章节": "sing-box · 广告过滤",
-      "来源": "<a href=\"https://github.com/zzpice/sing-box-adblock#白名单\">sing-box-adblock · 白名单</a>"
+      "来源": "<a href=\"https://github.com/zzpice/sing-box-adblock#白名单\">sing-box 广告过滤 · 白名单</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -48,7 +48,7 @@
       "解析": "<ul><li>时间和 CA 配置用于校验 HTTPS 下载来源。</li><li>Adlist 条目保存在 DNS 缓存中，需要足够空间。</li><li>证书校验应保持开启，临时排障后也应恢复。</li></ul>",
       "补充": "<p>导入后运行 <code>/ip/dns/adlist/print</code>，查看 <code>name-count</code> 是否显示已加载的域名数量。</p>",
       "章节": "RouterOS · DNS Adlist",
-      "来源": "<a href=\"https://github.com/zzpice/routeros-adlist#快速使用\">routeros-adlist · 导入与检查</a>"
+      "来源": "<a href=\"https://github.com/zzpice/routeros-adlist#快速使用\">RouterOS Adlist · 导入与检查</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -60,14 +60,14 @@
     "label": "判断",
     "type": "choice",
     "fields": {
-      "问题": "assets 离线时，仍可下载尚未缓存的原图。",
+      "问题": "图片资源库离线时，仍可下载尚未缓存的原图。",
       "答案": "B",
       "选项": "正确||错误",
       "题型": "判断",
       "解析": "离线时可以浏览已经缓存的预览和图标，下载原图需要联网。",
       "补充": "",
       "章节": "静态资源 · 离线使用",
-      "来源": "<a href=\"https://github.com/zzpice/assets#使用\">assets · 离线范围</a>"
+      "来源": "<a href=\"https://github.com/zzpice/assets#使用\">图片资源库 · 离线范围</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -99,7 +99,7 @@
       "解析": "<p><strong>源码由人维护，SRS 由工作流生成。</strong></p><table><tr><th>文件</th><th>格式</th><th>用途</th><th>维护方式</th></tr><tr><td>proxy.json</td><td>JSON 源码</td><td>强制代理</td><td>手动编辑</td></tr><tr><td>direct.json</td><td>JSON 源码</td><td>强制直连</td><td>手动编辑</td></tr><tr><td>proxy.srs</td><td>SRS 二进制</td><td>强制代理</td><td>Actions 编译</td></tr><tr><td>direct.srs</td><td>SRS 二进制</td><td>强制直连</td><td>Actions 编译</td></tr></table><p>例如，在源码中添加域名及其子域名：</p><pre><code>{\n  \"version\": 5,\n  \"rules\": [{\"domain_suffix\": [\"example.cn\"]}]\n}</code></pre>",
       "补充": "",
       "章节": "sing-box · 规则生成",
-      "来源": "<a href=\"https://github.com/zzpice/sing-box-rules#自动编译\">sing-box-rules · 源码与编译</a>"
+      "来源": "<a href=\"https://github.com/zzpice/sing-box-rules#自动编译\">sing-box 例外分流 · 源码与编译</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -115,7 +115,7 @@
       "解析": "新增资金为正，取出资金为负；组合内部转换不改变总额。",
       "补充": "<p>例如，当前总额为 100，新增 10，调整后总额就是 110。</p>",
       "章节": "再平衡 · 资金守恒",
-      "来源": "<a href=\"https://github.com/zzpice/zp-folio#规则\">zp-folio · 资金守恒</a>"
+      "来源": "<a href=\"https://github.com/zzpice/fund-rebalance#规则\">基金再平衡 · 资金守恒</a>"
     },
     "tags": [
       "Anki模板::示例"
@@ -130,7 +130,7 @@
       "Occlusion": "{{c1::image-occlusion:rect:left=.10:top=.42:width=.18:height=.16:oi=1}}<br>{{c2::image-occlusion:rect:left=.72:top=.42:width=.18:height=.16:oi=1}}",
       "Image": "<img src=\"_rule-build.svg\">",
       "Header": "回忆图中被遮住的输入与输出。",
-      "Back Extra": "<p>JSON 源码 → Actions 编译 → SRS 规则集。</p><p>手动修改 <code>proxy.json</code> 或 <code>direct.json</code>，推送后由工作流生成对应的 <code>.srs</code> 文件。</p><p><a href=\"https://github.com/zzpice/sing-box-rules#自动编译\">sing-box-rules · 规则生成</a></p>",
+      "Back Extra": "<p>JSON 源码 → Actions 编译 → SRS 规则集。</p><p>手动修改 <code>proxy.json</code> 或 <code>direct.json</code>，推送后由工作流生成对应的 <code>.srs</code> 文件。</p><p><a href=\"https://github.com/zzpice/sing-box-rules#自动编译\">sing-box 例外分流 · 规则生成</a></p>",
       "Comments": "<p>JSON 是维护入口，SRS 是编译结果。生成文件不直接编辑。</p>"
     },
     "tags": [

@@ -1,6 +1,6 @@
-# 维护说明
+# Anki 模板维护说明
 
-[项目首页](https://zzpice.github.io/anki-template/) 提供统一入口；项目概览见 [README](../README.md)，日常安装与字段教学见 [Anki 使用说明](usage.md)，网页制卡与数据交换见 [AUTHORING](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
+[项目首页](https://zzpice.github.io/anki-template/) 提供使用入口；项目概览见 [README](../README.md)，日常安装与字段教学见 [Anki 使用说明](usage.md)，网页制卡与数据交换见 [网页制卡说明](authoring.md)，提交约定见 [AGENTS](../AGENTS.md)。本页说明源码、生成、验证与发布。
 
 ## 仓库结构
 
@@ -10,7 +10,6 @@
 anki-template/
 ├── README.md / AGENTS.md / LICENSE       项目说明、协作约定、许可
 ├── index.html / preview.html / tools.html 公开网页入口
-├── AUTHORING.md                          旧制卡说明链接的兼容入口
 ├── cards/                               卡片源码与配套示例
 │   ├── note-types.json / samples.json
 │   ├── style.css
@@ -64,7 +63,6 @@ Python 测试在临时目录重建包并核对语义；`ANKI_RENDER_OUTPUT=build
 ### 公开路径与兼容边界
 
 - Pages 根 URL、`index.html`、`preview.html`、`tools.html`、`downloads/anki-template.apkg` 保持原位置。HTML 仍是实际页面，避免新增转跳改变浏览行为；制卡页面地址、站点与存储名称不变，已有 IndexedDB 草稿继续使用。
-- 根 `AUTHORING.md` 是旧 ZIP「导入说明.txt」中 GitHub 链接的简短入口，并保留 `#生成-apkg`；正文只在 `docs/authoring.md` 维护。新网页与新 ZIP 直接链接正文。
 - 站内 JSON、CSS、JS、模板、媒体与文档图片属于随项目同步的资源路径，迁移后全部消费方一起更新，不为旧内部位置保留副本或代理。`DEVELOPMENT.md` 的旧 GitHub 文件路径也不保留兼容文件。
 - Anki 包内媒体文件名、规格内模板相对路径、类型 / 字段 / 模板 ID、示例 GUID 和交换格式均不改变。
 
@@ -155,7 +153,7 @@ python3 -m http.server 8000
 
 视口选项在自适应宽度与 390px 手机宽度之间切换，小屏仍限制在页面宽度内。切换只改变同一个 iframe 的宽度，不重新渲染卡片，当前选择和正反面保持不变。浏览器检查覆盖桌面及 320、360、375、390、430px 手机宽度。
 
-GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.yml` 的两个 Anki 版本都通过后，发布入口 HTML、README / AUTHORING / LICENSE、`web/`、`cards/`、`downloads/` 与 `docs/`；保留 `.nojekyll`。CI 在基准 Anki 版本组装 `build/pages`，用 `SITE_ROOT=build/pages node tests/test_site.cjs` 验证实际发布目录，避免只测源码而漏发布文件。发布目录不包含测试数据、构包脚本和开发依赖。失败保留上次成功页面；撤销问题提交并重新运行检查和部署即可恢复。安装包仍由生成命令维护，部署不会自动重建二进制或提交文件。
+GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.yml` 的两个 Anki 版本都通过后，发布入口 HTML、README / LICENSE、`web/`、`cards/`、`downloads/` 与 `docs/`；保留 `.nojekyll`。CI 在基准 Anki 版本组装 `build/pages`，用 `SITE_ROOT=build/pages node tests/test_site.cjs` 验证实际发布目录，避免只测源码而漏发布文件。发布目录不包含测试数据、构包脚本和开发依赖。失败保留上次成功页面；撤销问题提交并重新运行检查和部署即可恢复。安装包仍由生成命令维护，部署不会自动重建二进制或提交文件。
 
 发布模板或示例改动时，一起提交源码、重新生成的 `downloads/anki-template.apkg` 和 `web/preview-cards.json`，有外观变化再附带截图。推送后分别确认 Template Check 和 Pages 部署成功，并打开在线预览、制卡工具及下载链接检查；当前发布不依赖 GitHub Release 或额外前端打包步骤。
 
@@ -179,7 +177,7 @@ GitHub Pages 使用「GitHub Actions」作为来源。`.github/workflows/check.y
 
 `preview.mjs` 对字段做静态视图清理，问答 / 选择替换原模板字段并加载原 `_review.js`；Cloze / 遮挡 / 导图只显示字段，不另写原生答案渲染器。原字段仅在编辑时变化，HTML 与富文本之间切换不丢原文。检查规则不判断知识正确性。新增类型或字段应改公共规格并同步规则、文档和测试，不新建网页专属映射。
 
-工作空间 `format=anki-template-workspace, version=1` 包含 `deck / notes / media`。笔记 `type` 使用公共规格 key，`fields` 按公共规格同名并规范化排序，`tags` 为原生数组；GUID 创建后保持不变，复制另建身份。媒体用内容 SHA-256 前 32 个十六进制字符命名，base64 保留在 JSON，字段只引用平铺文件名。安全检查拒绝活动 HTML、远程图片、媒体路径及哈希冲突。受支持媒体格式和大小限制见 [AUTHORING](authoring.md#保存与备份)。项目自带的 `_rule-build.svg` 由公共媒体提供，不属于用户图片上传格式。
+工作空间 `format=anki-template-workspace, version=1` 包含 `deck / notes / media`。笔记 `type` 使用公共规格 key，`fields` 按公共规格同名并规范化排序，`tags` 为原生数组；GUID 创建后保持不变，复制另建身份。媒体用内容 SHA-256 前 32 个十六进制字符命名，base64 保留在 JSON，字段只引用平铺文件名。安全检查拒绝活动 HTML、远程图片、媒体路径及哈希冲突。受支持媒体格式和大小限制见 [网页制卡说明](authoring.md#保存与备份)。项目自带的 `_rule-build.svg` 由公共媒体提供，不属于用户图片上传格式。
 
 `--input` 复用 `build_package.py` 的模型、临时集合、媒体和官方导出路径；`scripts/authoring.py` 独立校验网页 JSON。自制笔记不能覆盖公共下载、预览或输入备份；默认无参数构包行为不变。原生遮挡保留 stock 标记与字段 tag，原生 Cloze 分卡完全由后端生成。包内笔记时间戳与构包时间一致，用于相同 GUID 更新；测试用明确时间戳，正常构包用当前秒。
 

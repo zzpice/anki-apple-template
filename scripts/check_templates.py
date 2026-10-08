@@ -91,7 +91,7 @@ def check():
     assert 'note-types.json' in (ROOT / "web/tools/app.mjs").read_text()
     for path in (ROOT / "web/tools").glob("*.mjs"):
         subprocess.run(["node", "--check", str(path)], check=True)
-    for file in ("AUTHORING.md", "docs/authoring.md", "tools.html", "web/tools/style.css", "web/preview-cards.json"):
+    for file in ("docs/authoring.md", "tools.html", "web/tools/style.css", "web/preview-cards.json"):
         assert (ROOT / file).is_file(), file
     css = (CARDS / "style.css").read_text()
     assert "@import" not in css and "url(" not in css

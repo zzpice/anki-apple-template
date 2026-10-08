@@ -162,7 +162,7 @@ async function check(engine, name, base) {
       await frame.locator('#answer').waitFor();
     }
     for (const file of ['index.html', 'preview.html', 'tools.html', 'README.md',
-      'docs/usage.md', 'docs/authoring.md', 'docs/development.md', 'AUTHORING.md', 'LICENSE',
+      'docs/usage.md', 'docs/authoring.md', 'docs/development.md', 'LICENSE',
       'cards/note-types.json', 'cards/samples.json', 'cards/style.css',
       'cards/media/_review.js', 'cards/media/_mindmap.js', 'cards/media/_rule-build.svg',
       'web/preview-cards.json', 'downloads/anki-template.apkg',

@@ -1,4 +1,4 @@
-name: Template Check and deploy
+name: Check and deploy Anki templates
 
 on: [push, pull_request, workflow_dispatch]
 
@@ -46,7 +46,7 @@ jobs:
         if: matrix.anki-version == '25.9.2'
         run: |
           mkdir -p build/pages
-          cp -R index.html preview.html tools.html README.md AUTHORING.md LICENSE .nojekyll web cards downloads docs build/pages/
+          cp -R index.html preview.html tools.html README.md LICENSE .nojekyll web cards downloads docs build/pages/
       - name: Check the public site artifact
         if: matrix.anki-version == '25.9.2'
         run: SITE_ROOT=build/pages node tests/test_site.cjs

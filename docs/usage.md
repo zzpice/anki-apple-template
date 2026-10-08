@@ -25,7 +25,7 @@
 单选：`题型` 留空或填 `单选`。
 
 ```text
-问题：sing-box-adblock 中，域名被误拦截时应修改哪个文件？
+问题：sing-box 广告过滤中，域名被误拦截时应修改哪个文件？
 选项：adblock.srs||upstream-revision.txt||allowlist.txt||README.md
 答案：C
 题型：单选
@@ -43,7 +43,7 @@
 判断：`题型` 填 `判断`，使用 `正确||错误`，答案为 `A` 或 `B`。
 
 ```text
-问题：assets 离线时，仍可下载尚未缓存的原图。
+问题：图片资源库离线时，仍可下载尚未缓存的原图。
 选项：正确||错误
 答案：B
 题型：判断
@@ -151,7 +151,7 @@
 
 </details>
 
-问答、选择、填空和遮挡示例来自 [sing-box-rules](https://github.com/zzpice/sing-box-rules)、[sing-box-adblock](https://github.com/zzpice/sing-box-adblock)、[routeros-adlist](https://github.com/zzpice/routeros-adlist)、[assets](https://github.com/zzpice/assets)、[zashboard-config](https://github.com/zzpice/zashboard-config) 和 [zp-folio](https://github.com/zzpice/zp-folio) 的公开说明。思维导图使用通用格式示例。安装包、在线预览和本页截图使用同一批示例；截图展示某一次卡片状态，选择题的随机顺序可能不同。
+问答、选择、填空和遮挡示例来自 [sing-box 例外分流](https://github.com/zzpice/sing-box-rules)、[sing-box 广告过滤](https://github.com/zzpice/sing-box-adblock)、[RouterOS Adlist](https://github.com/zzpice/routeros-adlist)、[图片资源库](https://github.com/zzpice/assets)、[Zashboard 界面设置](https://github.com/zzpice/zashboard-config) 和 [基金再平衡](https://github.com/zzpice/fund-rebalance) 的公开说明。思维导图使用通用格式示例。安装包、在线预览和本页截图使用同一批示例；截图展示某一次卡片状态，选择题的随机顺序可能不同。
 
 ## 在 Anki 导出与备份
 
