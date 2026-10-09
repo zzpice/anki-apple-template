@@ -29,6 +29,18 @@ test('merge uses GUID, protects type and media, duplicates get a new identity',a
   const a=newNote(specs[0]),b=newNote(specs[0]);assert.notEqual(a.guid,b.guid);
   assert.throws(()=>normalizeNotes([a,a],specs));
 });
+
+test('delimited import preserves trailing empty columns and field whitespace',()=>{
+  for (const delimiter of ['\t', ',']) {
+    const text = ['问题','答案','解析'].join(delimiter)+'\r\n'+['  问题  ','  答案  ',''].join(delimiter);
+    const note = importText(text,specs,'basic',delimiter).notes[0];
+    assert.equal(note.fields.问题,'  问题  ');
+    assert.equal(note.fields.答案,'  答案  ');
+    assert.equal(note.fields.解析,'');
+    const last = importText('问题'+delimiter+'答案\n问题'+delimiter+'答案  ',specs,'basic',delimiter).notes[0];
+    assert.equal(last.fields.答案,'答案  ');
+  }
+});
 test('choice correctness is tied to source letters and supports 26 options',()=>{
   const spec=specs.find(s=>s.key==='choice'),note=newNote(spec);Object.assign(note.fields,{问题:'题干',答案:'AZ',选项:Array.from({length:26},(_,i)=>'选项'+i).join('||'),题型:'多选'});
   assert.deepEqual(validateNote(note,spec),[]);note.fields.题型='单选';assert.ok(validateNote(note,spec).length);note.fields.答案='A';assert.deepEqual(validateNote(note,spec),[]);note.fields.答案='AA';assert.ok(validateNote(note,spec).length);

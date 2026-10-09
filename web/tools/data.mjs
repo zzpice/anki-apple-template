@@ -93,11 +93,12 @@ export function ankiTSV(notes, spec, deck) {
 }
 export function importText(text, specs, type, delimiter = '\t') {
   if (new TextEncoder().encode(text).length > MAX_BYTES) throw new Error('文件超过 40 MiB');
-  text = text.trim().replace(/^\uFEFF/, '');
-  const fenced = /^```(?:json)?\s*\n([\s\S]*?)\n```$/.exec(text);
-  if (fenced) text = fenced[1];
-  if (/^[\[{]/.test(text)) {
-    let data; try { data = JSON.parse(text); } catch { throw new Error('JSON 格式不正确，请检查引号和括号'); }
+  // Delimited fields may end in spaces or empty columns; trim only JSON wrappers.
+  text = text.replace(/^\uFEFF/, '');
+  const fenced = /^```(?:json)?\s*\n([\s\S]*?)\n```$/.exec(text.trim());
+  const jsonText = fenced ? fenced[1] : text.trim();
+  if (/^[\[{]/.test(jsonText)) {
+    let data; try { data = JSON.parse(jsonText); } catch { throw new Error('JSON 格式不正确，请检查引号和括号'); }
     if (Array.isArray(data)) return {...workspace(), notes:normalizeNotes(data, specs)};
     return normalizeWorkspace(data, specs, true);
   }

@@ -1,6 +1,10 @@
 name: Check and deploy Anki templates
 
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -25,10 +29,10 @@ jobs:
         with:
           node-version: '22'
       - name: Check fields, media and JavaScript
+        if: matrix.anki-version == '25.9.2'
         run: python scripts/check_templates.py
       - name: Install build and test tools
         run: |
-          python -m pip install -r scripts/requirements-build.txt
           python -m pip install "anki==${{ matrix.anki-version }}"
           python -m pip install --no-deps "aqt==${{ matrix.anki-version }}"
           npm install --no-save --package-lock=false playwright@1.62.1
@@ -37,9 +41,11 @@ jobs:
         env:
           ANKI_RENDER_OUTPUT: build/cards.json
         run: python -m unittest discover -s tests -v
+      - name: Check shared authoring data
+        if: matrix.anki-version == '25.9.2'
+        run: node --test tests/test_tools.mjs
       - name: Check browser layout, interactions and native occlusion
         run: |
-          node --test tests/test_tools.mjs
           node tests/test_tools_browser.cjs
           node tests/test_browser.cjs
       - name: Assemble public site

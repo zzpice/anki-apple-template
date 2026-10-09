@@ -36,7 +36,8 @@ class PackageTests(unittest.TestCase):
 
     def check_collection(self, collection):
         self.assertEqual(collection.note_count(), len(package.samples()))
-        self.assertEqual(len(collection.find_cards("")), 14)
+        preview = json.loads((package.ROOT / "web/preview-cards.json").read_text())
+        self.assertEqual(len(collection.find_cards("")), sum(len(example["cards"]) for example in preview))
         self.assertEqual([s["name"] for s in package.specifications()], ["问答", "选择", "填空", "图片遮挡", "思维导图"])
         self.assertIsNotNone(collection.decks.id_for_name(package.DECK_NAME))
         for spec in package.specifications():

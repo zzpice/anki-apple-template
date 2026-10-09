@@ -1,5 +1,5 @@
 /* Copyright (c) 2026 zzpice. MIT License. */
-import {workspace, newNote, freshGuid, escapeHTML, textOnly, tagsFrom, normalizeWorkspace, normalizeNotes, importText, mergeWorkspace, validateNote, clozeNumbers, rectangles, rectangleHTML, ankiTSV, mediaBytes, checkMedia, verifyMediaNames, MIME, MAX_BYTES, MAX_NOTES, promptFor} from './data.mjs';
+import {workspace, newNote, freshGuid, escapeHTML, textOnly, tagsFrom, normalizeWorkspace, normalizeNotes, importText, mergeWorkspace, validateNote, clozeNumbers, rectangles, rectangleHTML, ankiTSV, mediaBytes, checkMedia, verifyMediaNames, MIME, MAX_BYTES, MAX_NOTES, promptFor} from './data.mjs?v=20261009import';
 import {openWorkspaceStore} from './storage.mjs';
 import {zipFiles} from './zip.mjs';
 import {safeHTML, makePreview, applyPreviewTheme} from './preview.mjs?v=20261008theme';
